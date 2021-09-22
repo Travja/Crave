@@ -1,0 +1,17 @@
+{
+  "name": "web",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "svelte-kit dev",
+    "build": "svelte-kit build",
+    "preview": "svelte-kit preview"
+  },
+  "devDependencies": {
+    "@sveltejs/kit": "next",
+    "svelte": "^3.42.6"
+  },
+  "type": "module",
+  "dependencies": {
+    "@sveltejs/adapter-static": "^1.0.0-next.7"
+  }
+}
