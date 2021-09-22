@@ -5,4 +5,4 @@ build/
 package-lock.json
 /package
 *.iml
-gh-pages.js
+#gh-pages.js
