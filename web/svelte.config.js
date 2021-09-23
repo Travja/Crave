@@ -10,7 +10,6 @@ const getAdapters = (adapt) => {
 	console.log("Adapter: " + adapt);
 	switch (adapt) {
 		case 'node':
-			console.log("Found node");
 			return nodeAdapter;
 		case 'static':
 			return staticAdapter;
@@ -22,7 +21,6 @@ const getAdapters = (adapt) => {
 };
 
 const adapter = getAdapters(adapt);
-console.log(adapter);
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
@@ -39,7 +37,6 @@ const config = {
 };
 
 if (hasAdapter) {
-	console.log("We have an adapter");
 	config.kit.adapter = adapter(options);
 }
 

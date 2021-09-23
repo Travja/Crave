@@ -3,11 +3,11 @@
 <!--</script>-->
 
 <script>
-
+    let title = "Page 2";
 </script>
 
 <svelte:head>
-    <title>Travja - Home</title>
+    <title>Travja - {title}</title>
 </svelte:head>
 
 <section>

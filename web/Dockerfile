@@ -4,8 +4,6 @@ FROM node:16
 
 WORKDIR /usr/node
 
-COPY build/ ./
+COPY . .
 
-RUN npm i
-
-CMD ["node", "index.js"]
+CMD ["./startup.sh"]

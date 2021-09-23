@@ -3,7 +3,7 @@
 <!--</script>-->
 
 <script>
-
+import {variables} from "$lib/variables";
 </script>
 
 <svelte:head>
@@ -14,6 +14,7 @@
     <h1>Welcome to Crave!</h1>
     <img class="construction" src="/construction.svg"/>
     <p>This site is still under construction.</p>
+    <div>Gateway: {variables.gateway}</div>
 </section>
 
 <style>

@@ -10,6 +10,8 @@ let hostname = process.env["HOSTNAME"] || "localhost";
 let registryHost = process.env["REGISTRY_HOST"] || "localhost";
 let port = process.env["SERVER_PORT"] || !path && 3e3;
 
+let gateway = process.env["GATEWAY"] || "localhost";
+
 console.log(host + " -- " + hostname);
 
 let ipAddr = '127.0.0.1';
