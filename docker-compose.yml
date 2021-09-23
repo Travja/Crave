@@ -54,7 +54,7 @@ services:
       - eureka-server
     restart: always
     ports:
-      - 8070:8080
+      - 80:8080
     expose:
       - 8080
     environment:
@@ -71,8 +71,8 @@ services:
       - crave-mysql
       - eureka-server
     restart: always
-    ports:
-      - 8082:8080
+#    ports:
+#      - 8082:8080
     expose:
       - 8080
     env_file:
@@ -87,11 +87,12 @@ services:
       - APP_NAME=item-service
     networks:
       - crave
+    scale: 2
 
   web-server:
     build:
       context: ./web
-    container_name: web-server
+#    container_name: web-server
     depends_on:
       - crave-mysql
       - item-service
@@ -105,12 +106,13 @@ services:
       - SERVER_PORT=3000
       - APP_NAME=web-server
       - ADAPTER=custom
-    ports:
-      - 3000:3000
+#    ports:
+#      - 3000:3000
     expose:
       - 3000
     networks:
       - crave
+    scale: 2
 
 networks:
   crave:
