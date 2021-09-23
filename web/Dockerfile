@@ -1,15 +1,9 @@
 FROM node:16
 
+ENV ADAPTER=custom
+
 WORKDIR /usr/node
 
-COPY build/ ./
+COPY . .
 
-#COPY package.json ./
-
-RUN npm i
-
-#COPY . .
-
-#CMD ["npm", "run", "preview", "--host", "0.0.0.0"]
-
-CMD ["node", "index.js"]
+CMD ["./startup.sh"]

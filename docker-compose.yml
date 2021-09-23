@@ -104,6 +104,7 @@ services:
       - REGISTRY_HOST=eureka-server
       - SERVER_PORT=3000
       - APP_NAME=web-server
+      - ADAPTER=custom
     ports:
       - 3000:3000
     expose:

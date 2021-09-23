@@ -46,7 +46,7 @@ for (const net in results) {
 
 const eureka = new Eureka.Eureka({
     instance: {
-        app: 'web-server',
+        app: appName,
         hostName: hostname,
         ipAddr: ipAddr,
         statusPageUrl: `http://${hostname}:${port}`,
@@ -54,7 +54,7 @@ const eureka = new Eureka.Eureka({
             '$': port,
             '@enabled': 'true',
         },
-        vipAddress: 'web-server',
+        vipAddress: appName,
         dataCenterInfo: {
             '@class': 'com.netflix.appinfo.InstanceInfo$DefaultDataCenterInfo',
             name: 'MyOwn',
@@ -70,7 +70,7 @@ const eureka = new Eureka.Eureka({
 });
 eureka.logger.level('debug');
 eureka.start(function (error) {
-    console.log(error || 'Regiestered with Eureka');
+    console.log(error || 'Registered with Eureka');
 });
 
 // ------------------ Server Config --------------------------------------------
