@@ -1,0 +1,116 @@
+version: '3.9'
+
+services:
+  crave-mysql:
+    image: mysql
+    container_name: crave-mysql
+    cap_add:
+      - SYS_NICE  # CAP_SYS_NICE
+    ports:
+      - 3307:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: test
+      MYSQL_DATABASE: crave
+      MYSQL_USER: Travja
+      MYSQL_PASSWORD: test
+    volumes:
+      - ./.data/mysql:/var/lib/mysql
+    networks:
+      - crave
+
+#  crave-mongo:
+#    image: mongo
+#    restart: always
+#    container_name: crave-mongo
+#    environment:
+#      - MONGO_INITDB_ROOT_USERNAME=Travja
+#      - MONGO_INITDB_ROOT_PASSWORD=test
+#      - MONGO_INITDB_DATABASE=crave
+#    volumes:
+#      - ./data/mongo:/data/db
+#    ports:
+#      - 27018:27017
+#    expose:
+#      - 27018
+#    networks:
+#      - crave
+
+  eureka-server:
+    container_name: eureka-server
+    build:
+      context: ./services/eureka-server
+    ports:
+      - 8761:8761
+    expose:
+      - 8761
+    networks:
+      - crave
+
+  cloud-gateway:
+    build:
+      context: ./services/cloud-gateway
+    container_name: cloud-gateway
+    depends_on:
+      - eureka-server
+    restart: always
+    ports:
+      - 8070:8080
+    expose:
+      - 8080
+    environment:
+      - SERVER_PORT=8080
+      - REGISTRY_HOST=eureka-server
+      - APP_NAME=gateway-service
+    networks:
+      - crave
+
+  item-service:
+    build:
+      context: ./services/item-service
+    depends_on:
+      - crave-mysql
+      - eureka-server
+    restart: always
+    ports:
+      - 8082:8080
+    expose:
+      - 8080
+    env_file:
+      - .env
+    environment:
+      - DATABASE_HOST=crave-mysql
+      - DATABASE_NAME=crave
+      - DATABASE_USERNAME=Travja
+      - DATABASE_PASSWORD=test
+      - SERVER_PORT=8080
+      - REGISTRY_HOST=eureka-server
+      - APP_NAME=item-service
+    networks:
+      - crave
+
+  web-server:
+    build:
+      context: ./web
+    container_name: web-server
+    depends_on:
+      - crave-mysql
+      - item-service
+      - cloud-gateway
+      - eureka-server
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - REGISTRY_HOST=eureka-server
+      - SERVER_PORT=3000
+      - APP_NAME=web-server
+    ports:
+      - 3000:3000
+    expose:
+      - 3000
+    networks:
+      - crave
+
+networks:
+  crave:
+    name: Crave Network

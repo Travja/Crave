@@ -1,0 +1,12 @@
+{
+  "name": "web",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "npm i && node index.js"
+  },
+  "type": "module",
+  "dependencies": {
+    "eureka-js-client": "^4.5.0",
+    "express": "^4.17.1"
+  }
+}
