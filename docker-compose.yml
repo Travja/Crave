@@ -1,5 +1,24 @@
 version: '3.9'
 
+# Some basic configuration here,
+# when deployed, REGISTRY_HOST should point to
+# the Eureka registry service.
+# The database env variables are straight forward.
+#
+# Since the front-end is pre-compiled, not compiled at
+# runtime due to possible load-balancing issues, the
+# image should be built with appropriate .env
+# configuration as described below. If being deployed
+# from this file, no modification should be necessary.
+#
+#
+# IT IS IMPORTANT TO NOTE:
+# This configuration is designed to be run all contained
+# on a single machine. (executed by the docker.sh script)
+# Any modification to this process goes beyond the
+# scope of this file and care must be taken
+# appropriately.
+
 services:
   crave-mysql:
     image: mysql
@@ -17,23 +36,6 @@ services:
       - ./.data/mysql:/var/lib/mysql
     networks:
       - crave
-
-#  crave-mongo:
-#    image: mongo
-#    restart: always
-#    container_name: crave-mongo
-#    environment:
-#      - MONGO_INITDB_ROOT_USERNAME=Travja
-#      - MONGO_INITDB_ROOT_PASSWORD=test
-#      - MONGO_INITDB_DATABASE=crave
-#    volumes:
-#      - ./data/mongo:/data/db
-#    ports:
-#      - 27018:27017
-#    expose:
-#      - 27018
-#    networks:
-#      - crave
 
   eureka-server:
     container_name: eureka-server
@@ -71,8 +73,8 @@ services:
       - crave-mysql
       - eureka-server
     restart: always
-#    ports:
-#      - 8082:8080
+    ports:
+      - 8082:8080
     expose:
       - 8080
     env_file:
@@ -87,8 +89,20 @@ services:
       - APP_NAME=item-service
     networks:
       - crave
-    scale: 2
+#    scale: 2
 
+# To set the gateway location used by the front-end,
+# create a .env file in the base dir
+# and include 'VITE_GATEWAY=uri'.
+# The gateway will default to window.location.origin
+# if not included.
+# This would enable the front-end to run independent
+# of the rest of the docker network, but still
+# access the API behind the cloud gateway.
+# As such, this should be the PUBLIC access point.
+# No 'cloud-gateway:8080'. In a deployed scenario,
+# this would not be the internal IP either. This
+# would be the WAN address for the cloud gateway.
   web-server:
     build:
       context: ./web
@@ -99,20 +113,19 @@ services:
       - cloud-gateway
       - eureka-server
     restart: always
-    env_file:
-      - .env
+#    env_file:
+#      - .env
     environment:
       - REGISTRY_HOST=eureka-server
       - SERVER_PORT=3000
       - APP_NAME=web-server
-      - ADAPTER=custom
-#    ports:
-#      - 3000:3000
+    ports:
+      - 3000:3000
     expose:
       - 3000
     networks:
       - crave
-    scale: 2
+#    scale: 2
 
 networks:
   crave:

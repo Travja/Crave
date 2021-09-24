@@ -1,3 +1,7 @@
+set -a # automatically export all variables
+source .env
+set +a
+
 mvn package -f services/build-all -DskipTests
 
 cd web

@@ -2,7 +2,7 @@ import staticAdapter from '@sveltejs/adapter-static';
 import nodeAdapter from '@sveltejs/adapter-node';
 import myAdapter from './adapter/adapter.js';
 
-const hasAdapter = process.env.ADAPTER;
+const hasAdapter = process.env.ADAPTER ? process.env.ADAPTER : "custom";
 const adapt = hasAdapter ? hasAdapter : 'node';
 const options = {};
 

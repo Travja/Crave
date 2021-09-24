@@ -1,20 +1,40 @@
 <!--<script context="module">-->
-<!--    export const prerender = true;-->
+<!--export const prerender = true;-->
 <!--</script>-->
 
 <script>
-import {variables} from "$lib/variables";
-</script>
+    import {title, variables} from "$lib/variables";
+    import {onMount} from "svelte";
 
-<svelte:head>
-    <title>Travja - Home</title>
-</svelte:head>
+    let gateway = "...";
+    let items;
+    title.set("Home");
+
+    onMount(async () => {
+        gateway = variables.gateway ? variables.gateway : window.location.origin;
+
+        const getItems = async () => {
+            const res = await fetch(gateway + '/item-service/items');
+            if (res.ok) {
+                items = await res.json();
+                console.log("Items: ", items);
+                return;
+            }
+
+            const error = res.json();
+            console.error("Had a hard time parsing json.");
+            console.log(error);
+        };
+
+        await getItems();
+    });
+</script>
 
 <section>
     <h1>Welcome to Crave!</h1>
-    <img class="construction" src="/construction.svg"/>
+    <img class="construction" src="/construction.svg" alt="Under Construction"/>
     <p>This site is still under construction.</p>
-    <div>Gateway: {variables.gateway}</div>
+    <div>Gateway: {gateway}</div>
 </section>
 
 <style>

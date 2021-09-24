@@ -18,6 +18,11 @@ let ipAddr = '127.0.0.1';
 
 const app = express();
 
+app.use((req, res, next) => {
+    console.log(req.method + ": " + req.url);
+    next();
+});
+
 app.use(assetsMiddleware, prerenderedMiddleware, kitMiddleware);
 
 const nets = networkInterfaces();

@@ -9,7 +9,7 @@
         <a class="no-background" href="https://github.com/Travja">
             <img src="{gitLogo}" alt="GitHub"/>
         </a>
-        <a href="#">Contact Me!</a>
+        <a href="/#">Contact Me!</a>
         <DiscordButton fontSize="1"/>
     </div>
     <div class="copy">&copy; 2021 Travja</div>

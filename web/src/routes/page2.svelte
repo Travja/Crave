@@ -1,21 +1,15 @@
 <!--<script context="module">-->
 <!--    export const prerender = true;-->
 <!--</script>-->
-
 <script>
-    let title = "Page 2";
+    import {title} from "$lib/variables";
+    title.set("Page 2");
 </script>
-
-<svelte:head>
-    <title>Travja - {title}</title>
-</svelte:head>
-
 <section>
     <h1>Welcome to Crave!</h1>
-    <img class="construction" src="/construction.svg"/>
+    <img class="construction" src="/construction.svg" alt="Under Construction"/>
     <p>This is page 2</p>
 </section>
-
 <style>
     section {
         display: flex;

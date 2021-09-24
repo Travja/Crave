@@ -8,6 +8,10 @@
             path: "/",
             title: "Home"
         },
+        {
+            path: "/page2",
+            title: "Page 2"
+        }
         // {
         //     path: "/bugs",
         //     title: "Bug Tracker"
