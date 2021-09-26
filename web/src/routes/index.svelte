@@ -5,6 +5,7 @@
 <script>
     import {title, variables} from "$lib/variables";
     import {onMount} from "svelte";
+    import PageItem from "$lib/PageItem.svelte";
 
     let gateway = "...";
     let items;
@@ -35,6 +36,11 @@
     <img class="construction" src="/construction.svg" alt="Under Construction"/>
     <p>This site is still under construction.</p>
     <div>Gateway: {gateway}</div>
+    {#if items}
+        {#each items as item}
+            <PageItem {...item}/>
+        {/each}
+    {/if}
 </section>
 
 <style>

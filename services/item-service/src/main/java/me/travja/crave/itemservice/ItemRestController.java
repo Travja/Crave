@@ -1,19 +1,27 @@
 package me.travja.crave.itemservice;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.Collections;
 import java.util.List;
 
 @RestController
 @RequestMapping("/items")
 public class ItemRestController {
 
+    private final ItemsRepository repo;
+
+    public ItemRestController(ItemsRepository repo) {
+        this.repo = repo;
+    }
+
     @GetMapping
     public List<Item> getItems() {
-        return Collections.singletonList(new Item("Test item"));
+        return (List<Item>) repo.findAll();
+    }
+
+    @PostMapping
+    public Item createItem(@RequestBody Item item) {
+        return repo.save(item);
     }
 
 }
