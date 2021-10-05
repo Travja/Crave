@@ -1,17 +1,17 @@
-package me.travja.crave.itemservice;
+package me.travja.crave.receiptservice;
 
-import me.travja.crave.itemservice.models.Item;
+import me.travja.crave.receiptservice.models.Item;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/items")
-public class ItemRestController {
+public class ReceiptRestController {
 
     private final ItemsRepository repo;
 
-    public ItemRestController(ItemsRepository repo) {
+    public ReceiptRestController(ItemsRepository repo) {
         this.repo = repo;
     }
 

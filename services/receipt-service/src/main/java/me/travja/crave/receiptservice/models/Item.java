@@ -1,4 +1,4 @@
-package me.travja.crave.itemservice;
+package me.travja.crave.receiptservice.models;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,11 +15,20 @@ public class Item {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Getter
-    private int id;
+    private long id;
 
     @Getter
     @Setter
     private String name = "No name";
+
+    @Getter
+    @Setter
+    private String description;
+
+    @Getter
+    @Setter
+    @OneToOne (mappedBy = "id")
+    private UPC upc;
 
     @Getter
     @Setter

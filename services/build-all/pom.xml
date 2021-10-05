@@ -13,6 +13,7 @@
         <module>../cloud-gateway</module>
         <module>../eureka-server</module>
         <module>../item-service</module>
+        <module>../receipt-service</module>
     </modules>
 
 

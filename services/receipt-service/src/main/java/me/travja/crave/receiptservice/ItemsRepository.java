@@ -1,6 +1,6 @@
-package me.travja.crave.itemservice;
+package me.travja.crave.receiptservice;
 
-import me.travja.crave.itemservice.models.Item;
+import me.travja.crave.receiptservice.models.Item;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
