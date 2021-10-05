@@ -1,6 +1,7 @@
 package me.travja.crave.receiptservice;
 
-import me.travja.crave.receiptservice.models.Item;
+import me.travja.crave.common.models.Item;
+import me.travja.crave.common.repositories.ItemsRepository;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

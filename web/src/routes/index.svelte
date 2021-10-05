@@ -15,7 +15,7 @@
         gateway = variables.gateway ? variables.gateway : window.location.origin;
 
         const getItems = async () => {
-            const res = await fetch(gateway + '/item-service/items');
+            const res = await fetch(gateway + '/item-service/item-details');
             if (res.ok) {
                 items = await res.json();
                 console.log("Items: ", items);
@@ -37,9 +37,11 @@
     <p>This site is still under construction.</p>
     <div>Gateway: {gateway}</div>
     {#if items}
-        {#each items as item}
-            <PageItem {...item}/>
-        {/each}
+        <div id="items">
+            {#each items as item}
+                <PageItem {...item}/>
+            {/each}
+        </div>
     {/if}
 </section>
 
@@ -59,5 +61,14 @@
 
     .construction {
         width: 200px;
+    }
+
+    #items {
+        position: relative;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
     }
 </style>

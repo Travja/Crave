@@ -11,8 +11,8 @@
     <groupId>me.travja.crave</groupId>
     <artifactId>receipt-service</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <name>item-service</name>
-    <description>item-service</description>
+    <name>receipt-service</name>
+    <description>receipt-service</description>
     <properties>
         <java.version>16</java.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>

@@ -1,7 +1,10 @@
 <script>
-    export let name;
-    export let image = "https://www.seriouseats.com/thmb/3JoYWz3_PajrDhL57P9eQrpg-xE=/735x0/__opt__aboutcom__coeus__resources__content_migration__serious_eats__seriouseats.com__recipes__images__2015__07__20150702-sous-vide-hamburger-anova-primary-bf5eefff4505446f9cbf33f5f2d9b2e6.jpg";
+    export let item = {
+        name,
+        image: "https://www.seriouseats.com/thmb/3JoYWz3_PajrDhL57P9eQrpg-xE=/735x0/__opt__aboutcom__coeus__resources__content_migration__serious_eats__seriouseats.com__recipes__images__2015__07__20150702-sous-vide-hamburger-anova-primary-bf5eefff4505446f9cbf33f5f2d9b2e6.jpg"
+    };
     export let price;
+    export let store = {};
 
     const formatter = new Intl.NumberFormat('en-US', {
         style: 'currency',
@@ -14,13 +17,15 @@
 </script>
 
 <section>
-    <img src={image} alt={name}/>
-    <div>{name}</div>
+    <img src={item.image} alt={item.name}/>
+    <div>{item.name}</div>
     <div class="price">{formatter.format(price)}</div>
+    <div class="store">{store.name}</div>
 </section>
 
 <style>
     section {
+        position: relative;
         margin: 20px;
         padding: 20px;
         display: flex;
@@ -38,5 +43,12 @@
 
     .price {
         color: #666;
+    }
+
+    .store {
+        color: #666;
+        position: absolute;
+        left: 10px;
+        bottom: 10px;
     }
 </style>

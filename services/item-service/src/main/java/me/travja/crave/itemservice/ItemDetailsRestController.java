@@ -1,7 +1,9 @@
 package me.travja.crave.itemservice;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import me.travja.crave.common.models.ItemDetails;
 import me.travja.crave.common.repositories.ItemDetailsRepository;
+import me.travja.crave.common.views.ItemView;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,6 +19,7 @@ public class ItemDetailsRestController {
     }
 
     @GetMapping
+    @JsonView(ItemView.class)
     public List<ItemDetails> getItems() {
         return (List<ItemDetails>) repo.findAll();
     }
