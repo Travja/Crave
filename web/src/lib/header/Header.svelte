@@ -1,6 +1,6 @@
 <script>
     import {page} from '$app/stores';
-    import logo from './svelte-logo.svg';
+    import logo from './logo.png';
     import gitLogo from '../github-logo.svg';
 
     let pages = [
@@ -9,24 +9,20 @@
             title: "Home"
         },
         {
-            path: "/page2",
-            title: "Page 2"
-        }
-        // {
-        //     path: "/bugs",
-        //     title: "Bug Tracker"
-        // },
-        // {
-        //     path: "/about",
-        //     title: "About"
-        // },
+            path: "/items",
+            title: "Items"
+        },
+        {
+            path: "/about",
+            title: "About"
+        },
     ];
 </script>
 
 <header>
     <div class="corner">
-        <a href="https://kit.svelte.dev">
-            <img src={logo} alt="SvelteKit"/>
+        <a href="/">
+            <img src={logo} alt="Crave"/>
         </a>
     </div>
 
@@ -45,7 +41,7 @@
     </nav>
 
     <div class="corner">
-        <a href="https://github.com/Travja">
+        <a href="https://github.com/Travja/Crave">
             <img src={gitLogo} alt="GitHub"/>
         </a>
     </div>

@@ -5,29 +5,12 @@
 <script>
     import {title, variables} from "$lib/variables";
     import {onMount} from "svelte";
-    import PageItem from "$lib/PageItem.svelte";
 
     let gateway = "...";
-    let items;
     title.set("Home");
 
-    onMount(async () => {
+    onMount(() => {
         gateway = variables.gateway ? variables.gateway : window.location.origin;
-
-        const getItems = async () => {
-            const res = await fetch(gateway + '/item-service/item-details');
-            if (res.ok) {
-                items = await res.json();
-                console.log("Items: ", items);
-                return;
-            }
-
-            const error = res.json();
-            console.error("Had a hard time parsing json.");
-            console.log(error);
-        };
-
-        await getItems();
     });
 </script>
 
@@ -36,13 +19,6 @@
     <img class="construction" src="/construction.svg" alt="Under Construction"/>
     <p>This site is still under construction.</p>
     <div>Gateway: {gateway}</div>
-    {#if items}
-        <div id="items">
-            {#each items as item}
-                <PageItem {...item}/>
-            {/each}
-        </div>
-    {/if}
 </section>
 
 <style>
@@ -61,14 +37,5 @@
 
     .construction {
         width: 200px;
-    }
-
-    #items {
-        position: relative;
-        display: flex;
-        flex-direction: row;
-        flex-wrap: wrap;
-        justify-content: center;
-        align-items: center;
     }
 </style>
