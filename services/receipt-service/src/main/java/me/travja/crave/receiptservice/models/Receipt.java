@@ -2,6 +2,7 @@ package me.travja.crave.receiptservice.models;
 
 import lombok.Getter;
 import lombok.Setter;
+import me.travja.crave.common.models.ItemDetails;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -19,6 +20,6 @@ public class Receipt {
     @Getter
     @Setter
     @OneToMany(cascade = CascadeType.ALL)
-    private List<Item> items = new ArrayList<>();
+    private List<ItemDetails> items = new ArrayList<>();
 
 }

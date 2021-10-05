@@ -1,7 +1,7 @@
 package me.travja.crave.itemservice;
 
-import me.travja.crave.common.Item;
-import me.travja.crave.common.ItemsRepository;
+import me.travja.crave.common.models.Item;
+import me.travja.crave.common.repositories.ItemsRepository;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,7 +14,6 @@ public class ItemRestController {
 
     public ItemRestController(ItemsRepository repo) {
         this.repo = repo;
-        System.out.println("Rest Controller initialized!!!!! PAY ATTENTION TO ME!");
     }
 
     @GetMapping
