@@ -73,8 +73,8 @@ services:
       - crave-mysql
       - eureka-server
     restart: always
-    ports:
-      - 8082:8080
+#    ports:
+#      - 8082:8080
     expose:
       - 8080
     env_file:
@@ -90,6 +90,29 @@ services:
     networks:
       - crave
 #    scale: 2
+
+  receipt-service:
+    build:
+      context: ./services/receipt-service
+    depends_on:
+      - crave-mysql
+      - eureka-server
+    restart: always
+    expose:
+      - 8080
+    env_file:
+      - .env
+    environment:
+      - DATABASE_HOST=crave-mysql
+      - DATABASE_NAME=crave
+      - DATABASE_USERNAME=Travja
+      - DATABASE_PASSWORD=test
+      - SERVER_PORT=8080
+      - REGISTRY_HOST=eureka-server
+      - APP_NAME=receipt-service
+    networks:
+      - crave
+  #    scale: 2
 
 # To set the gateway location used by the front-end,
 # create a .env file in the base dir

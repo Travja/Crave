@@ -10,6 +10,7 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>../common</module>
         <module>../cloud-gateway</module>
         <module>../eureka-server</module>
         <module>../item-service</module>

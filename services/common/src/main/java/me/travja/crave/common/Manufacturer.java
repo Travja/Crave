@@ -1,4 +1,4 @@
-package me.travja.crave.itemservice.models;
+package me.travja.crave.common;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -1,4 +1,4 @@
-package me.travja.crave.receiptservice.models;
+package me.travja.crave.common;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -27,7 +27,7 @@ public class Item {
 
     @Getter
     @Setter
-    @OneToOne (mappedBy = "id")
+    @OneToOne (mappedBy = "item")
     private UPC upc;
 
     @Getter

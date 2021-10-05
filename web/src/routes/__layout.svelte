@@ -6,7 +6,7 @@
 </script>
 
 <svelte:head>
-    <title>Travja - {$title}</title>
+    <title>Crave - {$title}</title>
 </svelte:head>
 
 <Header/>
