@@ -176,6 +176,17 @@
         running = false;
     };
 
+    let finalCanvas;
+    let downloadLink;
+    const saveCroppedImage = () => {
+        if (!finalCanvas || !downloadLink) return;
+
+        let image = finalCanvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
+        downloadLink.href = image;
+
+        downloadLink.click();
+    };
+
 
 </script>
 
@@ -198,15 +209,22 @@
         </div>
         <div class="p_image">
             <canvas id="imageInit" bind:this={imgInit}></canvas>
-            <canvas id="imageResult" style="--width:{finalWidth}px --height={finalHeight}px"></canvas>
+            <canvas id="imageResult" style="--width:{finalWidth}px --height={finalHeight}px"
+                    bind:this={finalCanvas}/>
         </div>
     </div>
 
+    <button on:click={saveCroppedImage}>Save</button>
+    <a id="download" bind:this={downloadLink} download="Receipt.png"/>
     <script src="/cropper/d3.v3.min.js"></script>
     <script src="/cropper/numeric-solve.min.js"></script>
 </section>
 
 <style>
+    #download {
+        display: none;
+    }
+
     #imageInit {
         display: none;
     }
