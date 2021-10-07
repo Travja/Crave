@@ -1,0 +1,14 @@
+.line {
+    stroke: blue;
+    stroke-width: 0.7px;
+    stroke-linecap: square;
+}
+
+.handle {
+    fill: blue;
+    pointer-events: all;
+    stroke: blue;
+    stroke-width: 2px;
+    cursor: move;
+    opacity: 0.8;
+}
