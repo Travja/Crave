@@ -8,7 +8,7 @@ export function Utils(errorOutputId) { // eslint-disable-line no-unused-vars
         script.setAttribute('async', '');
         script.setAttribute('type', 'text/javascript');
         script.addEventListener('load', () => {
-            console.log(cv.getBuildInformation());
+            // console.log(cv.getBuildInformation());
             onloadCallback();
         });
         script.addEventListener('error', () => {
