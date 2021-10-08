@@ -103,7 +103,7 @@
         if (timeout)
             clearTimeout(timeout);
 
-        timeout = setTimeout(() => warpImage(getPoints()), 250);
+        timeout = setTimeout(warpImage, 250);
     };
 
     const multiply = (matrix, vector) => {
@@ -149,7 +149,7 @@
         return pointsArray;
     };
 
-    const warpImage = async (pointsArray) => { // [x1, y1, x2, y2, x3, y3, x4, y4]
+    const warpImage = (pointsArray = getPoints()) => { // [x1, y1, x2, y2, x3, y3, x4, y4]
         if (running || !imgInit) return;
         running = true;
         const scaleFactor = svg.clientWidth / imgInit.width;
