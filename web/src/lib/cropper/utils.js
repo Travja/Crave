@@ -43,13 +43,10 @@ export function Utils(errorOutputId) { // eslint-disable-line no-unused-vars
         let img = new Image();
         //img.crossOrigin = 'anonymous';
         img.onload = () => {
-            /*canvas.width = 300;
-            canvas.height = 400;*/
             canvas.width = img.width;
             canvas.height = img.height;
-            console.log('img.height : ' + img.height + ' img.width : ' + img.width);
-            //ctx.drawImage(img, 0, 0, 300, 400);
-            ctx.drawImage(img, 0, 0, img.height, img.width);
+            // console.log('img.height : ' + img.height + ' img.width : ' + img.width);
+            ctx.drawImage(img, 0, 0, img.width, img.height);
         };
         img.src = url;
     };
