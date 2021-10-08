@@ -57,7 +57,7 @@
         updating = circ;
         let x = updating.x;
         let y = updating.y;
-        updating.size = 10;
+        updating.size = 14;
         cursor = "grab";
     };
 
@@ -98,16 +98,12 @@
         return [point[0] / point[3], point[1] / point[3]];
     };
 
-    let queued,
-        timeout;
+    let timeout;
     const dragged = () => {
-        queued = getPoints();
-        if (!timeout) {
-            timeout = setTimeout(() => {
-                warpImage(queued);
-                timeout = undefined;
-            }, 1000);
-        }
+        if (timeout)
+            clearTimeout(timeout);
+
+        timeout = setTimeout(() => warpImage(getPoints()), 250);
     };
 
     const multiply = (matrix, vector) => {
@@ -153,7 +149,7 @@
         return pointsArray;
     };
 
-    const warpImage = (pointsArray) => { // [x1, y1, x2, y2, x3, y3, x4, y4]
+    const warpImage = async (pointsArray) => { // [x1, y1, x2, y2, x3, y3, x4, y4]
         if (running || !imgInit) return;
         running = true;
         const scaleFactor = svg.clientWidth / imgInit.width;
@@ -297,7 +293,6 @@
         <a id="download" bind:this={downloadLink} download="Receipt.png"/>
     </div>
 
-    <script src="/cropper/numeric-solve.min.js"></script>
     <script async src="/cropper/opencv.js"
             on:load={() => setTimeout(() => disabled = false, 500)}
             on:error={() => console.error("Failed to load opencv")}></script>

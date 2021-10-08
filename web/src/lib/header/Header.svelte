@@ -45,7 +45,7 @@
     </nav>
 
     <div class="corner">
-        <a href="https://github.com/Travja/Crave">
+        <a href="https://github.com/Travja/Crave" target="_blank">
             <img src={gitLogo} alt="GitHub"/>
         </a>
     </div>
