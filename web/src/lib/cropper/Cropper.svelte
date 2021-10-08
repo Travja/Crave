@@ -14,7 +14,6 @@
     let svg,
         g;
 
-    // let lines = [];
     let circles = [];
 
     let updating;
@@ -94,31 +93,6 @@
         return num.toPrecision(digits); //parseFloat?
     };
 
-    const transformed = () => {
-        // let a = [], b = [];
-        // for (let i = 0, n = sourcePoints.length; i < n; ++i) {
-        //     let s = sourcePoints[i],
-        //         t = targetPoints[i];
-        //     a.push([s[0], s[1], 1, 0, 0, 0, -s[0] * t[0], -s[1] * t[0]]);
-        //     b.push(t[0]);
-        //     a.push([0, 0, 0, s[0], s[1], 1, -s[0] * t[1], -s[1] * t[1]]);
-        //     b.push(t[1]);
-        // }
-        //
-        // let X = solve(a, b, true),
-        //     matrix = [
-        //         X[0], X[3], 0, X[6],
-        //         X[1], X[4], 0, X[7],
-        //         0, 0, 1, 0,
-        //         X[2], X[5], 0, 1
-        //     ].map(x => round(x, 6));
-        //
-        // for (let i = 0; i < lines.length; i++) {
-        //     let d = lines[i];
-        //     positions[i] = "M" + project(matrix, d[0]) + "L" + project(matrix, d[1]);
-        // }
-    };
-
     const project = (matrix, point) => {
         point = multiply(matrix, [point[0], point[1], 0, 1]);
         return [point[0] / point[3], point[1] / point[3]];
@@ -127,7 +101,6 @@
     let queued,
         timeout;
     const dragged = () => {
-        transformed();
         queued = getPoints();
         if (!timeout) {
             timeout = setTimeout(() => {
@@ -146,13 +119,6 @@
         ];
     };
 
-    // const range = (start, end, spacing) => {
-    //     let data = [];
-    //     for (let i = start; i < end; i += spacing)
-    //         data.push(i);
-    //     return data;
-    // };
-
     const setupCropBox = () => {
         // console.log('image loaded : ', imgWidth, ' ', imgHeight)
         let width = wrap.clientWidth - margin.left - margin.right,
@@ -167,23 +133,11 @@
         let xSpacing = width / cols;
         let ySpacing = height / rows;
 
-        // lines = [];
-        //
-        // let dataPoints = [];
-        //
-        // range(0, width + 1, xSpacing)
-        //     .forEach(x => dataPoints.push([[x, 0], [x, height]]));
-        // range(0, height + 1, ySpacing)
-        //     .forEach(y => dataPoints.push([[0, y], [width, y]]));
-        //
-        // dataPoints.forEach(line => lines.push(line));
-
         circles = [];
         let index = 0;
         targetPoints.forEach(dat =>
             circles.push({x: dat[0], y: dat[1], size: 7, index: index++, id: {}}));
 
-        transformed();
         setTimeout(dragged, 250);
     };
 
@@ -318,9 +272,6 @@
                         {#if points}
                             <polyline {points} class="line"/>
                         {/if}
-                        <!--{#each lines as line, i}-->
-                        <!--    <path class="line line&#45;&#45;x" d="{positions[i]}"></path>-->
-                        <!--{/each}-->
                         {#each circles as circle (circle.id)}
                             <circle cx="{circle.x}" cy="{circle.y}" r="{circle.size}"
                                     class="handle" style="{cursor ? `cursor: ${cursor}` : ``}"
