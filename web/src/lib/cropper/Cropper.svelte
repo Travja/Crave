@@ -2,100 +2,121 @@
 <script>
     import {onMount} from "svelte";
     import {Utils} from "$lib/cropper/utils.js";
-    import {writable} from "svelte/store";
-
-    let imgWidth = 100, imgHeight = 100;
-    let backgroundWidth = 100;
-    let svg;
-    let g;
 
     let margin = {top: 40, right: 40, bottom: 40, left: 40};
     let gTransform = `translate(${margin.left}, ${margin.top})`;
 
-    let lines = [];
+    let imgWidth = 100, imgHeight = 100;
+    let background;
+    let backgroundWidth = 100;
+    let myHeight = 100,
+        myWidth = 100;
+    let svg,
+        g;
 
-    let c1, c2, c3, c4;
+    // let lines = [];
+    let circles = [];
 
-    let updating, uptElm;
+    let updating;
     let offset = {x: 0, y: 0};
 
-    let derivedHeight = 100;
     let maxHeight = 200;
-
-    $:  derivedHeight = imgHeight / (imgWidth / backgroundWidth);
-
-    const downCircle = (e, circ) => {
-        updating = circ;
-        uptElm = e.target;
-        let x = $updating.x;
-        let y = $updating.y;
-        updating.set({x: $updating.x, y: $updating.y, size: 10});
-    };
-
-    const stopCircles = (e) => {
-        if (!updating) return;
-
-        updating.set({x: $updating.x, y: $updating.y, size: 7});
-        updating = undefined;
-        uptElm = undefined;
-    };
-
-
-    let wrap;
-    const updateCircles = (e) => {
-        if (!updating) return;
-
-        let svgDx = background.offsetLeft - window.scrollX + margin.left;
-        let svgDy = background.offsetTop - window.scrollY + margin.top;
-
-        let coords = {
-            x: e.clientX - svgDx,
-            y: e.clientY - svgDy,
-            size: 10
-        };
-
-        updating.set({...coords});
-
-        let target = targetPoints[uptElm.getAttribute("num")];
-        target[0] = $updating.x;
-        target[1] = $updating.y;
-
-        dragged();
-    };
 
     let sourcePoints,
         targetPoints,
         line;
 
+    let cursor;
+
     let positions = [];
+
+    let wrap;
+
+    let running = false;
+    let imgInit;
+    let finalWidth = 100;
+    let finalHeight = 100;
+    let image;
+
+    let utils;
+    let url;
+    let img;
+    let disabled = true;
+    $: if (img && url) {
+        img.src = url;
+    }
+
+    let points = "";
+
+    $: if (circles && circles.length > 0) {
+        points = "";
+        circles.forEach(circ => points += circ.x + " " + circ.y + " ");
+        points += circles[0].x + " " + circles[0].y;
+    }
+
+    const downCircle = (e, circ) => {
+        updating = circ;
+        let x = updating.x;
+        let y = updating.y;
+        updating.size = 10;
+        cursor = "grab";
+    };
+
+    const stopCircles = (e) => {
+        if (!updating) return;
+
+        updating.size = 7;
+        updating = cursor = undefined;
+        circles = [...circles];
+    };
+
+    const updateCircles = (e) => {
+        if (!updating) return;
+        let offsetLeft = wrap.getBoundingClientRect().left;
+        let offsetTop = wrap.getBoundingClientRect().top;
+        let svgDx = offsetLeft - window.scrollX + margin.left;
+        let svgDy = offsetTop - window.scrollY + margin.top;
+
+
+        updating.x = e.clientX - svgDx;
+        updating.y = e.clientY - svgDy;
+
+        let target = targetPoints[updating.index];
+        target[0] = updating.x;
+        target[1] = updating.y;
+
+        circles = [...circles];
+
+        dragged();
+    };
 
     let round = (num, digits) => {
         return num.toPrecision(digits); //parseFloat?
     };
 
     const transformed = () => {
-        let a = [], b = [];
-        for (let i = 0, n = sourcePoints.length; i < n; ++i) {
-            let s = sourcePoints[i],
-                t = targetPoints[i];
-            a.push([s[0], s[1], 1, 0, 0, 0, -s[0] * t[0], -s[1] * t[0]]);
-            b.push(t[0]);
-            a.push([0, 0, 0, s[0], s[1], 1, -s[0] * t[1], -s[1] * t[1]]);
-            b.push(t[1]);
-        }
-
-        let X = solve(a, b, true),
-            matrix = [
-                X[0], X[3], 0, X[6],
-                X[1], X[4], 0, X[7],
-                0, 0, 1, 0,
-                X[2], X[5], 0, 1
-            ].map(x => round(x, 6));
-
-        for (let i = 0; i < lines.length; i++) {
-            let d = lines[i];
-            positions[i] = "M" + project(matrix, d[0]) + "L" + project(matrix, d[1]);
-        }
+        // let a = [], b = [];
+        // for (let i = 0, n = sourcePoints.length; i < n; ++i) {
+        //     let s = sourcePoints[i],
+        //         t = targetPoints[i];
+        //     a.push([s[0], s[1], 1, 0, 0, 0, -s[0] * t[0], -s[1] * t[0]]);
+        //     b.push(t[0]);
+        //     a.push([0, 0, 0, s[0], s[1], 1, -s[0] * t[1], -s[1] * t[1]]);
+        //     b.push(t[1]);
+        // }
+        //
+        // let X = solve(a, b, true),
+        //     matrix = [
+        //         X[0], X[3], 0, X[6],
+        //         X[1], X[4], 0, X[7],
+        //         0, 0, 1, 0,
+        //         X[2], X[5], 0, 1
+        //     ].map(x => round(x, 6));
+        //
+        // for (let i = 0; i < lines.length; i++) {
+        //     let d = lines[i];
+        //     positions[i] = "M" + project(matrix, d[0]) + "L" + project(matrix, d[1]);
+        // }
     };
 
     const project = (matrix, point) => {
@@ -103,8 +124,8 @@
         return [point[0] / point[3], point[1] / point[3]];
     };
 
-    let queued;
-    let timeout;
+    let queued,
+        timeout;
     const dragged = () => {
         transformed();
         queued = getPoints();
@@ -125,14 +146,13 @@
         ];
     };
 
-    const range = (start, end, spacing) => {
-        let data = [];
-        for (let i = start; i < end; i += spacing)
-            data.push(i);
-        return data;
-    }
+    // const range = (start, end, spacing) => {
+    //     let data = [];
+    //     for (let i = start; i < end; i += spacing)
+    //         data.push(i);
+    //     return data;
+    // };
 
-    let background;
     const setupCropBox = () => {
         // console.log('image loaded : ', imgWidth, ' ', imgHeight)
         let width = wrap.clientWidth - margin.left - margin.right,
@@ -147,53 +167,21 @@
         let xSpacing = width / cols;
         let ySpacing = height / rows;
 
-        lines = [];
+        // lines = [];
+        //
+        // let dataPoints = [];
+        //
+        // range(0, width + 1, xSpacing)
+        //     .forEach(x => dataPoints.push([[x, 0], [x, height]]));
+        // range(0, height + 1, ySpacing)
+        //     .forEach(y => dataPoints.push([[0, y], [width, y]]));
+        //
+        // dataPoints.forEach(line => lines.push(line));
 
-        let dataPoints = [];
-
-        range(0, width + 1, xSpacing)
-            .forEach(x => dataPoints.push([[x, 0], [x, height]]));
-        range(0, height + 1, ySpacing)
-            .forEach(y => dataPoints.push([[0, y], [width, y]]));
-
-        dataPoints.forEach(line => lines.push(line));
-
-        c1 = writable({
-                x: targetPoints[0][0],
-                y: targetPoints[0][1],
-                size: 7
-            },
-            /*  {
-                  stiffness: 0.1,
-                  damping: 0.25
-              }*/),
-            c2 = writable({
-                    x: targetPoints[1][0],
-                    y: targetPoints[1][1],
-                    size: 7
-                },
-                /*{
-                    stiffness: 0.1,
-                    damping: 0.25
-                }*/),
-            c3 = writable({
-                    x: targetPoints[2][0],
-                    y: targetPoints[2][1],
-                    size: 7
-                },
-                /*{
-                    stiffness: 0.1,
-                    damping: 0.25
-                }*/),
-            c4 = writable({
-                    x: targetPoints[3][0],
-                    y: targetPoints[3][1],
-                    size: 7
-                },
-                /* {
-                     stiffness: 0.1,
-                     damping: 0.25
-                 }*/);
+        circles = [];
+        let index = 0;
+        targetPoints.forEach(dat =>
+            circles.push({x: dat[0], y: dat[1], size: 7, index: index++, id: {}}));
 
         transformed();
         setTimeout(dragged, 250);
@@ -211,57 +199,24 @@
         return pointsArray;
     };
 
-    let utils;
-    let url;// = "/cropper/bill.png";
-    let img;
-    let disabled = true;
-    $: if (img && url) {
-        img.src = url;
-    }
-    // setTimeout(() => url = "/receipt.jpg", 10000);
-
-    let finalUrl;
-    $: if (url) {
-        finalUrl = `url(${url})`;
-    }
-
-    onMount(() => {
-        img = new Image();
-        utils = new Utils('errorMessage');
-
-        img.onload = () => {
-            imgWidth = img.width;
-            imgHeight = img.height;
-            utils.loadImageToCanvas(url, "imageInit");
-            setTimeout(setupCropBox, 500);
-        };
-    });
-
-
-    let running = false;
-    let imgInit;
-    let finalWidth = 100;
-    let finalHeight = 100;
     const warpImage = (pointsArray) => { // [x1, y1, x2, y2, x3, y3, x4, y4]
         if (running || !imgInit) return;
         running = true;
+        const scaleFactor = svg.clientWidth / imgInit.width;
 
-        const scalePoints = (pointsArray) => {
-            const scaleFactor = svg.clientWidth / imgInit.width;
-
-            return pointsArray.map(e => (parseInt(e) + margin.left) / scaleFactor);
-        };
-
+        const scalePoints = pointsArray => pointsArray.map(e => (parseInt(e) + margin.left) / scaleFactor);
         const adjustPoints = (pointsArray) => {
-            // const offset = (background.clientHeight - background.clientWidth) / 2;
+            const offset = image.offsetTop;
             // console.log("Offset:", offset);
-            // for (let i = 1; i < pointsArray.length; i += 2) {
-            //     pointsArray[i] -= offset;
-            // }
+            for (let i = 1; i < pointsArray.length; i += 2) {
+                pointsArray[i] -= offset;
+            }
         };
 
-        finalWidth = Math.max(Math.abs(pointsArray[2] - pointsArray[0]), Math.abs(pointsArray[4] - pointsArray[6]));
-        finalHeight = Math.max(Math.abs(pointsArray[1] - pointsArray[7]), Math.abs(pointsArray[3] - pointsArray[5]));
+        finalWidth = Math.max(Math.abs(pointsArray[2] - pointsArray[0]), Math.abs(pointsArray[4] - pointsArray[6]))
+            / scaleFactor;
+        finalHeight = Math.max(Math.abs(pointsArray[1] - pointsArray[7]), Math.abs(pointsArray[3] - pointsArray[5]))
+            / scaleFactor;
         // console.log("Final Height:", finalHeight, "Final Width:", finalWidth);
         adjustPoints(pointsArray);
         pointsArray = scalePoints(pointsArray);
@@ -297,39 +252,79 @@
     };
 
     const newFile = e => url = URL.createObjectURL(e.target.files[0]);
+
+    const checkResize = () => {
+        if (!svg) return;
+        console.log(svg.clientWidth, svg.clientHeight);
+        let updated = false;
+        for (let circ of circles) {
+            let rightBound = circ.x + margin.left + circ.size;
+            let lowerBound = circ.y + margin.top + circ.size;
+            if (rightBound > svg.clientWidth) {
+                circ.x = svg.clientWidth - circ.size - margin.left;
+                updated = true;
+            }
+
+            if (lowerBound > svg.clientHeight) {
+                circ.y = svg.clientHeight - circ.size - margin.top;
+                updated = true;
+            }
+
+            if (updated) {
+                let target = targetPoints[circ.index];
+                target[0] = circ.x;
+                target[1] = circ.y;
+            }
+        }
+        if (updated) {
+            circles = [...circles];
+            dragged();
+        }
+    };
+
+    onMount(() => {
+        img = new Image();
+        utils = new Utils('errorMessage');
+
+        img.onload = () => {
+            imgWidth = img.width;
+            imgHeight = img.height;
+            utils.loadImageToCanvas(url, "imageInit");
+            setTimeout(setupCropBox, 500);
+        };
+
+        window.addEventListener("resize", checkResize);
+    });
 </script>
 
 <section>
     <input type="file" id="file-upload" on:change={newFile}/>
     <div class="container">
-        <div id="background" class="o_image" style="background-image: {finalUrl}; --height: {derivedHeight}px;"
+        <div id="background" class="o_image"
              bind:this={background}
              bind:clientWidth={backgroundWidth}>
             <!--            <img id="sample" src="/cropper/bill.png" alt="bill"/>-->
-            <div class="wrapper"
-                 bind:this={wrap}>
-                <svg id="svg" bind:this={svg} height="{derivedHeight}"
-                     width="{backgroundWidth ? backgroundWidth : 100}"
+            <div class="imgWrapper" bind:this={wrap}
+                 bind:clientWidth={myWidth} bind:clientHeight={myHeight}>
+                <img src="{url}" bind:this={image}/>
+            </div>
+            <div class="wrapper">
+                <svg id="svg" bind:this={svg} height="{myHeight}"
+                     width="{myWidth}" style="{cursor ? `cursor: ${cursor}` : ``}"
                      on:mousemove={updateCircles}
                      on:mouseup={stopCircles}>
                     <g id="window_g" bind:this={g}
                        transform="{gTransform}">
-                        {#if c1}
-                            <circle cx="{$c1.x}" cy="{$c1.y}" r="{$c1.size}"
-                                    num="0" class="handle"
-                                    on:mousedown={(e) => downCircle(e, c1)}/>
-                            <circle cx="{$c2.x}" cy="{$c2.y}" r="{$c2.size}"
-                                    num="1" class="handle"
-                                    on:mousedown={(e) => downCircle(e, c2)}/>
-                            <circle cx="{$c3.x}" cy="{$c3.y}" r="{$c3.size}"
-                                    num="2" class="handle"
-                                    on:mousedown={(e) => downCircle(e, c3)}/>
-                            <circle cx="{$c4.x}" cy="{$c4.y}" r="{$c4.size}"
-                                    num="3" class="handle"
-                                    on:mousedown={(e) => downCircle(e, c4)}/>
+                        {#if points}
+                            <polyline {points} class="line"/>
                         {/if}
-                        {#each lines as line, i}
-                            <path class="line line--x" d="{positions[i]}"></path>
+                        <!--{#each lines as line, i}-->
+                        <!--    <path class="line line&#45;&#45;x" d="{positions[i]}"></path>-->
+                        <!--{/each}-->
+                        {#each circles as circle (circle.id)}
+                            <circle cx="{circle.x}" cy="{circle.y}" r="{circle.size}"
+                                    class="handle" style="{cursor ? `cursor: ${cursor}` : ``}"
+                                    on:mousedown={e => downCircle(e, circle)}/>
                         {/each}
                     </g>
                 </svg>
@@ -342,7 +337,7 @@
         </div>
     </div>
 
-    {#if !finalUrl}
+    {#if !url}
         <div>Upload an image to start cropping!</div>
     {/if}
     <div class="buttonContainer">
@@ -358,14 +353,30 @@
 </section>
 
 <style>
+    .imgWrapper {
+        height: 70vh;
+        max-height: 70vh;
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .imgWrapper img {
+        max-height: 100%;
+        max-width: 100%;
+    }
+
     .wrapper {
+        position: absolute;
+        width: 100%;
+        top: 0;
+        left: 0;
         display: inline-block;
         overflow: hidden;
     }
 
     svg {
         position: relative;
-        width: 100%;
     }
 
     circle {
@@ -385,12 +396,20 @@
         width: 80%;
     }
 
+    #imageResult {
+        width: var(--width);
+        max-width: 100%;
+        max-height: 100%;
+    }
+
     #background {
         background-position: center;
         background-repeat: no-repeat;
         background-size: contain;
-        height: var(--height);
-        /*max-height: 100%;*/
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     section {
@@ -398,11 +417,12 @@
     }
 
     .container {
-        /*position: relative;*/
+        position: relative;
         display: flex;
         margin-bottom: 10px;
-        /*max-height: 70vh;*/
+        max-height: 70vh;
         overflow: hidden;
+        user-select: none;
     }
 
     .buttonContainer {
@@ -420,15 +440,7 @@
         text-align: center;
         display: flex;
         justify-content: center;
-    }
-
-    #imageResult {
-        width: var(--width);
-        height: var(--height);
-    }
-
-    img {
-        border: 1px solid blue;
+        align-items: center;
     }
 
     input {
@@ -450,10 +462,12 @@
     }
 
     .line {
-        stroke: blue;
-        stroke-width: 0.7px;
-        stroke-linecap: square;
-        opacity: 0.8;
+        /*stroke: blue;*/
+        /*stroke-width: 0.7px;*/
+        /*stroke-linecap: square;*/
+        /*opacity: 0.8;*/
+        fill: deepskyblue;
+        fill-opacity: 0.3;
     }
 
 
