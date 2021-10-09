@@ -2,6 +2,7 @@
 <script>
     import {onMount} from "svelte";
     import {Utils} from "$lib/cropper/utils.js";
+    import {variables} from "$lib/variables.js";
 
     let margin = {top: 40, right: 40, bottom: 40, left: 40};
     let gTransform = `translate(${margin.left}, ${margin.top})`;
@@ -149,6 +150,9 @@
         return pointsArray;
     };
 
+
+    let alpha = 1.0;
+    let beta = 30;
     const warpImage = (pointsArray = getPoints()) => { // [x1, y1, x2, y2, x3, y3, x4, y4]
         if (running || !imgInit) return;
         running = true;
@@ -179,6 +183,8 @@
         let transformationMatrix = cv.getPerspectiveTransform(srcMatrix, destMatrix);
 
         cv.warpPerspective(sourceMat, output, transformationMatrix, outputSize, cv.INTER_LINEAR, cv.BORDER_CONSTANT, new cv.Scalar());
+        cv.cvtColor(output, output, cv.COLOR_RGBA2GRAY);
+        cv.convertScaleAbs(output, output, alpha, beta);
         cv.imshow('imageResult', output);
 
         sourceMat.delete();
@@ -191,14 +197,24 @@
     };
 
     let finalCanvas;
-    let downloadLink;
+    // let downloadLink;
+    let fileInput;
+    let form;
+    let submitting = false;
     const saveCroppedImage = () => {
-        if (!finalCanvas || !downloadLink) return;
+        if (!finalCanvas || !fileInput) return;
 
-        let image = finalCanvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
-        downloadLink.href = image;
+        let datUrl = finalCanvas.toDataURL("image/png");
 
-        downloadLink.click();
+        console.log(datUrl);
+        fileInput.value = datUrl;
+
+        submitting = true;
+        form.submit();
+        // let image = datUrl.replace("image/png", "image/octet-stream");
+        // downloadLink.href = image;
+        //
+        // downloadLink.click();
     };
 
     const newFile = e => url = URL.createObjectURL(e.target.files[0]);
@@ -289,9 +305,26 @@
     {/if}
     <div class="buttonContainer">
         <label class="button" for="file-upload">Choose Image</label>
-        <button class="button" on:click={saveCroppedImage}>Save</button>
-        <a id="download" bind:this={downloadLink} download="Receipt.png"/>
+        <button class="button" on:click={saveCroppedImage}>Submit</button>
+        <!--        <a id="download" href="#" bind:this={downloadLink} download="Receipt.png"/>-->
     </div>
+
+    <!--    <label for="alpha">Alpha: </label>-->
+    <!--    <input type="range" min="0" max="3" step="0.1" id="alpha" bind:value={alpha}/>-->
+    <!--    <label for="beta">Beta: </label>-->
+    <!--    <input type="range" min="0" max="100" step="1" id="beta" bind:value={beta}/>-->
+    <form action="{variables.gateway}/receipt-service/receipt/parsestr"
+          method="post" bind:this={form}>
+        <input type="hidden" name="file" id="file" bind:this={fileInput}/>
+    </form>
+
+    {#if submitting}
+        <div id="loading">
+            <div id="imgWrapper">
+                <img src="/loading.gif" id="loadingImg"/>
+            </div>
+        </div>
+    {/if}
 
     <script async src="/cropper/opencv.js"
             on:load={() => setTimeout(() => disabled = false, 500)}
@@ -299,6 +332,37 @@
 </section>
 
 <style>
+    #loading {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        box-sizing: border-box;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    #imgWrapper {
+        width: 40vh;
+        height: 40vh;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        box-shadow: 0px 0px 30px 20px #000;
+    }
+
+    #loadingImg {
+        height: 100%;
+    }
+
+    form {
+        display: none;
+    }
+
     .imgWrapper {
         height: 70vh;
         max-height: 70vh;
@@ -389,7 +453,7 @@
         align-items: center;
     }
 
-    input {
+    #file-upload {
         display: none;
     }
 
