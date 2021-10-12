@@ -39,6 +39,10 @@ public class TargetResponse {
             @Setter
             private PriceInformation price;
 
+            @Getter
+            @Setter
+            private String tcin;
+
             @NoArgsConstructor
             public static class Item {
 

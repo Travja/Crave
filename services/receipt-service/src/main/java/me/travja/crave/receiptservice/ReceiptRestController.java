@@ -3,6 +3,8 @@ package me.travja.crave.receiptservice;
 import me.travja.crave.common.models.Item;
 import me.travja.crave.common.repositories.ItemsRepository;
 import me.travja.crave.receiptservice.models.TargetItem;
+import me.travja.crave.receiptservice.parser.ParserManager;
+import me.travja.crave.receiptservice.parser.TargetParser;
 import net.sourceforge.tess4j.Tesseract;
 import net.sourceforge.tess4j.TesseractException;
 import org.springframework.web.bind.annotation.*;
@@ -20,9 +22,9 @@ import java.util.List;
 @RequestMapping("/receipt")
 public class ReceiptRestController {
 
-    private       Tesseract       tesseract;
     private final ItemsRepository repo;
     public final  RestTemplate    restTemplate;
+    private final ParserManager   parserManager;
 
 
     /*
@@ -51,14 +53,11 @@ Engine mode:
      */
 
 
-    public ReceiptRestController(ItemsRepository repo, RestTemplate restTemplate) {
+    public ReceiptRestController(ItemsRepository repo, RestTemplate restTemplate, TargetParser targetParser, ParserManager parserManager) {
         this.repo = repo;
-        tesseract = new Tesseract();
-        tesseract.setDatapath("tessdata");
-        tesseract.setLanguage("eng");
-        tesseract.setPageSegMode(6);
-        tesseract.setOcrEngineMode(2);
+
         this.restTemplate = restTemplate;
+        this.parserManager = parserManager;
     }
 
     @GetMapping
@@ -74,13 +73,18 @@ Engine mode:
     @PostMapping("/parse")
     public ReceiptData parseReceipt(@RequestParam("file") MultipartFile file) {
         try {
-            System.out.println(file.getBytes().length + " bytes");
             BufferedImage image = ImageIO.read(file.getInputStream());
 //            RescaleOp     op    = new RescaleOp(1.2f, 0, null);
 //            image = op.filter(image, image);
+            Tesseract tesseract;
+            tesseract = new Tesseract();
+            tesseract.setDatapath("tessdata");
+            tesseract.setLanguage("eng");
+            tesseract.setPageSegMode(6);
+            tesseract.setOcrEngineMode(2);
             String result = tesseract.doOCR(image);
             System.out.println(result);
-            return new ReceiptData(result);
+            return new ReceiptData(result, parserManager);
         } catch (TesseractException | IOException e) {
             System.err.println("Could not parse image.");
             e.printStackTrace();
@@ -90,14 +94,19 @@ Engine mode:
 
     @PostMapping("/parsestr")
     public ReceiptData parseReceiptString(@RequestParam("file") String base64) {
-        System.out.println("Hit string based endpoint");
         try {
+            Tesseract tesseract;
+            tesseract = new Tesseract();
+            tesseract.setDatapath("tessdata");
+            tesseract.setLanguage("eng");
+            tesseract.setPageSegMode(6);
+            tesseract.setOcrEngineMode(2);
             String        b64        = base64.split(",")[1];
             byte[]        imageBytes = Base64.getDecoder().decode(b64);
             BufferedImage image      = ImageIO.read(new ByteArrayInputStream(imageBytes));
             String        result     = tesseract.doOCR(image);
             System.out.println(result);
-            return new ReceiptData(result);
+            return new ReceiptData(result, parserManager);
         } catch (TesseractException | IOException e) {
             System.err.println("Could not parse image.");
             e.printStackTrace();
@@ -105,36 +114,10 @@ Engine mode:
         }
     }
 
-    private final String targetVisitorId = "017C7143EA910201809F9312AD49BB2B";
-    private final String targetStoreId   = "2641";
-    private final String targetKey       = "ff457966e64d5e877fdbad070f276d18ecec4a01";
 
     @GetMapping("/target/{dpci}")
-    public TargetItem getTargetInfo(@PathVariable int dpci) {
-        /*
-        <head>.*<\/head>
-        <script.*?>.*?<\/script>
-        <.*?>
-        UPC: (\d+)
-         */
-
-
-        String url = new StringBuilder("https://redsky.target.com/redsky_aggregations/v1/web/plp_search_v1"
-                + "?key=" + targetKey + "&channel=WEB"
-                + "&keyword=" + dpci + "&page=%2Fs%2F" + dpci
-                + "&pricing_store_id=" + targetStoreId // Salt Lake
-                + "&visitor_id=" + targetVisitorId)
-                .toString();
-
-        TargetResponse response = restTemplate.getForObject(url, TargetResponse.class);
-
-        //Should return a single item...
-        if (response.getData().getSearch().getProducts().size() >= 1) {
-            TargetResponse.TargetData.Product prod = response.getData().getSearch().getProducts().get(0);
-
-            return new TargetItem(prod);
-        } else
-            return null;
+    public TargetItem getTargetInfo(@PathVariable String dpci) {
+        return parserManager.getTargetParser().getTargetItem(dpci);
     }
 
 }

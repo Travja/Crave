@@ -57,7 +57,6 @@ Engine mode:
     public static void main(String[] args) {
         File        file = new File("C:/Users/Travja/Downloads/Receipt (4).png");
         ReceiptData data = parseReceipt(file);
-        System.out.println(data);
     }
 
     @SneakyThrows
