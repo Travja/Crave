@@ -5,15 +5,17 @@ import me.travja.crave.common.repositories.ItemsRepository;
 import me.travja.crave.receiptservice.models.TargetItem;
 import me.travja.crave.receiptservice.parser.ParserManager;
 import me.travja.crave.receiptservice.parser.TargetParser;
-import net.sourceforge.tess4j.Tesseract;
-import net.sourceforge.tess4j.TesseractException;
+import org.bytedeco.javacpp.BytePointer;
+import org.bytedeco.leptonica.PIX;
+import org.bytedeco.leptonica.global.lept;
+import org.bytedeco.tesseract.TessBaseAPI;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Base64;
 import java.util.List;
@@ -72,8 +74,15 @@ Engine mode:
 
     @PostMapping("/parse")
     public ReceiptData parseReceipt(@RequestParam("file") MultipartFile file) {
+        return parse(convert(file));
+    }
+
+    private TessBaseAPI api = new TessBaseAPI();
+
+    public ReceiptData parse(File f) {
+        PIX img = lept.pixRead(f.getAbsolutePath());
         try {
-            BufferedImage image = ImageIO.read(file.getInputStream());
+            /*BufferedImage image = ImageIO.read(file.getInputStream());
 //            RescaleOp     op    = new RescaleOp(1.2f, 0, null);
 //            image = op.filter(image, image);
             Tesseract tesseract;
@@ -82,32 +91,70 @@ Engine mode:
             tesseract.setLanguage("eng");
             tesseract.setPageSegMode(6);
             tesseract.setOcrEngineMode(2);
-            String result = tesseract.doOCR(image);
+            String result = tesseract.doOCR(image);*/
+
+            if (api.Init("tessdata", "eng") != 0) {
+                System.err.println("Could not initialize tesseract.");
+                System.exit(1);
+            }
+
+            api.SetImage(img);
+            api.SetSourceResolution(70);
+            api.SetPageSegMode(6);
+
+            BytePointer outText = api.GetUTF8Text();
+            String      result  = outText.getString();
+
             System.out.println(result);
+
+            outText.deallocate();
             return new ReceiptData(result, parserManager);
-        } catch (TesseractException | IOException e) {
+        } catch (Exception e) {
             System.err.println("Could not parse image.");
             e.printStackTrace();
             return null;
+        } finally {
+            api.Clear();
+            api.End();
+//            api.deallocate();
+            if (img != null) {
+                img.destroy();
+                lept.pixDestroy(img);
+            }
+            f.delete();
         }
+    }
+
+    public File convert(MultipartFile f) {
+        File file = new File(f.getOriginalFilename());
+        try {
+            file.createNewFile();
+            FileOutputStream out = new FileOutputStream(file);
+            out.write(f.getInputStream().readAllBytes());
+            out.close();
+            return file;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     @PostMapping("/parsestr")
     public ReceiptData parseReceiptString(@RequestParam("file") String base64) {
-        try {
-            Tesseract tesseract;
-            tesseract = new Tesseract();
-            tesseract.setDatapath("tessdata");
-            tesseract.setLanguage("eng");
-            tesseract.setPageSegMode(6);
-            tesseract.setOcrEngineMode(2);
-            String        b64        = base64.split(",")[1];
-            byte[]        imageBytes = Base64.getDecoder().decode(b64);
-            BufferedImage image      = ImageIO.read(new ByteArrayInputStream(imageBytes));
-            String        result     = tesseract.doOCR(image);
-            System.out.println(result);
-            return new ReceiptData(result, parserManager);
-        } catch (TesseractException | IOException e) {
+        String b64        = base64.split(",")[1];
+        byte[] imageBytes = Base64.getDecoder().decode(b64);
+        File   file       = new File("tmp.png");
+        try (ByteArrayInputStream bin = new ByteArrayInputStream(imageBytes);
+             FileOutputStream out = new FileOutputStream(file)) {
+            file.createNewFile();
+            out.write(bin.readAllBytes());
+
+            return parse(file);
+//            BufferedImage image  = ImageIO.read(new ByteArrayInputStream(imageBytes));
+//            String        result = tesseract.doOCR(image);
+//            System.out.println(result);
+//            return new ReceiptData(result, parserManager);
+        } catch (IOException e) {
             System.err.println("Could not parse image.");
             e.printStackTrace();
             return null;
