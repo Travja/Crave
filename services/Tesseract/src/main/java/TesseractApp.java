@@ -13,10 +13,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class TesseractApp {
 
-    private static Tesseract tesseract;
+    public static WalmartParser walmartParser = new WalmartParser();
 
 
     /*
@@ -43,6 +44,7 @@ Engine mode:
 2 = Tesseract + LSTM.
 3 = Default, based on what is available.
      */
+    private static Tesseract tesseract;
 
     static {
         tesseract = new Tesseract();
@@ -52,11 +54,11 @@ Engine mode:
         tesseract.setOcrEngineMode(2);
     }
 
-    public static WalmartParser walmartParser = new WalmartParser();
-
     public static void main(String[] args) {
-        File        file = new File("C:/Users/Travja/Downloads/Receipt (4).png");
-        ReceiptData data = parseReceipt(file);
+        //Lol. Logical and Computational Thinking
+        IntStream.range(1, 200).mapToObj(i -> i + ".\t" + (i % 5 == 0 ? "Foo" : "") + (i % 7 == 0 ? "Bar" : "")).forEach(System.out::println);
+//        File        file = new File("C:/Users/Travja/Downloads/Receipt (4).png");
+//        ReceiptData data = parseReceipt(file);
     }
 
     @SneakyThrows
@@ -87,6 +89,13 @@ Engine mode:
 //            case UNKNOWN -> {
 //            }
         }
+    }
+
+    public static enum ReceiptType {
+        WALMART,
+        SMITHS,
+        TARGET,
+        UNKNOWN
     }
 
     public static class ReceiptData {
@@ -141,13 +150,6 @@ Engine mode:
 
             return sb.toString();
         }
-    }
-
-    public static enum ReceiptType {
-        WALMART,
-        SMITHS,
-        TARGET,
-        UNKNOWN
     }
 
 }

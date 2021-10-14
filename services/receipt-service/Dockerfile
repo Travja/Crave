@@ -9,4 +9,4 @@ COPY ${JAR_FILE} app.jar
 
 COPY src/main/resources/tessdata tessdata
 
-CMD java -Xms256m -Xmx600m -jar ./app.jar
+CMD java -jar -Xms256m -Xmx600m ./app.jar

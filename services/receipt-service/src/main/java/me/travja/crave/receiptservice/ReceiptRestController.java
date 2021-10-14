@@ -1,32 +1,38 @@
 package me.travja.crave.receiptservice;
 
-import me.travja.crave.common.models.Item;
-import me.travja.crave.common.repositories.ItemsRepository;
+//import me.travja.crave.common.models.Item;
+//import me.travja.crave.common.repositories.ItemsRepository;
+
 import me.travja.crave.receiptservice.models.TargetItem;
 import me.travja.crave.receiptservice.parser.ParserManager;
 import me.travja.crave.receiptservice.parser.TargetParser;
-import org.bytedeco.javacpp.BytePointer;
-import org.bytedeco.leptonica.PIX;
-import org.bytedeco.leptonica.global.lept;
-import org.bytedeco.tesseract.TessBaseAPI;
+import org.apache.tika.Tika;
+import org.apache.tika.config.TikaConfig;
+import org.apache.tika.metadata.Metadata;
+import org.apache.tika.parser.AutoDetectParser;
+import org.apache.tika.parser.ParseContext;
+import org.apache.tika.parser.Parser;
+import org.apache.tika.parser.ocr.TesseractOCRConfig;
+import org.apache.tika.parser.pdf.PDFParserConfig;
+import org.apache.tika.sax.BodyContentHandler;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import javax.annotation.PostConstruct;
+import java.io.*;
+import java.nio.charset.Charset;
 import java.util.Base64;
+import java.util.Collections;
 import java.util.List;
 
 @RestController
 @RequestMapping("/receipt")
 public class ReceiptRestController {
 
-    private final ItemsRepository repo;
-    public final  RestTemplate    restTemplate;
-    private final ParserManager   parserManager;
+    //    private static TessBaseAPI  api;
+    //    private final ItemsRepository repo;
+    public final RestTemplate restTemplate;
 
 
     /*
@@ -53,88 +59,135 @@ Engine mode:
 2 = Tesseract + LSTM.
 3 = Default, based on what is available.
      */
+    private final ParserManager parserManager;
 
+    //    @GetMapping
+//    public List<Item> getItems() {
+//        return (List<Item>) repo.findAll();
+//    }
+//
+//    @PostMapping
+//    public Item createItem(@RequestBody Item item) {
+//        return repo.save(item);
+//    }
+    private PDFParserConfig    parser   = new PDFParserConfig();
+    private TesseractOCRConfig tessConf = new TesseractOCRConfig();
+    private ParseContext       ctx      = new ParseContext();
+    private Tika               tika;
 
-    public ReceiptRestController(ItemsRepository repo, RestTemplate restTemplate, TargetParser targetParser, ParserManager parserManager) {
-        this.repo = repo;
+    public ReceiptRestController(/*ItemsRepository repo, */RestTemplate restTemplate, TargetParser targetParser, ParserManager parserManager) {
+//        this.repo = repo;
 
         this.restTemplate = restTemplate;
         this.parserManager = parserManager;
     }
 
-    @GetMapping
-    public List<Item> getItems() {
-        return (List<Item>) repo.findAll();
-    }
+//    public ReceiptData parse(File f) {
+//        PIX img = lept.pixRead("receipt.png");
+//        try {
+//            //BufferedImage image = ImageIO.read(file.getInputStream());
+////            RescaleOp     op    = new RescaleOp(1.2f, 0, null);
+////            image = op.filter(image, image);
+//            /*Tesseract tesseract;
+//            tesseract = new Tesseract();
+//            tesseract.setDatapath("tessdata");
+//            tesseract.setLanguage("eng");
+//            tesseract.setPageSegMode(6);
+//            tesseract.setOcrEngineMode(2);
+//            String result = tesseract.doOCR(image);*/
+//
+//            api.SetImage(img);
+//            api.SetSourceResolution(70);
+//            api.SetPageSegMode(6);
+//
+//            BytePointer outText = api.GetUTF8Text();
+//            String      result  = outText.getString();
+////            String result = "walmart\n" +
+////                    "CHIMICHANGA 007100701094 F 4.249 \n" +
+////                    "CKN WYNGZ 007874207380 F 6.57 \n" +
+////                    "GV PSTA SCE 007874200020 F 1.28 \n" +
+////                    "LAYS BBQ 002840031040 F 4.30 \n" +
+////                    "KEFIR 001707710332 F 2.78 \n" +
+////                    "CORNDOGS 007874236164 F 8.97 \n" +
+////                    "GV FRT SMIL 007874214463 F 3.98 R";
+//
+//            System.out.println(result);
+//
+//            outText.deallocate();
+//            BytePointer.free(outText);
+//            return new ReceiptData(result, parserManager);
+//        } catch (Exception e) {
+//            System.err.println("Could not parse image.");
+//            e.printStackTrace();
+//        } finally {
+//            api.Clear();
+//            if (img != null) {
+//                lept.pixFreeData(img);
+//                lept.pixDestroy(img);
+//                img.destroy();
+//                img.deallocate();
+//            }
+//            if (f != null)
+//                f.delete();
+//            System.gc();
+//        }
+//        return null;
+//    }
 
-    @PostMapping
-    public Item createItem(@RequestBody Item item) {
-        return repo.save(item);
+    @GetMapping
+    public List<Object> list() {
+        return Collections.emptyList();
     }
 
     @PostMapping("/parse")
     public ReceiptData parseReceipt(@RequestParam("file") MultipartFile file) {
-        return parse(convert(file));
+        return parse(file);
     }
 
-    private TessBaseAPI api = new TessBaseAPI();
+    @PostConstruct
+    public void setupOCR() {
+        tika = new Tika();
+        parser.setOcrStrategy(PDFParserConfig.OCR_STRATEGY.OCR_AND_TEXT_EXTRACTION);
+        parser.setOcrDPI(70);
+        parser.setDetectAngles(true);
+        tessConf.setLanguage("eng");
+        tessConf.setPageSegMode("6");
+        tessConf.setTessdataPath("tessdata");
+        tessConf.setEnableImageProcessing(1);
 
-    public ReceiptData parse(File f) {
-        PIX img = lept.pixRead(f.getAbsolutePath());
+        ctx.set(Parser.class, new AutoDetectParser(TikaConfig.getDefaultConfig()));
+        ctx.set(PDFParserConfig.class, parser);
+        ctx.set(TesseractOCRConfig.class, tessConf);
+    }
+
+    public ReceiptData parse(MultipartFile f) {
         try {
-            /*BufferedImage image = ImageIO.read(file.getInputStream());
-//            RescaleOp     op    = new RescaleOp(1.2f, 0, null);
-//            image = op.filter(image, image);
-            Tesseract tesseract;
-            tesseract = new Tesseract();
-            tesseract.setDatapath("tessdata");
-            tesseract.setLanguage("eng");
-            tesseract.setPageSegMode(6);
-            tesseract.setOcrEngineMode(2);
-            String result = tesseract.doOCR(image);*/
+            InputStream inputStream = f.getInputStream();
+            parse(inputStream);
+        } catch (IOException e) {
+            System.err.println("Could not parse image.");
+            e.printStackTrace();
+        }
+        return null;
+    }
 
-            if (api.Init("tessdata", "eng") != 0) {
-                System.err.println("Could not initialize tesseract.");
-                System.exit(1);
-            }
+    public ReceiptData parse(InputStream inputStream) throws IOException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try {
+            tika.getParser().parse(inputStream, new BodyContentHandler(out), new Metadata(), ctx);
 
-            api.SetImage(img);
-            api.SetSourceResolution(70);
-            api.SetPageSegMode(6);
-
-            BytePointer outText = api.GetUTF8Text();
-            String      result  = outText.getString();
+            String result = new String(out.toByteArray(), Charset.defaultCharset());
 
             System.out.println(result);
 
-            outText.deallocate();
             return new ReceiptData(result, parserManager);
         } catch (Exception e) {
             System.err.println("Could not parse image.");
             e.printStackTrace();
-            return null;
         } finally {
-            api.Clear();
-            api.End();
-//            api.deallocate();
-            if (img != null) {
-                img.destroy();
-                lept.pixDestroy(img);
-            }
-            f.delete();
-        }
-    }
-
-    public File convert(MultipartFile f) {
-        File file = new File(f.getOriginalFilename());
-        try {
-            file.createNewFile();
-            FileOutputStream out = new FileOutputStream(file);
-            out.write(f.getInputStream().readAllBytes());
+            inputStream.close();
             out.close();
-            return file;
-        } catch (IOException e) {
-            e.printStackTrace();
+            System.gc();
         }
         return null;
     }
@@ -149,11 +202,7 @@ Engine mode:
             file.createNewFile();
             out.write(bin.readAllBytes());
 
-            return parse(file);
-//            BufferedImage image  = ImageIO.read(new ByteArrayInputStream(imageBytes));
-//            String        result = tesseract.doOCR(image);
-//            System.out.println(result);
-//            return new ReceiptData(result, parserManager);
+            return parse(new FileInputStream(file));
         } catch (IOException e) {
             System.err.println("Could not parse image.");
             e.printStackTrace();

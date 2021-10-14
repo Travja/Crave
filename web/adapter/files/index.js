@@ -68,8 +68,8 @@ const eureka = new Eureka.Eureka({
         }
     },
     eureka: {
-        host: registryHost,
-        port: 8761,
+        host: registryHost.split(":")[0],
+        port: registryHost.includes(":") ? registryHost.split(":")[1] : 8761,
         servicePath: '/eureka/apps/',
         maxRetries: 50,
         requestRetryDelay: 2000,
