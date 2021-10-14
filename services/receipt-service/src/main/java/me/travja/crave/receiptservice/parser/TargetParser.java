@@ -380,7 +380,6 @@ https://redsky.target.com/redsky_aggregations/v1/web/plp_search_v1?key=ff457966e
 */
 package me.travja.crave.receiptservice.parser;
 
-import me.travja.crave.receiptservice.TargetResponse;
 import me.travja.crave.receiptservice.models.TargetItem;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -397,7 +396,9 @@ public class TargetParser implements ReceiptProcessor {
             Pattern.CASE_INSENSITIVE);
 
     public final RestTemplate restTemplate;
-
+    private final String targetVisitorId = "017C7143EA910201809F9312AD49BB2B";
+    private final String targetStoreId   = "2641";
+    private final String targetKey       = "ff457966e64d5e877fdbad070f276d18ecec4a01";
     public TargetParser(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }
@@ -459,10 +460,6 @@ public class TargetParser implements ReceiptProcessor {
 
         return prodInfo;
     }
-
-    private final String targetVisitorId = "017C7143EA910201809F9312AD49BB2B";
-    private final String targetStoreId   = "2641";
-    private final String targetKey       = "ff457966e64d5e877fdbad070f276d18ecec4a01";
 
     public TargetItem getTargetItem(String dpci) {
         String url = new StringBuilder("https://redsky.target.com/redsky_aggregations/v1/web/plp_search_v1"

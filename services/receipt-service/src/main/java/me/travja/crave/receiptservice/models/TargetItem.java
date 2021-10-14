@@ -3,7 +3,7 @@ package me.travja.crave.receiptservice.models;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import me.travja.crave.receiptservice.TargetResponse;
+import me.travja.crave.receiptservice.parser.TargetResponse;
 
 import java.io.BufferedReader;
 import java.io.IOException;

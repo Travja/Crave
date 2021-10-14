@@ -1,7 +1,6 @@
 package me.travja.crave.receiptservice.parser;
 
 import lombok.Getter;
-import me.travja.crave.receiptservice.ReceiptData;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;

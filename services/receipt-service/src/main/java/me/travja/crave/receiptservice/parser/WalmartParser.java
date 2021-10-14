@@ -13,6 +13,7 @@ public class WalmartParser implements ReceiptProcessor {
 
     @Override
     public List<ProductInformation> parseData(List<String> list) {
+        //TODO Account for discounted items. Get titles as a way to verify UPC?
 
         List<ProductInformation> items = new ArrayList<>();
 

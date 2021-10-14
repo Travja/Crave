@@ -1,9 +1,7 @@
-package me.travja.crave.receiptservice;
+package me.travja.crave.receiptservice.parser;
 
 import lombok.Getter;
 import lombok.Setter;
-import me.travja.crave.receiptservice.parser.ParserManager;
-import me.travja.crave.receiptservice.parser.ProductInformation;
 
 import java.util.Arrays;
 import java.util.List;

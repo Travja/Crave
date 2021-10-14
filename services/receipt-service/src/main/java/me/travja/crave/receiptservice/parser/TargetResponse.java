@@ -1,4 +1,4 @@
-package me.travja.crave.receiptservice;
+package me.travja.crave.receiptservice.parser;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
@@ -19,14 +19,6 @@ public class TargetResponse {
         @Getter
         @Setter
         private SearchData search;
-
-        public class SearchData {
-
-            @Getter
-            @Setter
-            private List<Product> products;
-
-        }
 
         @NoArgsConstructor
         public static class Product {
@@ -72,6 +64,14 @@ public class TargetResponse {
                 @Setter
                 private String formattedCurrentPrice;
             }
+
+        }
+
+        public class SearchData {
+
+            @Getter
+            @Setter
+            private List<Product> products;
 
         }
 
