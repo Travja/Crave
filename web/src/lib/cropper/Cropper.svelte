@@ -272,7 +272,7 @@
             <!--            <img id="sample" src="/cropper/bill.png" alt="bill"/>-->
             <div class="imgWrapper" bind:this={wrap}
                  bind:clientWidth={myWidth} bind:clientHeight={myHeight}>
-                <img src="{url}" bind:this={image}/>
+                <img src="{url}" bind:this={image} alt="Receipt"/>
             </div>
             <div class="wrapper">
                 <svg id="svg" bind:this={svg} height="{myHeight}"
@@ -321,7 +321,7 @@
     {#if submitting}
         <div id="loading">
             <div id="imgWrapper">
-                <img src="/loading.gif" id="loadingImg"/>
+                <img src="/loading.gif" id="loadingImg" alt="Loading"/>
             </div>
         </div>
     {/if}
@@ -395,10 +395,6 @@
         cursor: move;
         opacity: 0.6;
         filter: drop-shadow(1px 1px 2px #666);
-    }
-
-    #download {
-        display: none;
     }
 
     #imageInit {

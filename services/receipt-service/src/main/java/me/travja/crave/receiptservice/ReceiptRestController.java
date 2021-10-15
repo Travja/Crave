@@ -29,7 +29,6 @@ import me.travja.crave.common.repositories.ItemsRepository;
 import me.travja.crave.receiptservice.models.TargetItem;
 import me.travja.crave.receiptservice.parser.ParserManager;
 import me.travja.crave.receiptservice.parser.ReceiptData;
-import me.travja.crave.receiptservice.parser.TargetParser;
 import org.apache.tika.Tika;
 import org.apache.tika.config.TikaConfig;
 import org.apache.tika.metadata.Metadata;
@@ -61,7 +60,7 @@ public class ReceiptRestController {
     private ParseContext       ctx      = new ParseContext();
     private Tika               tika;
 
-    public ReceiptRestController(ItemsRepository repo, RestTemplate restTemplate, TargetParser targetParser, ParserManager parserManager) {
+    public ReceiptRestController(ItemsRepository repo, RestTemplate restTemplate, ParserManager parserManager) {
         this.repo = repo;
         this.restTemplate = restTemplate;
         this.parserManager = parserManager;

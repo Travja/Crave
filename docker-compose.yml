@@ -26,12 +26,14 @@ services:
     cap_add:
       - SYS_NICE  # CAP_SYS_NICE
     ports:
-      - 3307:3306
+      - "3307:3306"
+    env_file:
+      - .env
     environment:
-      MYSQL_ROOT_PASSWORD: test
-      MYSQL_DATABASE: crave
-      MYSQL_USER: Travja
-      MYSQL_PASSWORD: test
+      MYSQL_ROOT_PASSWORD: ${DATABASE_PASSWORD}
+      MYSQL_DATABASE: ${DATABASE_NAME}
+      MYSQL_USER: ${DATABASE_USERNAME}
+      MYSQL_PASSWORD: ${DATABASE_PASSWORD}
     volumes:
       - ./.data/mysql:/var/lib/mysql
     networks:
@@ -42,9 +44,7 @@ services:
     build:
       context: ./services/eureka-server
     ports:
-      - 8761:8761
-    expose:
-      - 8761
+      - "8761:8761"
     networks:
       - crave
 
@@ -56,98 +56,105 @@ services:
       - eureka-server
     restart: always
     ports:
-      - 80:8080
+      - "80:8080"
     expose:
       - 8080
+    env_file:
+      - .env
     environment:
       - SERVER_PORT=8080
-      - REGISTRY_HOST=eureka-server:8761
       - APP_NAME=gateway-service
     networks:
       - crave
 
+  auth-service:
+    build:
+      context: ./services/auth/auth-server
+    depends_on:
+      - crave-mysql
+    restart: always
+    ports:
+      - "9000:9000"
+    env_file:
+      - .env
+    environment:
+      - SERVER_PORT=9000
+      - APP_NAME=auth-service
+    networks:
+      - crave
+    mem_limit: 450m
+  #    scale: 2
+
   item-service:
+    #    profiles: ["services"]
     build:
       context: ./services/item-service
     depends_on:
       - crave-mysql
       - eureka-server
     restart: always
-#    ports:
-#      - 8082:8080
+    #    ports:
+    #      - 8082:8080
     expose:
       - 8080
     env_file:
       - .env
     environment:
-      - DATABASE_HOST=crave-mysql:3306
-      - DATABASE_NAME=crave
-      - DATABASE_USERNAME=Travja
-      - DATABASE_PASSWORD=test
       - SERVER_PORT=8080
-      - REGISTRY_HOST=eureka-server:8761
       - APP_NAME=item-service
     networks:
       - crave
     mem_limit: 450m
-#    scale: 2
+  #    scale: 2
 
   receipt-service:
+    #    profiles: ["services"]
     build:
       context: ./services/receipt-service
     depends_on:
       - crave-mysql
       - eureka-server
     restart: always
-    expose:
-      - 8080
     env_file:
       - .env
     environment:
-      - DATABASE_HOST=crave-mysql:3306
-      - DATABASE_NAME=crave
-      - DATABASE_USERNAME=Travja
-      - DATABASE_PASSWORD=test
       - SERVER_PORT=8080
-      - REGISTRY_HOST=eureka-server:8761
       - APP_NAME=receipt-service
     networks:
       - crave
     mem_limit: 450m
   #    scale: 2
 
-# To set the gateway location used by the front-end,
-# create a .env file in the base dir
-# and include 'VITE_GATEWAY=uri'.
-# The gateway will default to window.location.origin
-# if not included.
-# This would enable the front-end to run independent
-# of the rest of the docker network, but still
-# access the API behind the cloud gateway.
-# As such, this should be the PUBLIC access point.
-# No 'cloud-gateway:8080'. In a deployed scenario,
-# this would not be the internal IP either. This
-# would be the WAN address for the cloud gateway.
+  # To set the gateway location used by the front-end,
+  # create a .env file in the base dir
+  # and include 'VITE_GATEWAY=uri'.
+  # The gateway will default to window.location.origin
+  # if not included.
+  # This would enable the front-end to run independent
+  # of the rest of the docker network, but still
+  # access the API behind the cloud gateway.
+  # As such, this should be the PUBLIC access point.
+  # No 'cloud-gateway:8080'. In a deployed scenario,
+  # this would not be the internal IP either. This
+  # would be the WAN address for the cloud gateway.
   web-server:
+    #    profiles: ["services"]
     build:
       context: ./web
-#    container_name: web-server
+    #    container_name: web-server
     depends_on:
       - crave-mysql
       - item-service
       - cloud-gateway
       - eureka-server
     restart: always
-#    env_file:
-#      - .env
+    env_file:
+      - .env
     environment:
-      - REGISTRY_HOST=eureka-server:8761
       - SERVER_PORT=3000
       - APP_NAME=web-server
     ports:
-      - 3000:3000
-    expose:
-      - 3000
+      - "3000:3000"
     networks:
       - crave
 #    scale: 2
