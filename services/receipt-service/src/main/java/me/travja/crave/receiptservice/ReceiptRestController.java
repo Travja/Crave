@@ -113,7 +113,7 @@ public class ReceiptRestController {
     public ReceiptData parse(MultipartFile f) {
         try {
             InputStream inputStream = f.getInputStream();
-            parse(inputStream);
+            return parse(inputStream);
         } catch (IOException e) {
             System.err.println("Could not parse image.");
             e.printStackTrace();

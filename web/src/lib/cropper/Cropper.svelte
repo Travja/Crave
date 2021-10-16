@@ -3,6 +3,7 @@
     import {onMount} from "svelte";
     import {Utils} from "$lib/cropper/utils.js";
     import {variables} from "$lib/variables.js";
+    import {overrideFetch} from "$lib/util.js";
 
     let margin = {top: 40, right: 40, bottom: 40, left: 40};
     let gTransform = `translate(${margin.left}, ${margin.top})`;
@@ -68,6 +69,7 @@
         updating.size = 7;
         updating = cursor = undefined;
         circles = [...circles];
+        dragged();
     };
 
     const updateCircles = (e) => {
@@ -86,8 +88,6 @@
         target[1] = updating.y;
 
         circles = [...circles];
-
-        dragged();
     };
 
     let round = (num, digits) => {
@@ -104,7 +104,7 @@
         if (timeout)
             clearTimeout(timeout);
 
-        timeout = setTimeout(warpImage, 250);
+        timeout = setTimeout(warpImage, 50);
     };
 
     const multiply = (matrix, vector) => {
@@ -210,7 +210,9 @@
         fileInput.value = datUrl;
 
         submitting = true;
-        form.submit();
+        formSubmit();
+        // form.submit();
+
         // let image = datUrl.replace("image/png", "image/octet-stream");
         // downloadLink.href = image;
         //
@@ -249,6 +251,7 @@
     };
 
     onMount(() => {
+        overrideFetch();
         img = new Image();
         utils = new Utils('errorMessage');
 
@@ -261,25 +264,41 @@
 
         window.addEventListener("resize", checkResize);
     });
+
+    const formSubmit = () => {
+        fetch(form.action, {
+            method: form.method.toUpperCase(),
+            body: new FormData(form)
+        }).then(res => res.json())
+            .then(data => {
+                console.log(data);
+                submitting = false;
+                alert("Receipt submitted successfully");
+            })
+            .catch(error => {
+                alert("There was a problem submitting the receipt. " + error.message);
+            });
+    };
+
 </script>
 
 <section>
-    <input type="file" id="file-upload" on:change={newFile}/>
+    <input id="file-upload" on:change={newFile} type="file"/>
     <div class="container">
-        <div id="background" class="o_image"
-             bind:this={background}
-             bind:clientWidth={backgroundWidth}>
+        <div bind:clientWidth={backgroundWidth} bind:this={background}
+             class="o_image"
+             id="background">
             <!--            <img id="sample" src="/cropper/bill.png" alt="bill"/>-->
-            <div class="imgWrapper" bind:this={wrap}
-                 bind:clientWidth={myWidth} bind:clientHeight={myHeight}>
-                <img src="{url}" bind:this={image} alt="Receipt"/>
+            <div bind:clientHeight={myHeight} bind:clientWidth={myWidth}
+                 bind:this={wrap} class="imgWrapper">
+                <img alt="Upload a Receipt" bind:this={image} src="{url}"/>
             </div>
             <div class="wrapper">
-                <svg id="svg" bind:this={svg} height="{myHeight}"
-                     width="{myWidth}" style="{cursor ? `cursor: ${cursor}` : ``}"
-                     on:mousemove={updateCircles}
-                     on:mouseup={stopCircles}>
-                    <g id="window_g" bind:this={g}
+                <svg bind:this={svg} height="{myHeight}" id="svg"
+                     on:mousemove={updateCircles} on:mouseup={stopCircles}
+                     style="{cursor ? `cursor: ${cursor}` : ``}"
+                     width="{myWidth}">
+                    <g bind:this={g} id="window_g"
                        transform="{gTransform}">
                         {#if points}
                             <polyline {points} class="line"/>
@@ -294,9 +313,9 @@
             </div>
         </div>
         <div class="p_image">
-            <canvas id="imageInit" bind:this={imgInit}></canvas>
-            <canvas id="imageResult" style="--width:{finalWidth}px --height={finalHeight}px"
-                    bind:this={finalCanvas}/>
+            <canvas bind:this={imgInit} id="imageInit"></canvas>
+            <canvas bind:this={finalCanvas} id="imageResult"
+                    style="--width:{finalWidth}px --height={finalHeight}px"/>
         </div>
     </div>
 
@@ -314,8 +333,8 @@
     <!--    <label for="beta">Beta: </label>-->
     <!--    <input type="range" min="0" max="100" step="1" id="beta" bind:value={beta}/>-->
     <form action="{variables.gateway}/receipt-service/receipt/parsestr"
-          method="post" bind:this={form}>
-        <input type="hidden" name="file" id="file" bind:this={fileInput}/>
+          bind:this={form} method="post">
+        <input bind:this={fileInput} id="file" name="file" type="hidden"/>
     </form>
 
     {#if submitting}
@@ -325,10 +344,6 @@
             </div>
         </div>
     {/if}
-
-    <script async src="/cropper/opencv.js"
-            on:load={() => setTimeout(() => disabled = false, 500)}
-            on:error={() => console.error("Failed to load opencv")}></script>
 </section>
 
 <style>
@@ -416,6 +431,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        background: rgba(0, 0, 0, 0.3);
     }
 
     section {

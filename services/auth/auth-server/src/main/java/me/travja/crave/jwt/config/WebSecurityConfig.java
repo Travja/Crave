@@ -1,8 +1,8 @@
 package me.travja.crave.jwt.config;
 
 import lombok.AllArgsConstructor;
-import me.travja.crave.jwt.jwt.JwtAuthenticationEntryPoint;
-import me.travja.crave.jwt.jwt.JwtRequestFilter;
+import me.travja.crave.jwt.jwt.JWTRequestFilter;
+import me.travja.crave.jwt.jwt.AuthEntryPoint;
 import me.travja.crave.jwt.services.JWTDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -23,14 +23,16 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @AllArgsConstructor
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
-    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
-    private final JWTDetailsService           jwtUserDetailsService;
-    private final JwtRequestFilter            jwtRequestFilter;
+    private final AuthEntryPoint    jwtAuthenticationEntryPoint;
+    private final JWTDetailsService jwtUserDetailsService;
+    private final JWTRequestFilter            jwtRequestFilter;
     private final PasswordEncoder             passwordEncoder;
 
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(jwtUserDetailsService).passwordEncoder(passwordEncoder);
+        auth.eraseCredentials(false)
+                .userDetailsService(jwtUserDetailsService)
+                .passwordEncoder(passwordEncoder);
     }
 
     @Bean

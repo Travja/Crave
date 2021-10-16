@@ -2,7 +2,13 @@
     import {page} from '$app/stores';
     import logo from './logo.png';
     import gitLogo from '../github-logo.svg';
+    import LoginButton from "$lib/header/LoginButton.svelte";
+    import {parseJWT, verifyJWT} from "$lib/util";
+    import LoginModal from "$lib/LoginModal.svelte";
+    import {onMount} from "svelte";
+    import {variables} from "$lib/variables";
 
+    //Define nav bar routes here and which pages should be authenticated.
     let pages = [
         {
             path: "/",
@@ -18,37 +24,102 @@
         },
         {
             path: "/scratch",
-            title: "Scratch"
+            title: "Scratch",
+            auth: true
         },
     ];
+
+    let requireLogin = false,
+        showLoginModal = false,
+        loggedIn = false,
+        prompt = false;
+    let username;
+    let mounted = false;
+    $: if (mounted) {
+        for (let pg of pages) {
+            if ($page.path == pg.path) {
+                if (pg.auth && !loggedIn) {
+                    requireLogin = true;
+                    prompt = true;
+                } else {
+                    prompt = requireLogin = showLoginModal = false;
+                }
+                // goto("/login");
+                break;
+            }
+        }
+    }
+    onMount(() => {
+        loggedIn = verifyJWT();
+        if (loggedIn) {
+            let jwt = parseJWT();
+            username = jwt.username;
+        } else {
+            localStorage.removeItem("jwt");
+        }
+
+        mounted = true;
+    });
+
+    const handleLogin = e => {
+        let detail = e.detail;
+        if (detail.success) {
+            loggedIn = true;
+            username = detail.username;
+            prompt = showLoginModal = requireLogin = false;
+        }
+    };
+
+    const handleLogout = () => {
+        localStorage.removeItem("jwt");
+        loggedIn = false;
+        variables.jwt.set(undefined);
+    };
+
+    const closeLoginModal = () => {
+        prompt = showLoginModal = requireLogin = false;
+    };
 </script>
 
 <header>
     <div class="corner">
         <a href="/">
-            <img src={logo} alt="Crave"/>
+            <img alt="Crave" src={logo}/>
         </a>
     </div>
 
     <nav>
-        <svg viewBox="0 0 2 3" aria-hidden="true">
+        <svg aria-hidden="true" viewBox="0 0 2 3">
             <path d="M0,0 L1,2 C1.5,3 1.5,3 2,3 L2,0 Z"/>
         </svg>
         <ul>
             {#each pages as pg}
-                <li class:active={$page.path === pg.path}><a sveltekit:prefetch href={pg.path}>{pg.title}</a></li>
+                {#if !pg.hidden}
+                    <a sveltekit:prefetch href={pg.path}
+                       class:active={$page.path === pg.path}>
+                        <li>{pg.title}</li>
+                    </a>
+                {/if}
             {/each}
+            <LoginButton {loggedIn}
+                         on:click={() => showLoginModal = true}
+                         on:logout={handleLogout}/>
         </ul>
-        <svg viewBox="0 0 2 3" aria-hidden="true">
+        <svg aria-hidden="true" viewBox="0 0 2 3">
             <path d="M0,0 L0,3 C0.5,3 0.5,3 1,2 L2,0 Z"/>
         </svg>
     </nav>
 
     <div class="corner">
         <a href="https://github.com/Travja/Crave" target="_blank">
-            <img src={gitLogo} alt="GitHub"/>
+            <img alt="GitHub" src={gitLogo}/>
         </a>
     </div>
+
+    {#if showLoginModal || requireLogin}
+        <LoginModal on:closeModal={closeLoginModal} {prompt} {requireLogin}
+                    on:login={handleLogin}/>
+    {/if}
 </header>
 
 <style>
@@ -77,9 +148,11 @@
     }
 
     nav {
+        position: relative;
         display: flex;
         justify-content: center;
         --background: rgba(0, 0, 0, 0.2);
+        z-index: 5000;
     }
 
     svg {
@@ -105,12 +178,7 @@
         background-size: contain;
     }
 
-    li {
-        position: relative;
-        height: 100%;
-    }
-
-    li.active::before {
+    a.active::before {
         --size: 6px;
         content: '';
         width: 0;
@@ -123,9 +191,11 @@
     }
 
     nav a {
+        position: relative;
         display: flex;
         height: 100%;
         align-items: center;
+        justify-content: center;
         padding: 0 1em;
         color: var(--heading-color);
         font-weight: 700;
@@ -139,7 +209,13 @@
         transition: color 0.2s linear;
     }
 
-    a:hover {
+    a {
+        color: var(--heading-color);
+        text-decoration: none;
+    }
+
+    a:hover, nav li:hover {
+        cursor: pointer;
         color: var(--accent-color);
     }
 </style>

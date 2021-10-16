@@ -22,7 +22,7 @@ import java.util.Base64;
 
 @Component
 @RequiredArgsConstructor
-public class JwtRequestFilter extends OncePerRequestFilter {
+public class JWTRequestFilter extends OncePerRequestFilter {
 
     private final JWTDetailsService jwtUserDetailsService;
 
@@ -41,13 +41,13 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
-        String requestTokenHeader = request.getHeader("Authorization");
+        String authHeader = request.getHeader("Authorization");
 
         String   username = null;
         JWTToken jwt      = null;
-        if (requestTokenHeader != null && requestTokenHeader.startsWith("Bearer ")) {
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
             try {
-                String jwtToken = requestTokenHeader.substring(7);
+                String jwtToken = authHeader.substring(7);
                 jwt = JWTToken.parseToken(jwtToken);
                 username = jwt.getUsername();
             } catch (IllegalArgumentException e) {

@@ -2,7 +2,7 @@ set -a # automatically export all variables
 source .env
 set +a
 
-mvn package -f services/build-all -DskipTests
+mvn clean package -f services/build-all -DskipTests
 #mvn package -f services/auth -DskipTests
 
 cd web

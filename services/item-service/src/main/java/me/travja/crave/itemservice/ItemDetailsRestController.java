@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import me.travja.crave.common.models.ItemDetails;
 import me.travja.crave.common.repositories.ItemDetailsRepository;
 import me.travja.crave.common.views.ItemView;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,6 +21,7 @@ public class ItemDetailsRestController {
 
     @GetMapping
     @JsonView(ItemView.class)
+    @PreAuthorize("hasAuthority('ADMIN')")
     public List<ItemDetails> getItems() {
         return (List<ItemDetails>) repo.findAll();
     }

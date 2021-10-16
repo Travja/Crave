@@ -1,7 +1,6 @@
-package me.travja.crave.jwt.services;
+package me.travja.crave.common.filters;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -13,7 +12,6 @@ import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -26,7 +24,7 @@ public class JWTDetailsService implements UserDetailsService {
     @PostConstruct
     public void setupUsers() {
         users.add(new User("travja", passwordEncoder.encode("test"),
-                new ArrayList<>(List.of("ADMIN", "USER")).stream().map(str -> new SimpleGrantedAuthority(str)).collect(Collectors.toList())));
+                new ArrayList<>()));
     }
 
     @Override

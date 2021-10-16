@@ -2,7 +2,12 @@
     import '../app.css';
     import Header from "$lib/header/Header.svelte";
     import Footer from "$lib/Footer.svelte";
+    // noinspection ES6UnusedImports
     import {title} from "$lib/variables.js";
+    import {overrideXMLSend} from "$lib/util";
+    import {onMount} from "svelte";
+
+    onMount(overrideXMLSend);
 </script>
 
 <svelte:head>
