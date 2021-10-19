@@ -64,3 +64,17 @@ let loadJWT = () => {
 
     return jwt;
 };
+
+
+export const formSubmit = (form, callback) => {
+    fetch(form.action, {
+        method: form.method.toUpperCase(),
+        body: new FormData(form)
+    })
+        .then(res => res.json())
+        .then(data => {
+            if (callback)
+                callback(data);
+        })
+        .catch(error => callback({error: true, message: error}));
+};

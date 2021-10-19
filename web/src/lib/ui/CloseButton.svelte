@@ -9,7 +9,11 @@
 
 <style>
     button {
-        float: right;
+        position: absolute;
+        top: 0;
+        right: 0;
+        margin: 10px;
+
         display: flex;
         justify-content: center;
         align-items: center;

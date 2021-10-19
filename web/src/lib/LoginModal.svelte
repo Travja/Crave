@@ -51,6 +51,11 @@
             // console.log(error);
         });
     };
+
+    const submit = (e) => {
+        if (e.keyCode == 13)
+            handleLogin();
+    };
 </script>
 
 <div bind:this={bg} class="container flex-center" on:click={closeModal}>
@@ -71,19 +76,29 @@
                 {/if}
                 <div>
                     <label for="username">Username: </label>
-                    <input bind:this={userInput} id="username" name="username" placeholder="Username" type="text"/>
+                    <input bind:this={userInput} id="username" name="username"
+                           on:keypress={submit} placeholder="Username" type="text"/>
                 </div>
                 <div>
                     <label for="password">Password: </label>
-                    <input bind:this={passInput} id="password" name="password" placeholder="Password" type="password"/>
+                    <input bind:this={passInput} id="password" name="password"
+                           on:keypress={submit} placeholder="Password"
+                           type="password"/>
                 </div>
-                <button on:click={handleLogin}>Log In</button>
+                <a class="button" on:click={handleLogin}>Log In</a>
+            </div>
+            <div class="register">Don't have an account?&nbsp;
+                <a href="/register" on:click={() => dispatch("closeModal")}>Register now!</a>
             </div>
         </div>
     </div>
 </div>
 
 <style>
+    .register {
+        margin-top: 5px;
+    }
+
     .error {
         color: red;
     }
@@ -104,7 +119,6 @@
         max-width: 80%;
         max-height: 80%;
         min-width: 30%;
-        min-height: 30%;
         text-align: center;
         padding: 15px;
         box-sizing: border-box;

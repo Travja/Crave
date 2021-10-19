@@ -3,7 +3,7 @@
     import {onMount} from "svelte";
     import {Utils} from "$lib/cropper/utils.js";
     import {variables} from "$lib/variables.js";
-    import {overrideFetch} from "$lib/util.js";
+    import {formSubmit, overrideFetch} from "$lib/util.js";
 
     let margin = {top: 40, right: 40, bottom: 40, left: 40};
     let gTransform = `translate(${margin.left}, ${margin.top})`;
@@ -210,7 +210,7 @@
         fileInput.value = datUrl;
 
         submitting = true;
-        formSubmit();
+        submitForm();
         // form.submit();
 
         // let image = datUrl.replace("image/png", "image/octet-stream");
@@ -265,19 +265,16 @@
         window.addEventListener("resize", checkResize);
     });
 
-    const formSubmit = () => {
-        fetch(form.action, {
-            method: form.method.toUpperCase(),
-            body: new FormData(form)
-        }).then(res => res.json())
-            .then(data => {
-                console.log(data);
-                submitting = false;
-                alert("Receipt submitted successfully");
-            })
-            .catch(error => {
-                alert("There was a problem submitting the receipt. " + error.message);
-            });
+    const submitForm = () => {
+        formSubmit(form, (data) => {
+            if (data.error) {
+                alert("There was a problem processing this receipt.", data.message);
+                return;
+            }
+            console.log(data);
+            submitting = false;
+            alert("Receipt submitted successfully");
+        });
     };
 
 </script>
@@ -291,7 +288,11 @@
             <!--            <img id="sample" src="/cropper/bill.png" alt="bill"/>-->
             <div bind:clientHeight={myHeight} bind:clientWidth={myWidth}
                  bind:this={wrap} class="imgWrapper">
-                <img alt="Upload a Receipt" bind:this={image} src="{url}"/>
+                {#if image}
+                    <img alt="Upload a Receipt" bind:this={image} src="{url}"/>
+                {:else}
+                    <div>Upload a Receipt</div>
+                {/if}
             </div>
             <div class="wrapper">
                 <svg bind:this={svg} height="{myHeight}" id="svg"
@@ -324,7 +325,7 @@
     {/if}
     <div class="buttonContainer">
         <label class="button" for="file-upload">Choose Image</label>
-        <button class="button" on:click={saveCroppedImage}>Submit</button>
+        <a class="button" on:click={saveCroppedImage}>Submit</a>
         <!--        <a id="download" href="#" bind:this={downloadLink} download="Receipt.png"/>-->
     </div>
 
@@ -449,6 +450,9 @@
 
     .buttonContainer {
         margin: 10px auto;
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
     }
 
     .container .o_image {
@@ -472,10 +476,10 @@
     .button {
         box-sizing: border-box;
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
-        padding: 0.4em;
         font-size: 1em;
         border: none;
         background-color: coral;
+        margin: 5px;
     }
 
     .button:hover {

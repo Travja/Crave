@@ -5,7 +5,7 @@
     import LoginButton from "$lib/header/LoginButton.svelte";
     import {parseJWT, verifyJWT} from "$lib/util";
     import LoginModal from "$lib/LoginModal.svelte";
-    import {onMount} from "svelte";
+    import {onDestroy, onMount} from "svelte";
     import {variables} from "$lib/variables";
 
     //Define nav bar routes here and which pages should be authenticated.
