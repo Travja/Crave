@@ -1,12 +1,13 @@
 <script>
     import {createEventDispatcher} from "svelte";
+    import {loginState} from "$lib/variables";
 
-    export let loggedIn = false;
+    let loggedIn = loginState.loggedIn;
 
     const dispatch = createEventDispatcher();
 </script>
 
-{#if loggedIn}
+{#if $loggedIn}
     <li class="logout" on:click={() => dispatch("logout")}>Log Out</li>
 {:else}
     <li class="login" on:click>Log In</li>

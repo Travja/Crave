@@ -3,10 +3,10 @@
     import logo from './logo.png';
     import gitLogo from '../github-logo.svg';
     import LoginButton from "$lib/header/LoginButton.svelte";
-    import {parseJWT, verifyJWT} from "$lib/util";
+    import {loadJWT, parseJWT, verifyJWT} from "$lib/util";
     import LoginModal from "$lib/LoginModal.svelte";
-    import {onDestroy, onMount} from "svelte";
-    import {variables} from "$lib/variables";
+    import {onMount} from "svelte";
+    import {loginState, logout, variables} from "$lib/variables";
 
     //Define nav bar routes here and which pages should be authenticated.
     let pages = [
@@ -31,14 +31,14 @@
 
     let requireLogin = false,
         showLoginModal = false,
-        loggedIn = false,
+        loggedIn = loginState.loggedIn,
         prompt = false;
     let username;
     let mounted = false;
     $: if (mounted) {
         for (let pg of pages) {
             if ($page.path == pg.path) {
-                if (pg.auth && !loggedIn) {
+                if (pg.auth && !$loggedIn) {
                     requireLogin = true;
                     prompt = true;
                 } else {
@@ -50,12 +50,13 @@
         }
     }
     onMount(() => {
-        loggedIn = verifyJWT();
-        if (loggedIn) {
+        loggedIn.set(verifyJWT());
+        if ($loggedIn) {
             let jwt = parseJWT();
             username = jwt.username;
+            variables.jwt.set(loadJWT());
         } else {
-            localStorage.removeItem("jwt");
+            variables.jwt.set(undefined);
         }
 
         mounted = true;
@@ -64,16 +65,10 @@
     const handleLogin = e => {
         let detail = e.detail;
         if (detail.success) {
-            loggedIn = true;
+            loggedIn.set(true);
             username = detail.username;
             prompt = showLoginModal = requireLogin = false;
         }
-    };
-
-    const handleLogout = () => {
-        localStorage.removeItem("jwt");
-        loggedIn = false;
-        variables.jwt.set(undefined);
     };
 
     const closeLoginModal = () => {
@@ -101,9 +96,9 @@
                     </a>
                 {/if}
             {/each}
-            <LoginButton {loggedIn}
-                         on:click={() => showLoginModal = true}
-                         on:logout={handleLogout}/>
+            <LoginButton
+                    on:click={() => showLoginModal = true}
+                    on:logout={logout}/>
         </ul>
         <svg aria-hidden="true" viewBox="0 0 2 3">
             <path d="M0,0 L0,3 C0.5,3 0.5,3 1,2 L2,0 Z"/>
@@ -151,7 +146,7 @@
         position: relative;
         display: flex;
         justify-content: center;
-        --background: rgba(0, 0, 0, 0.2);
+        --background: #ccc;
         z-index: 5000;
     }
 

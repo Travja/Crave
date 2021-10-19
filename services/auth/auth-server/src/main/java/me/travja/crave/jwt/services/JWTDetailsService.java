@@ -1,37 +1,33 @@
 package me.travja.crave.jwt.services;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
+import me.travja.crave.jwt.repo.UserRepo;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class JWTDetailsService implements UserDetailsService {
 
+    private final UserRepo        userRepo;
     private final PasswordEncoder passwordEncoder;
-
-    private List<UserDetails> users = new ArrayList<>();
 
     @PostConstruct
     public void setupUsers() {
-        users.add(new User("travja", passwordEncoder.encode("test"),
-                new ArrayList<>(List.of("ADMIN", "USER")).stream().map(str -> new SimpleGrantedAuthority(str)).collect(Collectors.toList())));
+        if (!containsUser("travja"))
+            userRepo.save(new AuthUser("travja", "tjeggett@yahoo.com",
+                    passwordEncoder.encode("test"), List.of("ADMIN", "USER")));
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Optional<UserDetails> details = users.stream().filter(user -> user.getUsername().equals(username)).findFirst();
+    public AuthUser loadUserByUsername(String username) throws UsernameNotFoundException {
+        Optional<AuthUser> details = userRepo.findByUsernameIgnoreCase(username);
 
         if (details.isEmpty())
             throw new UsernameNotFoundException("User not found with username: " + username);
@@ -39,8 +35,18 @@ public class JWTDetailsService implements UserDetailsService {
         return details.get();
     }
 
-    public void addUser(UserDetails details) {
-        users.add(details);
+    public void addUser(AuthUser details) throws UserExistsException {
+        if (!containsUser(details.getUsername()))
+            userRepo.save(details);
+        else
+            throw new UserExistsException();
+    }
+
+    public boolean containsUser(String username) {
+        return userRepo.findByUsernameIgnoreCase(username).isPresent();
+    }
+
+    public class UserExistsException extends Exception {
     }
 
 }

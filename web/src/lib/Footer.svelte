@@ -12,7 +12,7 @@
         <a href="/#">Contact Me!</a>
         <DiscordButton fontSize="1"/>
     </div>
-    <div class="copy">&copy; 2021 Travja</div>
+    <div class="copy">&copy;2021 Travja</div>
 </footer>
 
 <style>

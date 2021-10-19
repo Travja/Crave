@@ -2,7 +2,7 @@
     import {fly} from 'svelte/transition';
     import {createEventDispatcher} from 'svelte';
     import CloseButton from "$lib/ui/CloseButton.svelte";
-    import {variables} from "$lib/variables";
+    import {login, variables} from "$lib/variables";
 
     const dispatch = createEventDispatcher();
 
@@ -43,8 +43,7 @@
                 username: userInput.value,
                 token
             }
-            localStorage.setItem("jwt", token);
-            variables.jwt.set(token);
+            login(token);
             dispatch("login", details);
         }).catch(error => {
             errorMsg = error.message;
@@ -85,7 +84,7 @@
                            on:keypress={submit} placeholder="Password"
                            type="password"/>
                 </div>
-                <a class="button" on:click={handleLogin}>Log In</a>
+                <div class="button" href="#" on:click={handleLogin}>Log In</div>
             </div>
             <div class="register">Don't have an account?&nbsp;
                 <a href="/register" on:click={() => dispatch("closeModal")}>Register now!</a>

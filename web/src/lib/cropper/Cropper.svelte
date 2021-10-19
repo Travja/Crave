@@ -325,7 +325,7 @@
     {/if}
     <div class="buttonContainer">
         <label class="button" for="file-upload">Choose Image</label>
-        <a class="button" on:click={saveCroppedImage}>Submit</a>
+        <div class="button" on:click={saveCroppedImage}>Submit</div>
         <!--        <a id="download" href="#" bind:this={downloadLink} download="Receipt.png"/>-->
     </div>
 

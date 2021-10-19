@@ -3,11 +3,27 @@
     import Header from "$lib/header/Header.svelte";
     import Footer from "$lib/Footer.svelte";
     // noinspection ES6UnusedImports
-    import {title} from "$lib/variables.js";
+    import {title, variables} from "$lib/variables.js";
     import {overrideXMLSend} from "$lib/util";
-    import {onMount} from "svelte";
+    import {onDestroy, onMount} from "svelte";
 
-    onMount(overrideXMLSend);
+    let unsubscribe;
+    let firstRun = true;
+
+    onMount(() => {
+        overrideXMLSend();
+        unsubscribe = variables.jwt.subscribe(value => {
+            if (value)
+                localStorage.setItem("jwt", value);
+            else
+                localStorage.removeItem("jwt");
+        });
+    });
+
+    onDestroy(() => {
+        if (unsubscribe)
+            unsubscribe();
+    })
 </script>
 
 <svelte:head>

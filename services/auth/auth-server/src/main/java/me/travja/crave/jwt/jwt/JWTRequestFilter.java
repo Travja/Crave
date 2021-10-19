@@ -3,11 +3,11 @@ package me.travja.crave.jwt.jwt;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.security.SignatureException;
 import lombok.RequiredArgsConstructor;
+import me.travja.crave.jwt.services.AuthUser;
 import me.travja.crave.jwt.services.JWTDetailsService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -60,7 +60,7 @@ public class JWTRequestFilter extends OncePerRequestFilter {
         }
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = jwtUserDetailsService.loadUserByUsername(username);
+            AuthUser userDetails = jwtUserDetailsService.loadUserByUsername(username);
 
             if (jwt.isValid(userDetails)) {
                 UsernamePasswordAuthenticationToken userAuth = new UsernamePasswordAuthenticationToken(

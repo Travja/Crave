@@ -1,8 +1,8 @@
 package me.travja.crave.jwt.config;
 
 import lombok.AllArgsConstructor;
-import me.travja.crave.jwt.jwt.JWTRequestFilter;
 import me.travja.crave.jwt.jwt.AuthEntryPoint;
+import me.travja.crave.jwt.jwt.JWTRequestFilter;
 import me.travja.crave.jwt.services.JWTDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -25,13 +25,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final AuthEntryPoint    jwtAuthenticationEntryPoint;
     private final JWTDetailsService jwtUserDetailsService;
-    private final JWTRequestFilter            jwtRequestFilter;
-    private final PasswordEncoder             passwordEncoder;
+    private final JWTRequestFilter  jwtRequestFilter;
+    private final PasswordEncoder   passwordEncoder;
 
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-        auth.eraseCredentials(false)
-                .userDetailsService(jwtUserDetailsService)
+        auth.userDetailsService(jwtUserDetailsService)
                 .passwordEncoder(passwordEncoder);
     }
 
@@ -45,7 +44,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/authenticate", "/register", "/checkauth").permitAll()
+                .antMatchers("/authenticate", "/register", "/checkauth", "/checkuser/**").permitAll()
                 .anyRequest().authenticated().and()
                 .exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint)
                 .and()

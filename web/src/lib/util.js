@@ -59,7 +59,7 @@ export const parseJWT = () => {
     return JSON.parse(payload);
 };
 
-let loadJWT = () => {
+export const loadJWT = () => {
     let jwt = localStorage.getItem('jwt') ? localStorage.getItem('jwt') : undefined;
 
     return jwt;
