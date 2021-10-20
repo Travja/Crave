@@ -56,11 +56,9 @@ public class UPC {
         else
             this.manufacturer = man.get();
 
-        //5410116545419
         this.productId = upc.substring(6, 11);
         this.checkDigit = Integer.parseInt(upc.substring(11, 12));
 
-        System.out.println(manufacturer.getManufacturerId() + " -- " + productId + " -- " + calculateCheckDigit());
         this.upc = upc;
     }
 
