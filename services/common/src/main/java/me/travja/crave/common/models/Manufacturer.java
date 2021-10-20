@@ -16,7 +16,7 @@ public class Manufacturer {
     @Id
     @Getter
     @Setter
-    private long manufacturerId;
+    private String manufacturerId;
 
     @Getter
     @Setter
