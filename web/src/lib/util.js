@@ -10,8 +10,10 @@ export const overrideFetch = () => {
 
         let args = [...arguments];
         if (args[0].includes("crave") || args[0].includes("localhost")) {
-            // console.log(args);
+            console.log(args);
             if (args.length >= 2) {
+                if (!args[1])
+                    args[1] = [];
                 let details = args[1];
                 let headers = details["headers"] ? details["headers"] : {};
 
@@ -78,3 +80,26 @@ export const formSubmit = (form, callback) => {
         })
         .catch(error => callback({error: true, message: error}));
 };
+
+export const findCheapest = details => {
+    let lowestDetails;
+    details.forEach(det => {
+        if (!lowestDetails)
+            lowestDetails = det;
+        else {
+            if (lowestDetails.price > det.price)
+                lowestDetails = det;
+        }
+    });
+
+    return lowestDetails;
+};
+
+export const formatter = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+
+    // These options are needed to round to whole numbers if that's what you want.
+    //minimumFractionDigits: 0, // (this suffices for whole numbers, but will print 2500.10 as $2,500.1)
+    //maximumFractionDigits: 0, // (causes 2500.99 to be printed as $2,501)
+});

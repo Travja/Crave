@@ -2,52 +2,48 @@ package me.travja.crave.common.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import me.travja.crave.common.AppContext;
+import lombok.*;
+import me.travja.crave.common.conf.AppContext;
 import me.travja.crave.common.repositories.ManufacturerRepository;
 import me.travja.crave.common.views.ItemView;
 import me.travja.crave.common.views.UPCView;
+import org.hibernate.Hibernate;
 
 import javax.persistence.*;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
+@Getter
+@Setter
 @Entity
+@ToString
 @NoArgsConstructor
 @JsonView({ItemView.class, UPCView.class})
 public class UPC {
 
-    @Getter
-    @Setter
-    @ManyToOne(cascade = CascadeType.ALL)
-    private Manufacturer manufacturer;
-    @Getter
-    @Setter
-    private String       productId;
-    @Getter
-    @Setter
-    private int          checkDigit;
-    @Getter
-    @Setter
-    @OneToOne(optional = false)
-    @JsonView(UPCView.class)
-    private Item         item;
     @Id
     private String       upc;
+    @JsonView(UPCView.class)
+    @OneToOne(optional = false)
+    private Item         item;
+    @ManyToOne(cascade = CascadeType.ALL)
+    private Manufacturer manufacturer;
+    private String       productId;
+    private int          checkDigit;
 
     public UPC(String upc) {
-        setUPC(upc);
+        setUpc(upc);
     }
 
+    @Transient
     @JsonIgnore
     public String getUPC() {
         return manufacturer.getManufacturerId() + productId + calculateCheckDigit();
     }
 
     @Column(name = "upc")
-    public void setUPC(String upc) {
+    public void setUpc(String upc) {
         String                 manId   = upc.substring(0, 6);
         ManufacturerRepository manRepo = (ManufacturerRepository) AppContext.getContext().getBean("manufacturerRepository");
         Optional<Manufacturer> man     = manRepo.findById(manId);
@@ -66,4 +62,11 @@ public class UPC {
         return checkDigit;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        UPC upc1 = (UPC) o;
+        return upc != null && Objects.equals(upc, upc1.upc);
+    }
 }

@@ -41,7 +41,6 @@ public class RestTemplateResponseErrorHandler implements ResponseErrorHandler {
             if (httpResponse.getStatusCode() == HttpStatus.NOT_FOUND) {
                 throw new NoSuchElementException("Requested Resource Not Found.");
             }
-            System.out.println("Body: " + httpResponse.getBody().available());
             if (httpResponse.getBody().available() <= 0)
                 throw new HttpClientErrorException(httpResponse.getStatusCode(), httpResponse.getStatusText(),
                         httpResponse.getBody().readAllBytes(), Charset.defaultCharset());

@@ -51,16 +51,6 @@ export function Utils(errorOutputId) { // eslint-disable-line no-unused-vars
         img.src = url;
     };
 
-    this.executeCode = (textAreaId) => {
-        try {
-            this.clearError();
-            let code = document.getElementById(textAreaId).value;
-            eval(code);
-        } catch (err) {
-            this.printError(err);
-        }
-    };
-
     this.clearError = () => this.errorOutput.innerHTML = '';
 
     this.printError = (err) => {

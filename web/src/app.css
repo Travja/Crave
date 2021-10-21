@@ -74,21 +74,27 @@ a:visited {
 .hcenter {
     display: flex;
     align-items: center;
+    flex-direction: column;
 }
 
 .vcenter {
     display: flex;
     justify-content: center;
+    flex-direction: column;
 }
 
 .full {
     position: relative;
     height: 100%;
-    width: 100%;
+    /*width: 100%;*/
+}
+
+.sp {
+    flex-grow: 1;
 }
 
 .button {
-    display: block;
+    display: inline-block;
     background-color: #aaa;
     padding: 15px;
     margin: 10px 0px;
@@ -106,4 +112,8 @@ a:visited {
     cursor: pointer;
     text-decoration: none;
     box-shadow: 0px 0px 10px inset #555;
+}
+
+.clear {
+    clear: both;
 }

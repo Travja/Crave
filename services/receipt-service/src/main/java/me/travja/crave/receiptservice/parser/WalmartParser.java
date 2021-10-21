@@ -1,5 +1,6 @@
 package me.travja.crave.receiptservice.parser;
 
+import me.travja.crave.common.models.ProductInformation;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;

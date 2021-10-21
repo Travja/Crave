@@ -3,6 +3,7 @@ package me.travja.crave.common.models;
 import lombok.Data;
 
 import javax.persistence.GeneratedValue;
+import java.util.ArrayList;
 
 @Data
 public class RequestItem {
@@ -16,7 +17,7 @@ public class RequestItem {
             image;
 
     public Item toItem() {
-        Item item = new Item(getId(), getName(), getDescription(), null, getImage());
+        Item item = new Item(getId(), getName(), getDescription(), null, getImage(), new ArrayList<>());
         item.setUpc(upc);
         return item;
     }

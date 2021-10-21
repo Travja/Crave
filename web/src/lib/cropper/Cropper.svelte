@@ -4,6 +4,7 @@
     import {Utils} from "$lib/cropper/utils.js";
     import {variables} from "$lib/variables.js";
     import {formSubmit, overrideFetch} from "$lib/util.js";
+    import {spring} from "svelte/motion";
 
     let margin = {top: 40, right: 40, bottom: 40, left: 40};
     let gTransform = `translate(${margin.left}, ${margin.top})`;
@@ -16,7 +17,9 @@
     let svg,
         g;
 
+    let circleRadius = 7;
     let circles = [];
+    let sizes = spring(Array(4).fill(circleRadius));
 
     let updating;
     let offset = {x: 0, y: 0};
@@ -59,14 +62,21 @@
         updating = circ;
         let x = updating.x;
         let y = updating.y;
-        updating.size = 14;
+
+        let newSizes = [...$sizes];
+        newSizes[updating.index] = 14;
+        sizes.set(newSizes);
+
         cursor = "grab";
     };
 
     const stopCircles = (e) => {
         if (!updating) return;
 
-        updating.size = 7;
+        let newSizes = [...$sizes];
+        newSizes[updating.index] = 7;
+        sizes.set(newSizes);
+
         updating = cursor = undefined;
         circles = [...circles];
         dragged();
@@ -78,7 +88,6 @@
         let offsetTop = wrap.getBoundingClientRect().top;
         let svgDx = offsetLeft - window.scrollX + margin.left;
         let svgDy = offsetTop - window.scrollY + margin.top;
-
 
         updating.x = e.clientX - svgDx;
         updating.y = e.clientY - svgDy;
@@ -133,7 +142,7 @@
         circles = [];
         let index = 0;
         targetPoints.forEach(dat =>
-            circles.push({x: dat[0], y: dat[1], size: 7, index: index++, id: {}}));
+            circles.push({x: dat[0], y: dat[1], index: index++, id: {}}));
 
         setTimeout(dragged, 250);
     };
@@ -277,10 +286,17 @@
         });
     };
 
+    let fileUpload;
+    const upload = () => {
+        if (!image && fileUpload) {
+            fileUpload.click();
+        }
+    };
+
 </script>
 
 <section>
-    <input id="file-upload" on:change={newFile} type="file"/>
+    <input accept="image/*" bind:this={fileUpload} id="file-upload" on:change={newFile} type="file"/>
     <div class="container">
         <div bind:clientWidth={backgroundWidth} bind:this={background}
              class="o_image"
@@ -288,13 +304,13 @@
             <!--            <img id="sample" src="/cropper/bill.png" alt="bill"/>-->
             <div bind:clientHeight={myHeight} bind:clientWidth={myWidth}
                  bind:this={wrap} class="imgWrapper">
-                {#if image}
+                {#if url}
                     <img alt="Upload a Receipt" bind:this={image} src="{url}"/>
                 {:else}
                     <div>Upload a Receipt</div>
                 {/if}
             </div>
-            <div class="wrapper">
+            <div class="wrapper" on:click={upload} style="{`--hover: ${!url ? 'pointer' : ''}`}">
                 <svg bind:this={svg} height="{myHeight}" id="svg"
                      on:mousemove={updateCircles} on:mouseup={stopCircles}
                      style="{cursor ? `cursor: ${cursor}` : ``}"
@@ -304,8 +320,8 @@
                         {#if points}
                             <polyline {points} class="line"/>
                         {/if}
-                        {#each circles as circle (circle.id)}
-                            <circle cx="{circle.x}" cy="{circle.y}" r="{circle.size}"
+                        {#each circles as circle, i (circle.id)}
+                            <circle cx="{circle.x}" cy="{circle.y}" r="{$sizes[i]}"
                                     class="handle" style="{cursor ? `cursor: ${cursor}` : ``}"
                                     on:mousedown={e => downCircle(e, circle)}/>
                         {/each}
@@ -399,6 +415,10 @@
         left: 0;
         display: inline-block;
         overflow: hidden;
+    }
+
+    .wrapper:hover {
+        cursor: var(--hover);
     }
 
     svg {

@@ -1,6 +1,6 @@
 package me.travja.crave.itemservice;
 
-import me.travja.crave.common.Packages;
+import me.travja.crave.common.util.Packages;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;

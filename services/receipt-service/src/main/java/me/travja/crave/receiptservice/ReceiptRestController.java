@@ -25,10 +25,11 @@ Engine mode:
 
 package me.travja.crave.receiptservice;
 
+import me.travja.crave.common.models.ResponseObject;
 import me.travja.crave.common.repositories.ItemsRepository;
+import me.travja.crave.receiptservice.models.ReceiptData;
 import me.travja.crave.receiptservice.models.TargetItem;
 import me.travja.crave.receiptservice.parser.ParserManager;
-import me.travja.crave.receiptservice.parser.ReceiptData;
 import org.apache.tika.Tika;
 import org.apache.tika.config.TikaConfig;
 import org.apache.tika.metadata.Metadata;
@@ -67,12 +68,13 @@ public class ReceiptRestController {
     }
 
     @PostMapping("/parse")
-    public ReceiptData parseReceipt(@RequestParam("file") MultipartFile file) {
-        return parse(file);
+    public ResponseObject parseReceipt(@RequestParam("file") MultipartFile file) {
+        ReceiptData data = parse(file);
+        return ResponseObject.of("success", data.submit());
     }
 
     @PostMapping("/parsestr")
-    public ReceiptData parseReceiptString(@RequestParam("file") String base64) {
+    public ResponseObject parseReceiptString(@RequestParam("file") String base64) {
         String b64        = base64.split(",")[1];
         byte[] imageBytes = Base64.getDecoder().decode(b64);
         File   file       = new File("tmp.png");
@@ -81,11 +83,15 @@ public class ReceiptRestController {
             file.createNewFile();
             out.write(bin.readAllBytes());
 
-            return parse(new FileInputStream(file));
+            ReceiptData data = parse(new FileInputStream(file));
+
+            return ResponseObject.of("success", data.submit());
         } catch (IOException e) {
             System.err.println("Could not parse image.");
             e.printStackTrace();
-            return null;
+            return ResponseObject.of(
+                    "success", false,
+                    "error", e.getMessage());
         }
     }
 
@@ -127,8 +133,6 @@ public class ReceiptRestController {
             tika.getParser().parse(inputStream, new BodyContentHandler(out), new Metadata(), ctx);
 
             String result = new String(out.toByteArray(), Charset.defaultCharset());
-
-            System.out.println(result);
 
             return new ReceiptData(result, parserManager);
         } catch (Exception e) {

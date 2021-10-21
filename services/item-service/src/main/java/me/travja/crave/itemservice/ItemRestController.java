@@ -27,6 +27,12 @@ public class ItemRestController {
         return (List<Item>) repo.findAll();
     }
 
+    @GetMapping("/{upc}")
+    @JsonView(ItemView.class)
+    public Item getItem(@PathVariable String upc) {
+        return repo.findByUpcUpc(upc).orElse(null);
+    }
+
     @PostMapping
     @JsonView(ItemView.class)
     public Item createItem(@RequestBody RequestItem item) {

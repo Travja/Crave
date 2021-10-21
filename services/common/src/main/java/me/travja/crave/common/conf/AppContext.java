@@ -1,4 +1,4 @@
-package me.travja.crave.common;
+package me.travja.crave.common.conf;
 
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
@@ -12,6 +12,10 @@ public class AppContext implements ApplicationContextAware {
 
     public static ApplicationContext getContext() {
         return applicationContext;
+    }
+
+    public static <T> T getBean(Class<T> clazz) {
+        return getContext().getBean(clazz);
     }
 
     public void setApplicationContext(ApplicationContext context) throws BeansException {

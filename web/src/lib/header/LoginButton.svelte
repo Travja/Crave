@@ -1,14 +1,28 @@
 <script>
-    import {createEventDispatcher} from "svelte";
+    import {createEventDispatcher, onMount} from "svelte";
     import {loginState} from "$lib/variables";
+    import {parseJWT} from "$lib/util";
 
+    let mounted = false;
     let loggedIn = loginState.loggedIn;
+    let username;
+    let text;
 
     const dispatch = createEventDispatcher();
+
+    $: if (mounted && $loggedIn) text = username = parseJWT().sub;
+
+    onMount(() => {
+        mounted = true;
+    });
 </script>
 
-{#if $loggedIn}
-    <li class="logout" on:click={() => dispatch("logout")}>Log Out</li>
+{#if $loggedIn && username}
+    <li class="logout" on:click={() => dispatch("logout")}
+        on:mouseover={() => text = "Log Out"}
+        on:focus={() => text = "Log Out"}
+        on:blur={() => text = username}
+        on:mouseout={() => text = username}>{text}</li>
 {:else}
     <li class="login" on:click>Log In</li>
 {/if}

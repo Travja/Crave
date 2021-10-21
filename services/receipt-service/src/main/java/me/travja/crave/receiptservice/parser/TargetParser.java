@@ -380,6 +380,7 @@ https://redsky.target.com/redsky_aggregations/v1/web/plp_search_v1?key=ff457966e
 */
 package me.travja.crave.receiptservice.parser;
 
+import me.travja.crave.common.models.ProductInformation;
 import me.travja.crave.receiptservice.models.TargetItem;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;

@@ -3,22 +3,18 @@ package me.travja.crave.common.filters;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
 public class AuthResponse {
 
-    @Getter
     private String       username;
-    @Getter
-    private List<String> roles = new ArrayList<>();
-    @Getter
     private boolean      valid;
-    @Getter
+    private List<String> roles   = new ArrayList<>();
     private String       message = "";
 
     public AuthResponse(String username, List<String> roles, boolean valid) {

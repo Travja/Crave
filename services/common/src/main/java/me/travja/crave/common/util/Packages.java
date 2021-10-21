@@ -1,4 +1,4 @@
-package me.travja.crave.common;
+package me.travja.crave.common.util;
 
 public class Packages {
 

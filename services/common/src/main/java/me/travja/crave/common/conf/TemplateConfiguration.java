@@ -1,4 +1,4 @@
-package me.travja.crave.common;
+package me.travja.crave.common.conf;
 
 import me.travja.crave.common.filters.RestTemplateResponseErrorHandler;
 import org.springframework.boot.web.client.RestTemplateBuilder;

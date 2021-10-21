@@ -33,7 +33,6 @@
         showLoginModal = false,
         loggedIn = loginState.loggedIn,
         prompt = false;
-    let username;
     let mounted = false;
     $: if (mounted) {
         for (let pg of pages) {
@@ -53,7 +52,6 @@
         loggedIn.set(verifyJWT());
         if ($loggedIn) {
             let jwt = parseJWT();
-            username = jwt.username;
             variables.jwt.set(loadJWT());
         } else {
             variables.jwt.set(undefined);
@@ -66,7 +64,6 @@
         let detail = e.detail;
         if (detail.success) {
             loggedIn.set(true);
-            username = detail.username;
             prompt = showLoginModal = requireLogin = false;
         }
     };

@@ -19,7 +19,7 @@
 
         error = undefined;
         inProgress = true;
-        const res = await fetch(gateway + '/item-service/item-details');
+        const res = await fetch(gateway + '/item-service/items');
         inProgress = false;
         if (res.ok) {
             items = await res.json();
@@ -36,6 +36,9 @@
                 break;
             case 403:
                 error = "User is not allowed to access this resource";
+                break;
+            case 503:
+                error = "Services unavailable";
                 break;
             default:
                 error = "An unknown error occurred.";
@@ -56,12 +59,24 @@
 </script>
 <section>
     <h1>Directory</h1>
-    <p>Finding the lowest prices has never been so easy!</p>
+    <div id="intro">
+        <p>Finding the lowest prices has never been so easy!</p>
+        <div class="sp"></div>
+        <div id="tip">
+            <div>Can't find what you're looking for? Make sure to add it!</div>
+            <a alt="Scan a Receipt!" class="button" href="/scratch" id="scan">Scan a Receipt!</a>
+        </div>
+    </div>
     <hr>
     {#if items}
         <div id="items">
-            {#each items as item}
-                <PageItem {...item}/>
+            {#each items as item, i}
+                {#if item.details}
+                    <PageItem {...item}/>
+                    {#if i < items.length - 1}
+                        <div class="spacer"/>
+                    {/if}
+                {/if}
             {/each}
         </div>
     {:else if inProgress}
@@ -88,13 +103,18 @@
         margin-bottom: 0;
     }
 
+    #intro {
+        display: flex;
+        align-items: center;
+    }
+
     #items {
         position: relative;
         display: flex;
         flex-direction: row;
         flex-wrap: wrap;
         justify-content: center;
-        align-items: center;
+        align-items: stretch;
     }
 
     .no-items {
@@ -105,5 +125,17 @@
     hr {
         width: 30%;
         margin: 0.5em 0;
+    }
+
+    .spacer {
+        width: 1px;
+        background: black;
+        margin: 0 10px;
+    }
+
+    #tip {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
     }
 </style>

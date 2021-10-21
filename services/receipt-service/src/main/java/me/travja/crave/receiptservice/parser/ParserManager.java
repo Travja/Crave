@@ -1,16 +1,16 @@
 package me.travja.crave.receiptservice.parser;
 
 import lombok.Getter;
+import me.travja.crave.receiptservice.models.ReceiptData;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 
 @Service
+@Getter
 public class ParserManager {
 
-    @Getter
     private final WalmartParser walmartParser;
-    @Getter
     private final TargetParser  targetParser;
 
     public ParserManager(WalmartParser walmartParser, TargetParser targetParser) {

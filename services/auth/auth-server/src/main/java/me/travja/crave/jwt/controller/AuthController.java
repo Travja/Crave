@@ -62,12 +62,10 @@ public class AuthController {
 
     @PostMapping(value = "/authenticate")
     public ResponseEntity<?> generateAuthenticationToken(@RequestBody JWTRequest authRequest) throws Exception {
-        System.out.println("User: " + authRequest.getUsername() + " Pass: " + authRequest.getPassword());
         authenticate(authRequest.getUsername(), authRequest.getPassword());
 
         AuthUser userDetails = jwtDetailsService
                 .loadUserByUsername(authRequest.getUsername());
-        System.out.println(userDetails);
 
         String token = JWTUtil.generateToken(userDetails);
 
@@ -94,7 +92,6 @@ public class AuthController {
         Objects.requireNonNull(username);
         Objects.requireNonNull(password);
         try {
-            System.out.println("Hit this point.");
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
         } catch (DisabledException e) {
             throw new Exception("USER_DISABLED", e);
