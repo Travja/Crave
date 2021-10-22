@@ -2,7 +2,7 @@
     import {title} from "$lib/variables";
     import Cropper from "$lib/cropper/Cropper.svelte";
 
-    title.set("Scratch");
+    title.set("Scan");
 </script>
 <section>
     <Cropper/>

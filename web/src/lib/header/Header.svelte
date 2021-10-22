@@ -23,8 +23,8 @@
             title: "About"
         },
         {
-            path: "/scratch",
-            title: "Scratch",
+            path: "/scan",
+            title: "Scan",
             auth: true
         },
     ];
@@ -116,8 +116,15 @@
 
 <style>
     header {
+        position: sticky;
+        top: 0;
         display: flex;
         justify-content: space-between;
+        background: var(--bg-color);
+        padding-bottom: 0.5em;
+        z-index: 2;
+        width: 100%;
+        margin: 0 auto;
     }
 
     .corner {
@@ -140,7 +147,6 @@
     }
 
     nav {
-        position: relative;
         display: flex;
         justify-content: center;
         --background: #ccc;

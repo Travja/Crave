@@ -1,50 +1,72 @@
 <script>
     import {findCheapest, formatter} from "$lib/util";
+    import {icons} from "$lib/variables";
 
     export let name = "No Name",
         upc = "Missing UPC",
-        image = "https://www.seriouseats.com/thmb/3JoYWz3_PajrDhL57P9eQrpg-xE=/735x0/__opt__aboutcom__coeus__resources__content_migration__serious_eats__seriouseats.com__recipes__images__2015__07__20150702-sous-vide-hamburger-anova-primary-bf5eefff4505446f9cbf33f5f2d9b2e6.jpg";
+        image = "/find-image.svg",
+        favorite = false;
     export let details = [];
 
     let lowestDetails,
         store;
 
+    $: href = `/items/${upc}`;
     $: lowestDetails = findCheapest(details);
+
+    const favoriteItem = e => {
+        favorite = !favorite;
+        //TODO Send request so backend knows that the item is favorited.
+    };
 </script>
 
-<a alt="{name}" class="section" href="/items/{upc}">
-    <img alt={name} src={image}/>
-    <div class="sp"/>
-    <div>{name}</div>
-    <div class="price">Lowest price: <strong>{formatter.format(lowestDetails?.price)}</strong></div>
+<div class="section">
+    <a alt="{name}" {href}>
+        <img alt={name} src={image}/>
+        <div class="sp"/>
+        <div>{name}</div>
+        <div class="price">Lowest price: <strong>{formatter.format(lowestDetails?.price)}</strong></div>
+    </a>
     <div class="footer">
         <div class="store">{lowestDetails?.store?.name}</div>
         <div class="upc">{upc}</div>
     </div>
-</a>
+    <div class="icons hcenter">
+        <img alt="{favorite ? 'Un-favorite' : 'Favorite'}"
+             on:click={favoriteItem}
+             src="{favorite ? icons.starFull : icons.starEmpty}"/>
+    </div>
+</div>
 
 <style>
-    a.section {
+    .section, a {
         color: var(--fg-color);
         position: relative;
-        padding: 20px;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
+        flex-grow: 1;
     }
 
-    a.section:hover {
+    .section {
+        padding: 20px;
+        border: 1px solid rgba(0, 0, 0, 0.25);
+        align-items: stretch;
+    }
+
+    .section:hover, a:hover {
         color: var(--fg-color);
         text-decoration: none;
         background-color: #ddd;
     }
 
-    a.section:visited {
+    a:visited {
         color: var(--fg-color);
     }
 
     img {
+        min-width: 200px;
         max-width: 200px;
     }
 
@@ -62,10 +84,23 @@
     .store {
         color: #666;
         flex-grow: 1;
+        margin-right: 1.5em;
     }
 
     .upc {
         font-size: 0.8em;
         color: #666;
+    }
+
+    .icons {
+        height: 1.5em;
+    }
+
+    .icons img {
+        height: 100%;
+    }
+
+    .icons img:hover {
+        cursor: pointer;
     }
 </style>

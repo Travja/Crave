@@ -17,8 +17,14 @@
 
 <style>
     footer {
+        position: relative;
+        background: var(--bg-color);
+    }
+
+    hr {
         margin: 0 30px;
     }
+
     .links {
         display: flex;
         align-items: center;

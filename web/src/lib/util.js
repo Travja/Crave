@@ -1,4 +1,9 @@
+import {tweened} from "svelte/motion";
+import {writable} from "svelte/store";
+
 let setFetch = false;
+
+export let scrollDistance = writable(0);
 
 export const overrideFetch = () => {
     if (setFetch) return;
@@ -103,3 +108,35 @@ export const formatter = new Intl.NumberFormat('en-US', {
     //minimumFractionDigits: 0, // (this suffices for whole numbers, but will print 2500.10 as $2,500.1)
     //maximumFractionDigits: 0, // (causes 2500.99 to be printed as $2,501)
 });
+
+let scrollEnabled = false;
+let scrollPos = 0;
+export const initScroll = () => {
+    if (scrollEnabled) return;
+    const updateScroll = (e) => {
+        // scrollDistance.set(getScrollHeight());
+        let pos = (document.documentElement || document.body).scrollTop / 100;
+        scrollDistance.set(pos);
+        // let pos = (document.documentElement || document.body).scrollTop;
+        // scrollDistance.set(pos-scrollPos);
+        // scrollPos = pos;
+    };
+
+    document.addEventListener("scroll", updateScroll);
+    // scrollDistance.set(getScrollHeight());
+    let pos = (document.documentElement || document.body).scrollTop / 100;
+    scrollDistance.set(pos);
+    // scrollDistance.set(pos - scrollPos);
+    // scrollPos = pos;
+    scrollEnabled = true;
+}
+
+export const getScrollHeight = (element) => {
+    if (!element || element == document.body) {
+        let h = document.documentElement,
+            b = document.body,
+            st = 'scrollTop',
+            sh = 'scrollHeight';
+        return (h[st] || b[st]) / ((h[sh] || b[sh]) - h.clientHeight);
+    }
+}

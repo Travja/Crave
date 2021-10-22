@@ -4,8 +4,9 @@
     import Footer from "$lib/Footer.svelte";
     // noinspection ES6UnusedImports
     import {title, variables} from "$lib/variables.js";
-    import {overrideXMLSend} from "$lib/util";
+    import {initScroll, overrideXMLSend} from "$lib/util";
     import {onDestroy, onMount} from "svelte";
+    import Parrallax from "$lib/Parrallax.svelte";
 
     let unsubscribe;
     let firstRun = true;
@@ -18,12 +19,13 @@
             else
                 localStorage.removeItem("jwt");
         });
+        initScroll();
     });
 
     onDestroy(() => {
         if (unsubscribe)
             unsubscribe();
-    })
+    });
 </script>
 
 <svelte:head>
@@ -31,9 +33,9 @@
 </svelte:head>
 
 <main>
+    <Parrallax height="10em"><h1>{$title}</h1></Parrallax>
     <Header/>
-
-    <section>
+    <section class="content">
         <slot/>
     </section>
     <Footer/>
@@ -45,15 +47,18 @@
         display: flex;
         flex-direction: column;
         padding: 0;
-        width: 100%;
-        max-width: 80%;
+        width: 80%;
+        background: var(--bg-color);
         margin: 0 auto;
         box-sizing: border-box;
         box-shadow: 5px 0px 10px #666, -5px 0px 10px #666;
-        background-color: white;
+        transform-style: inherit;
+        perspective: inherit;
+        perspective-origin: inherit;
     }
 
-    section {
+    .content {
+        position: relative;
         padding: 1rem;
         flex: 1;
         /*display: flex;*/
@@ -61,5 +66,6 @@
         width: 100%;
         margin: 0 auto;
         box-sizing: border-box;
+        background: inherit;
     }
 </style>

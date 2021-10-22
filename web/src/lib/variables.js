@@ -7,6 +7,13 @@ export const variables = {
 
 export let title = writable("Untitled");
 
+export let icons = {
+    starFull: "/star-full.svg",
+    starEmpty: "/star-empty.svg",
+    starFullDark: "/star-full-dark.svg",
+    starEmptyDark: "/star-empty-dark.svg"
+}
+
 export let loginState = {
     loggedIn: writable(false),
 };

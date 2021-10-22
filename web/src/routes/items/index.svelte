@@ -6,9 +6,11 @@
     import {onDestroy, onMount} from "svelte";
     import PageItem from "$lib/PageItem.svelte";
     import {overrideFetch} from "$lib/util";
+    import {fly} from 'svelte/transition';
 
     title.set("Items");
 
+    let tip = true;
     let gateway;
     let items, error;
     let inProgress = false;
@@ -61,11 +63,6 @@
     <h1>Directory</h1>
     <div id="intro">
         <p>Finding the lowest prices has never been so easy!</p>
-        <div class="sp"></div>
-        <div id="tip">
-            <div>Can't find what you're looking for? Make sure to add it!</div>
-            <a alt="Scan a Receipt!" class="button" href="/scratch" id="scan">Scan a Receipt!</a>
-        </div>
     </div>
     <hr>
     {#if items}
@@ -73,10 +70,13 @@
             {#each items as item, i}
                 {#if item.details}
                     <PageItem {...item}/>
-                    {#if i < items.length - 1}
-                        <div class="spacer"/>
-                    {/if}
+                    <!--{#if i < items.length - 1}-->
+                    <!--    <div class="spacer"/>-->
+                    <!--{/if}-->
                 {/if}
+            {/each}
+            {#each Array(8) as i}
+                <div class="fix"/>
             {/each}
         </div>
     {:else if inProgress}
@@ -86,8 +86,15 @@
     {:else}
         <p class="no-items">No items available.</p>
     {/if}
-
 </section>
+{#if tip}
+    <div id="tip"
+         on:click={(e) => tip = false}
+         out:fly="{{ x: 200, duration: 250 }}">
+        <div>Can't find what you're looking for? Make sure to add it!</div>
+        <a alt="Scan a Receipt!" class="button" href="/scan" id="scan">Scan a Receipt!</a>
+    </div>
+{/if}
 <style>
     section {
         display: flex;
@@ -100,7 +107,7 @@
 
     h1 {
         font-size: 2rem;
-        margin-bottom: 0;
+        margin: 0;
     }
 
     #intro {
@@ -111,10 +118,22 @@
     #items {
         position: relative;
         display: flex;
-        flex-direction: row;
         flex-wrap: wrap;
-        justify-content: center;
-        align-items: stretch;
+        background: var(--bg-color);
+    }
+
+    .fix {
+        display: flex;
+        flex: auto;
+        background: transparent;
+        padding: 0px 21px;
+        flex-grow: 1;
+    }
+
+    .fix::after {
+        content: "";
+        min-width: 200px;
+        max-width: 200px;
     }
 
     .no-items {
@@ -134,8 +153,16 @@
     }
 
     #tip {
+        position: fixed;
+        bottom: 1em;
+        right: 1em;
+        background: #ddd;
+        border-radius: 1em;
+        padding: 1em;
         display: flex;
         flex-direction: column;
         align-items: flex-end;
+        box-shadow: 0 0 15px #333;
+        z-index: 1000;
     }
 </style>
