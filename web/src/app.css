@@ -116,6 +116,7 @@ a:visited {
     color: var(--fg-color);
     box-sizing: border-box;
     text-align: center;
+    user-select: none;
 }
 
 a.button:hover, a.button {

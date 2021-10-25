@@ -15,7 +15,7 @@ export const overrideFetch = () => {
 
         let args = [...arguments];
         if (args[0].includes("crave") || args[0].includes("localhost")) {
-            console.log(args);
+            // console.log(args);
             if (args.length >= 2) {
                 if (!args[1])
                     args[1] = [];
@@ -142,10 +142,7 @@ export const getScrollHeight = (element) => {
 };
 
 export const setupButtons = () => {
-    overrideXMLSend();
-    overrideFetch();
     for (let btn of document.getElementsByClassName("button")) {
-        console.log(btn);
         btn.setAttribute("tabindex", 0);
         btn.onkeypress = (e) => {
             if (e.keyCode == 32 || e.keyCode == 13)

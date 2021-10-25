@@ -6,6 +6,7 @@
     import {onDestroy, onMount} from "svelte";
     import PageItem from "$lib/PageItem.svelte";
     import {fly} from 'svelte/transition';
+    import SearchBar from "$lib/ui/SearchBar.svelte";
 
     title.set("Items");
 
@@ -14,17 +15,17 @@
     let items, error;
     let inProgress = false;
 
-    const getItems = async () => {
+    const getItems = async (query) => {
         if (!gateway)
             return;
 
         error = undefined;
         inProgress = true;
-        const res = await fetch(gateway + '/item-service/items');
+        const res = await fetch(gateway + '/item-service/items' + (query ? "?query=" + query : ""));
         inProgress = false;
         if (res.ok) {
             items = await res.json();
-            console.log("Items: ", items);
+            // console.log("Items: ", items);
             return;
         }
 
@@ -55,13 +56,21 @@
     let unsubscribe = variables.jwt.subscribe(getItems);
     onDestroy(unsubscribe);
 
+    const search = (e) => {
+        let terms = e.detail;
+        getItems(terms);
+    };
 </script>
 <section>
     <h1>Directory</h1>
     <div id="intro">
         <p>Finding the lowest prices has never been so easy!</p>
     </div>
-    <hr>
+    <div class="divider">
+        <hr>
+        <div class="sp"/>
+        <SearchBar on:search={search}/>
+    </div>
     {#if items}
         <div id="items">
             {#each items as item, i}
@@ -155,5 +164,15 @@
         align-items: flex-end;
         box-shadow: 0 0 15px #333;
         z-index: 1000;
+    }
+
+    .divider {
+        display: flex;
+        align-items: center;
+        margin: 5px 0;
+    }
+
+    hr {
+        display: inline-block;
     }
 </style>

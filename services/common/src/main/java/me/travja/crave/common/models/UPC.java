@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 import me.travja.crave.common.conf.AppContext;
 import me.travja.crave.common.repositories.ManufacturerRepository;
 import org.hibernate.Hibernate;
@@ -21,7 +20,6 @@ import static me.travja.crave.common.views.CraveViews.UPCView;
 @Getter
 @Setter
 @Entity
-@ToString
 @NoArgsConstructor
 @JsonView({ItemView.class, UPCView.class})
 public class UPC {
@@ -72,5 +70,10 @@ public class UPC {
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
         UPC upc1 = (UPC) o;
         return upc != null && Objects.equals(upc, upc1.upc);
+    }
+
+    @Override
+    public String toString() {
+        return upc;
     }
 }

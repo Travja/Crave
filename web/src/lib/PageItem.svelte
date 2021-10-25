@@ -1,6 +1,6 @@
 <script>
     import {findCheapest, formatter} from "$lib/util";
-    import {icons} from "$lib/variables";
+    import {variables} from "$lib/variables";
 
     export let name = "No Name",
         upc = "Missing UPC",
@@ -9,14 +9,22 @@
     export let details = [];
 
     let lowestDetails,
-        store;
+        store,
+        href;
 
     $: href = `/items/${upc}`;
     $: lowestDetails = findCheapest(details);
 
     const favoriteItem = e => {
         favorite = !favorite;
-        //TODO Send request so backend knows that the item is favorited.
+        fetch(`${variables.gateway}/item-service/items/${favorite ? "" : "un"}favorite/${upc}`,
+            {method: "post"})
+            .then(res => res.json())
+            .then(json => {
+                if (!json.success)
+                    favorite = !favorite;
+            })
+            .catch(e => console.error(e));
     };
 </script>
 
@@ -32,9 +40,8 @@
         <div class="upc">{upc}</div>
     </div>
     <div class="icons hcenter">
-        <img alt="{favorite ? 'Un-favorite' : 'Favorite'}"
-             on:click={favoriteItem}
-             src="{favorite ? icons.starFull : icons.starEmpty}"/>
+        <span alt="{favorite ? 'Un-favorite' : 'Favorite'}" class="material-icons-round favorite"
+              on:click={favoriteItem}>{favorite ? "star" : "star_outline"}</span>
     </div>
 </div>
 
@@ -92,15 +99,12 @@
         color: #666;
     }
 
-    .icons {
-        height: 1.5em;
+    .icons .favorite {
+        font-size: 1.8rem;
+        user-select: none;
     }
 
-    .icons img {
-        height: 100%;
-    }
-
-    .icons img:hover {
+    .icons .favorite:hover {
         cursor: pointer;
     }
 </style>

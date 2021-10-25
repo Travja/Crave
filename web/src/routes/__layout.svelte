@@ -5,7 +5,7 @@
     // noinspection ES6UnusedImports
     import {title, variables} from "$lib/variables.js";
     import {initScroll, overrideFetch, overrideXMLSend, scrollDistance, setupButtons} from "$lib/util";
-    import {afterUpdate, onDestroy, onMount} from "svelte";
+    import {afterUpdate, beforeUpdate, onDestroy, onMount} from "svelte";
     import Parrallax from "$lib/Parrallax.svelte";
 
     let unsubscribe, unscroll;
@@ -31,6 +31,11 @@
             unsubscribe();
         if (unscroll)
             unscroll();
+    });
+
+    beforeUpdate(() => {
+        overrideFetch();
+        overrideXMLSend();
     });
 
     afterUpdate(() => {
