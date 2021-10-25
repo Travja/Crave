@@ -12,12 +12,6 @@
     let firstRun = true;
 
     onMount(() => {
-        unsubscribe = variables.jwt.subscribe(value => {
-            if (value)
-                localStorage.setItem("jwt", value);
-            else
-                localStorage.removeItem("jwt");
-        });
         unscroll = scrollDistance.subscribe(value => {
             let bg = document.getElementById("bg-parrallax");
             if (bg)

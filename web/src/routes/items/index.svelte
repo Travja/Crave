@@ -16,16 +16,18 @@
     let inProgress = false;
 
     const getItems = async (query) => {
+        console.log("Fetching items " + gateway);
         if (!gateway)
             return;
 
         error = undefined;
         inProgress = true;
-        const res = await fetch(gateway + '/item-service/items' + (query ? "?query=" + query : ""));
+        let url = gateway + '/item-service/items' + (query ? "?query=" + query : "");
+        const res = await fetch(url);
         inProgress = false;
         if (res.ok) {
             items = await res.json();
-            // console.log("Items: ", items);
+            console.log("Items: ", items);
             return;
         }
 
@@ -53,7 +55,7 @@
         await getItems();
     });
 
-    let unsubscribe = variables.jwt.subscribe(getItems);
+    let unsubscribe = variables.jwt.subscribe(() => getItems());
     onDestroy(unsubscribe);
 
     const search = (e) => {

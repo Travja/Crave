@@ -1,4 +1,3 @@
-import {tweened} from "svelte/motion";
 import {writable} from "svelte/store";
 
 let setFetch = false;
@@ -11,6 +10,7 @@ export const overrideFetch = () => {
     const ff = window.fetch;
     window.fetch = function () {
         let jwt = loadJWT();
+        // console.log(jwt);
         if (!jwt) return ff.apply(this, arguments);
 
         let args = [...arguments];

@@ -1,8 +1,27 @@
 import {writable} from "svelte/store";
 
+const createJWT = () => {
+    const {subscribe, set} = writable();
+
+    return {
+        subscribe,
+        set: (val) => {
+            if (val)
+                localStorage.setItem("jwt", val);
+            else
+                localStorage.removeItem("jwt");
+            return set(val);
+        },
+        reset: () => {
+            localStorage.removeItem("jwt");
+            return set(undefined);
+        }
+    };
+};
+
 export const variables = {
     gateway: import.meta.env.VITE_GATEWAY,
-    jwt: writable()
+    jwt: createJWT()
 };
 
 export let title = writable("Untitled");
