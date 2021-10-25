@@ -6,10 +6,10 @@
 <footer>
     <hr>
     <div class="links">
-        <a class="no-background" href="https://github.com/Travja">
+        <a class="button no-background" href="https://github.com/Travja">
             <img src="{gitLogo}" alt="GitHub"/>
         </a>
-        <a href="/#">Contact Me!</a>
+        <a class="button" href="/#">Contact Me!</a>
         <DiscordButton fontSize="1"/>
     </div>
     <div class="copy">&copy;2021 Travja</div>
@@ -27,30 +27,21 @@
 
     .links {
         display: flex;
-        align-items: center;
+        align-items: stretch;
         justify-content: center;
     }
 
     .links > * {
         margin: 10px;
         padding: 10px;
-        border-radius: 6px;
-        background-color: rgba(0, 0, 0, .3);
+    /*    border-radius: 6px;*/
+    /*    background-color: rgba(0, 0, 0, .3);*/
         display: flex;
         align-items: center;
     }
 
     .links > .no-background {
-        padding: 0;
         background-color: unset;
-    }
-
-    a {
-        color: var(--fg-color);
-    }
-
-    a:hover {
-        text-decoration: none;
     }
 
     .copy {

@@ -14,8 +14,9 @@ public class AuthResponse {
 
     private String       username;
     private boolean      valid;
-    private List<String> roles   = new ArrayList<>();
-    private String       message = "";
+    private List<String> roles     = new ArrayList<>();
+    private List<String> favorites = new ArrayList<>();
+    private String       message   = "";
 
     public AuthResponse(String username, List<String> roles, boolean valid) {
         this.username = username;

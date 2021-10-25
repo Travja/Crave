@@ -4,11 +4,12 @@ import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
 import lombok.Setter;
 import me.travja.crave.common.models.ItemDetails;
-import me.travja.crave.common.views.StoreView;
 
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+
+import static me.travja.crave.common.views.CraveViews.StoreView;
 
 @Entity
 public class Receipt {

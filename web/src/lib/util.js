@@ -129,7 +129,7 @@ export const initScroll = () => {
     // scrollDistance.set(pos - scrollPos);
     // scrollPos = pos;
     scrollEnabled = true;
-}
+};
 
 export const getScrollHeight = (element) => {
     if (!element || element == document.body) {
@@ -139,4 +139,17 @@ export const getScrollHeight = (element) => {
             sh = 'scrollHeight';
         return (h[st] || b[st]) / ((h[sh] || b[sh]) - h.clientHeight);
     }
-}
+};
+
+export const setupButtons = () => {
+    overrideXMLSend();
+    overrideFetch();
+    for (let btn of document.getElementsByClassName("button")) {
+        console.log(btn);
+        btn.setAttribute("tabindex", 0);
+        btn.onkeypress = (e) => {
+            if (e.keyCode == 32 || e.keyCode == 13)
+                e.target.click();
+        }
+    }
+};

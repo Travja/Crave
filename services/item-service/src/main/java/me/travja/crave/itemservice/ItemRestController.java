@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import me.travja.crave.common.models.Item;
 import me.travja.crave.common.models.RequestItem;
 import me.travja.crave.common.repositories.ItemsRepository;
-import me.travja.crave.common.views.ItemView;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,6 +12,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static me.travja.crave.common.views.CraveViews.ItemView;
 
 @RequiredArgsConstructor
 @RestController
@@ -23,7 +24,8 @@ public class ItemRestController {
 
     @GetMapping
     @JsonView(ItemView.class)
-    public List<Item> getItems() {
+    public List<Item> getItems(Authentication auth) {
+        System.out.println(auth);
         return (List<Item>) repo.findAll();
     }
 

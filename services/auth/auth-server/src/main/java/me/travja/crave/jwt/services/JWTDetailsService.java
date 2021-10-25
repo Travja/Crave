@@ -1,7 +1,8 @@
 package me.travja.crave.jwt.services;
 
 import lombok.RequiredArgsConstructor;
-import me.travja.crave.jwt.repo.UserRepo;
+import me.travja.crave.common.models.CraveUser;
+import me.travja.crave.common.repositories.UserRepo;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -21,13 +22,13 @@ public class JWTDetailsService implements UserDetailsService {
     @PostConstruct
     public void setupUsers() {
         if (!containsUser("travja"))
-            userRepo.save(new AuthUser("travja", "tjeggett@yahoo.com",
-                    passwordEncoder.encode("test"), List.of("ADMIN", "USER")));
+            userRepo.save(new CraveUser("travja", "tjeggett@yahoo.com",
+                    passwordEncoder.encode("test"), List.of(), List.of("ADMIN", "USER")));
     }
 
     @Override
-    public AuthUser loadUserByUsername(String username) throws UsernameNotFoundException {
-        Optional<AuthUser> details = userRepo.findByUsernameIgnoreCase(username);
+    public CraveUser loadUserByUsername(String username) throws UsernameNotFoundException {
+        Optional<CraveUser> details = userRepo.findByUsernameIgnoreCase(username);
 
         if (details.isEmpty())
             throw new UsernameNotFoundException("User not found with username: " + username);
@@ -35,7 +36,7 @@ public class JWTDetailsService implements UserDetailsService {
         return details.get();
     }
 
-    public void addUser(AuthUser details) throws UserExistsException {
+    public void addUser(CraveUser details) throws UserExistsException {
         if (!containsUser(details.getUsername()))
             userRepo.save(details);
         else

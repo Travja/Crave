@@ -2,8 +2,8 @@ package me.travja.crave.jwt.controller;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import me.travja.crave.common.models.CraveUser;
 import me.travja.crave.jwt.jwt.*;
-import me.travja.crave.jwt.services.AuthUser;
 import me.travja.crave.jwt.services.JWTDetailsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -40,13 +41,18 @@ public class AuthController {
         String                       token = header.substring(7);
         try {
             JWTToken jwt = JWTToken.parseToken(token);
-            AuthUser user = jwtDetailsService
+            CraveUser user = jwtDetailsService
                     .loadUserByUsername(jwt.getUsername());
             valid = jwt.isValid(user);
             if (valid) {
                 resp = ResponseEntity.ok(new AuthResponse(user.getUsername(),
                         user.getAuthorities().stream().map(auth -> auth.getAuthority()).collect(Collectors.toList()),
-                        true));
+                        true)
+                        .setFavorites(
+                                user.getFavorites().stream()
+                                        .map(itm -> itm.getUpc().getUPC())
+                                        .collect(Collectors.toList())
+                        ));
             }
         } catch (Exception e) {
             valid = false;
@@ -64,7 +70,7 @@ public class AuthController {
     public ResponseEntity<?> generateAuthenticationToken(@RequestBody JWTRequest authRequest) throws Exception {
         authenticate(authRequest.getUsername(), authRequest.getPassword());
 
-        AuthUser userDetails = jwtDetailsService
+        CraveUser userDetails = jwtDetailsService
                 .loadUserByUsername(authRequest.getUsername());
 
         String token = JWTUtil.generateToken(userDetails);
@@ -76,8 +82,8 @@ public class AuthController {
     public ResponseEntity register(@RequestParam String username,
                                    @RequestParam String email,
                                    @RequestParam String password) throws JWTDetailsService.UserExistsException {
-        AuthUser details = new AuthUser(username, email, passwordEncoder.encode(password),
-                Collections.singletonList("USER"));
+        CraveUser details = new CraveUser(username, email, passwordEncoder.encode(password),
+                List.of(), List.of("USER"));
         jwtDetailsService.addUser(details);
 
         return ResponseEntity.ok(new TokenResponse(JWTUtil.generateToken(details)));

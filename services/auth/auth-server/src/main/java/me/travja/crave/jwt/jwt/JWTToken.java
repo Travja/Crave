@@ -5,7 +5,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import me.travja.crave.jwt.services.AuthUser;
+import me.travja.crave.common.models.CraveUser;
 
 import java.util.Date;
 import java.util.Map;
@@ -72,7 +72,7 @@ public class JWTToken {
         return (T) claims.get(key, Object.class);
     }
 
-    public boolean isValid(AuthUser userDetails) {
+    public boolean isValid(CraveUser userDetails) {
         return getUsername().equals(userDetails.getUsername()) && !isExpired();
     }
 

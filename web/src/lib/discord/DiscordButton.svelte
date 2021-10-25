@@ -4,20 +4,20 @@
     import logo from './discord.svg';
 </script>
 
-<a href="https://discord.gg/VwrK3jj" style="--font-size:{fontSize}em;--img-size:{fontSize*1.2}em">
+<a class="button" href="https://discord.gg/VwrK3jj" style="--font-size:{fontSize}em;--img-size:{fontSize*1.2}em">
     <img src={logo} class="discord" alt="Discord"/>&nbsp;Join my&nbsp;<span
         class="highlight">Discord</span>
 </a>
 
 <style>
     a {
-        font-size: var(--font-size);
         margin: 10px;
         padding: 10px;
-        border-radius: 6px;
-        background-color: rgba(0, 0, 0, .3);
         display: flex;
         align-items: center;
+    /*    font-size: var(--font-size);*/
+    /*    border-radius: 6px;*/
+    /*    background-color: rgba(0, 0, 0, .3);*/
     }
 
     .discord {

@@ -2,17 +2,21 @@ package me.travja.crave.common.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
-import lombok.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import me.travja.crave.common.conf.AppContext;
 import me.travja.crave.common.repositories.ManufacturerRepository;
-import me.travja.crave.common.views.ItemView;
-import me.travja.crave.common.views.UPCView;
 import org.hibernate.Hibernate;
 
 import javax.persistence.*;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+
+import static me.travja.crave.common.views.CraveViews.ItemView;
+import static me.travja.crave.common.views.CraveViews.UPCView;
 
 @Getter
 @Setter

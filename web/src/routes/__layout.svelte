@@ -4,20 +4,24 @@
     import Footer from "$lib/Footer.svelte";
     // noinspection ES6UnusedImports
     import {title, variables} from "$lib/variables.js";
-    import {initScroll, overrideXMLSend} from "$lib/util";
-    import {onDestroy, onMount} from "svelte";
+    import {initScroll, overrideFetch, overrideXMLSend, scrollDistance, setupButtons} from "$lib/util";
+    import {afterUpdate, onDestroy, onMount} from "svelte";
     import Parrallax from "$lib/Parrallax.svelte";
 
-    let unsubscribe;
+    let unsubscribe, unscroll;
     let firstRun = true;
 
     onMount(() => {
-        overrideXMLSend();
         unsubscribe = variables.jwt.subscribe(value => {
             if (value)
                 localStorage.setItem("jwt", value);
             else
                 localStorage.removeItem("jwt");
+        });
+        unscroll = scrollDistance.subscribe(value => {
+            let bg = document.getElementById("bg-parrallax");
+            if (bg)
+                bg.style.backgroundPosition = `50% ${(50 - value * 2)}%`;
         });
         initScroll();
     });
@@ -25,6 +29,12 @@
     onDestroy(() => {
         if (unsubscribe)
             unsubscribe();
+        if (unscroll)
+            unscroll();
+    });
+
+    afterUpdate(() => {
+        setupButtons();
     });
 </script>
 
@@ -40,6 +50,7 @@
     </section>
     <Footer/>
 </main>
+<!--<div style="height: 15000px"/>-->
 
 <style>
     main {

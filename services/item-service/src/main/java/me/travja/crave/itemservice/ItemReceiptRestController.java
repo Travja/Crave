@@ -7,17 +7,16 @@ import me.travja.crave.common.repositories.ItemDetailsRepository;
 import me.travja.crave.common.repositories.ItemsRepository;
 import me.travja.crave.common.repositories.StoreRepository;
 import org.apache.commons.lang.WordUtils;
+import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("receipt")
+@RequestMapping("/receipt")
 public class ItemReceiptRestController {
 
     private final ItemsRepository       itemRepo;
@@ -50,6 +49,21 @@ public class ItemReceiptRestController {
             e.printStackTrace();
             return ResponseObject.failure("error", e.getMessage());
         }
+    }
+
+    @Transactional
+    @PostMapping(path = "/web/items", consumes = {
+            MediaType.APPLICATION_FORM_URLENCODED_VALUE,
+            MediaType.MULTIPART_FORM_DATA_VALUE
+    })
+    public ResponseObject postItems(@RequestParam MultiValueMap<String, String> data) {
+        return postReceipt(new ItemizedReceiptData(data));
+    }
+
+    @Transactional
+    @PostMapping("/items")
+    public ResponseObject postItemsJson(@RequestBody ItemizedReceiptData data) {
+        return postReceipt(data);
     }
 
 }

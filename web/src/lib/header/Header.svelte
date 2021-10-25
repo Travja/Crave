@@ -87,10 +87,12 @@
         <ul>
             {#each pages as pg}
                 {#if !pg.hidden}
-                    <a sveltekit:prefetch href={pg.path}
-                       class:active={$page.path === pg.path}>
-                        <li>{pg.title}</li>
-                    </a>
+                    {#if pg.auth && $loggedIn || !pg.auth}
+                        <a sveltekit:prefetch href={pg.path}
+                           class:active={$page.path === pg.path}>
+                            <li>{pg.title}</li>
+                        </a>
+                    {/if}
                 {/if}
             {/each}
             <LoginButton

@@ -1,8 +1,9 @@
 <script>
     import {fly} from 'svelte/transition';
-    import {createEventDispatcher} from 'svelte';
+    import {afterUpdate, createEventDispatcher} from 'svelte';
     import CloseButton from "$lib/ui/CloseButton.svelte";
     import {login, variables} from "$lib/variables";
+    import {setupButtons} from "$lib/util";
 
     const dispatch = createEventDispatcher();
 
@@ -55,6 +56,10 @@
         if (e.keyCode == 13)
             handleLogin();
     };
+
+    afterUpdate(() => {
+        setupButtons();
+    });
 </script>
 
 <div bind:this={bg} class="container flex-center" on:click={closeModal}>
@@ -84,7 +89,7 @@
                            on:keypress={submit} placeholder="Password"
                            type="password"/>
                 </div>
-                <div class="button" href="#" on:click={handleLogin}>Log In</div>
+                <div class="button" on:click={handleLogin}>Log In</div>
             </div>
             <div class="register">Don't have an account?&nbsp;
                 <a href="/register" on:click={() => dispatch("closeModal")}>Register now!</a>

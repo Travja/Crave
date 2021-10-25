@@ -3,7 +3,7 @@ package me.travja.crave.jwt.jwt;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.security.SignatureException;
 import lombok.RequiredArgsConstructor;
-import me.travja.crave.jwt.services.AuthUser;
+import me.travja.crave.common.models.CraveUser;
 import me.travja.crave.jwt.services.JWTDetailsService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -60,7 +60,7 @@ public class JWTRequestFilter extends OncePerRequestFilter {
         }
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            AuthUser userDetails = jwtUserDetailsService.loadUserByUsername(username);
+            CraveUser userDetails = jwtUserDetailsService.loadUserByUsername(username);
 
             if (jwt.isValid(userDetails)) {
                 UsernamePasswordAuthenticationToken userAuth = new UsernamePasswordAuthenticationToken(

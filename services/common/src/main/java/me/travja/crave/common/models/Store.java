@@ -1,16 +1,17 @@
 package me.travja.crave.common.models;
 
 import com.fasterxml.jackson.annotation.JsonView;
-import lombok.*;
-import me.travja.crave.common.views.DetailsView;
-import me.travja.crave.common.views.ItemView;
-import me.travja.crave.common.views.StoreView;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.Hibernate;
 
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import static me.travja.crave.common.views.CraveViews.*;
 
 @Entity
 @Getter

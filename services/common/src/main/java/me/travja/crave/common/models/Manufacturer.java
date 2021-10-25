@@ -1,25 +1,30 @@
 package me.travja.crave.common.models;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import org.hibernate.Hibernate;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import java.util.Objects;
 
 @Entity
-@AllArgsConstructor
+@Getter
+@Setter
+@ToString
 @NoArgsConstructor
+@AllArgsConstructor
 public class Manufacturer {
 
     @Id
-    @Getter
-    @Setter
     private String manufacturerId;
-
-    @Getter
-    @Setter
     private String name;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        Manufacturer that = (Manufacturer) o;
+        return manufacturerId != null && Objects.equals(manufacturerId, that.manufacturerId);
+    }
 
 }

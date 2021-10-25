@@ -6,9 +6,6 @@ import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
 import me.travja.crave.common.conf.AppContext;
 import me.travja.crave.common.repositories.UPCRepository;
-import me.travja.crave.common.views.DetailsView;
-import me.travja.crave.common.views.ItemView;
-import me.travja.crave.common.views.UPCView;
 import org.hibernate.Hibernate;
 
 import javax.persistence.*;
@@ -16,6 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+
+import static me.travja.crave.common.views.CraveViews.*;
 
 @Getter
 @Setter
@@ -29,8 +28,8 @@ public class Item {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long   id;
-    private String name  = "No name";
-    private String description;
+    private String name,
+            description;
     @JsonIgnore
     @OneToOne(mappedBy = "item", cascade = CascadeType.ALL, optional = false)
     private UPC    upc;
@@ -42,9 +41,20 @@ public class Item {
     @ToString.Exclude
     private List<ItemDetails> details = new ArrayList<>();
 
+    @Transient
+    private boolean isFavorite = false;
+
+    public Item(long id, String name, String description, UPC upc, String image, List<ItemDetails> details) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.upc = upc;
+        this.image = image;
+        this.details = details;
+    }
+
     public void update(ProductInformation prodInfo) {
         if (getName() == null)
-            setName(prodInfo.getName());
             setName(prodInfo.getName());
 
         if (getUpc() == null)
@@ -71,7 +81,6 @@ public class Item {
             setUpc(target.get());
     }
 
-    @Transient
     public Optional<ItemDetails> getDetails(String store) {
         for (ItemDetails dets : details) {
             if (dets.getStore().getName().equalsIgnoreCase(store))
@@ -81,14 +90,8 @@ public class Item {
         return Optional.empty();
     }
 
-    @Transient
     public Optional<ItemDetails> getDetails(Store store) {
-        for (ItemDetails dets : details) {
-            if (dets.getStore().getName().equalsIgnoreCase(store.getName()))
-                return Optional.of(dets);
-        }
-
-        return Optional.empty();
+        return getDetails(store.getName());
     }
 
     @Override

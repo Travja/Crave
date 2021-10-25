@@ -3,7 +3,7 @@
     import {onMount} from "svelte";
     import {Utils} from "$lib/cropper/utils.js";
     import {variables} from "$lib/variables.js";
-    import {formSubmit, overrideFetch} from "$lib/util.js";
+    import {formSubmit} from "$lib/util.js";
     import {spring} from "svelte/motion";
 
     let margin = {top: 40, right: 40, bottom: 40, left: 40};
@@ -260,7 +260,6 @@
     };
 
     onMount(() => {
-        overrideFetch();
         img = new Image();
         utils = new Utils('errorMessage');
 
@@ -498,13 +497,11 @@
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
         font-size: 1em;
         border: none;
-        background-color: coral;
         margin: 5px;
     }
 
     .button:hover {
         cursor: pointer;
-        background-color: #ff7644;
     }
 
     .line {
@@ -515,6 +512,4 @@
         fill: deepskyblue;
         fill-opacity: 0.3;
     }
-
-
 </style>

@@ -4,8 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.http.*;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
@@ -19,8 +17,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -54,10 +50,8 @@ public class JWTRequestFilter extends OncePerRequestFilter {
 
             AuthResponse auth = res.getBody();
             if (res.getStatusCode() == HttpStatus.OK && auth != null && auth.isValid() && SecurityContextHolder.getContext().getAuthentication() == null) {
-                UsernamePasswordAuthenticationToken userAuth = new UsernamePasswordAuthenticationToken(
-                        auth.getUsername(), null, auth.getRoles() != null
-                        ? auth.getRoles().stream().map(str -> new SimpleGrantedAuthority(str)).collect(Collectors.toList())
-                        : Collections.emptyList());
+                AuthToken userAuth = new AuthToken(auth.getUsername(), null, auth.getRoles());
+                userAuth.setFavorites(auth.getFavorites());
                 userAuth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(userAuth);
                 logger.info("User authenticated.");

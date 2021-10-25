@@ -7,23 +7,31 @@ import lombok.NoArgsConstructor;
 import java.util.ArrayList;
 import java.util.List;
 
-@AllArgsConstructor
+@Getter
 @NoArgsConstructor
+@AllArgsConstructor
 public class AuthResponse {
 
-    @Getter
     private String       username;
-    @Getter
-    private List<String> roles = new ArrayList<>();
-    @Getter
+    private List<String> roles     = new ArrayList<>();
     private boolean      valid;
-    @Getter
-    private String       message = "";
+    private String       message   = "";
+    private List<String> favorites = new ArrayList<>();
 
     public AuthResponse(String username, List<String> roles, boolean valid) {
         this.username = username;
         this.roles = roles;
         this.valid = valid;
+    }
+
+    public AuthResponse(String username, List<String> roles, boolean valid, String message) {
+        this(username, roles, valid);
+        this.message = message;
+    }
+
+    public AuthResponse setFavorites(List<String> favorites) {
+        this.favorites = favorites;
+        return this;
     }
 
 }

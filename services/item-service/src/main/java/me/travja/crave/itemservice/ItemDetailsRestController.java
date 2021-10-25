@@ -3,11 +3,11 @@ package me.travja.crave.itemservice;
 import com.fasterxml.jackson.annotation.JsonView;
 import me.travja.crave.common.models.ItemDetails;
 import me.travja.crave.common.repositories.ItemDetailsRepository;
-import me.travja.crave.common.views.DetailsView;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
+import static me.travja.crave.common.views.CraveViews.DetailsView;
 
 @RestController
 @RequestMapping("/item-details")

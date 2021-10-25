@@ -5,7 +5,6 @@
     import {title, variables} from "$lib/variables";
     import {onDestroy, onMount} from "svelte";
     import PageItem from "$lib/PageItem.svelte";
-    import {overrideFetch} from "$lib/util";
     import {fly} from 'svelte/transition';
 
     title.set("Items");
@@ -50,8 +49,6 @@
     onMount(async () => {
         gateway = variables.gateway ? variables.gateway : window.location.origin;
 
-        overrideFetch();
-
         await getItems();
     });
 
@@ -90,7 +87,7 @@
 {#if tip}
     <div id="tip"
          on:click={(e) => tip = false}
-         out:fly="{{ x: 200, duration: 250 }}">
+         out:fly="{{ x: 200, duration: tip == false ? 250 : 0}}">
         <div>Can't find what you're looking for? Make sure to add it!</div>
         <a alt="Scan a Receipt!" class="button" href="/scan" id="scan">Scan a Receipt!</a>
     </div>
@@ -144,12 +141,6 @@
     hr {
         width: 30%;
         margin: 0.5em 0;
-    }
-
-    .spacer {
-        width: 1px;
-        background: black;
-        margin: 0 10px;
     }
 
     #tip {
