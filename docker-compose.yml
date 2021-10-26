@@ -20,6 +20,25 @@ version: '3.9'
 # appropriately.
 
 services:
+  rabbitmq:
+    image: rabbitmq:management
+    container_name: crave-rabbitmq
+    restart: always
+    networks:
+      - crave
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    env_file:
+      - .env
+    volumes:
+      - ./.data/rabbit:/var/lib/rabbitmq/mnesia
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 10s
+      timeout: 3s
+      retries: 10
+
   crave-mysql:
     image: mysql
     container_name: crave-mysql
@@ -38,6 +57,11 @@ services:
       - ./.data/mysql:/var/lib/mysql
     networks:
       - crave
+    healthcheck:
+      test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost" ]
+      timeout: 3s
+      interval: 10s
+      retries: 10
 
   eureka-server:
     container_name: eureka-server
@@ -47,13 +71,20 @@ services:
       - "8761:8761"
     networks:
       - crave
+    healthcheck:
+      test: curl -f localhost:8761 || exit 1
+      interval: 10s
+      timeout: 3s
+      start_period: 5s
+      retries: 5
 
   cloud-gateway:
     build:
       context: ./services/cloud-gateway
     container_name: cloud-gateway
     depends_on:
-      - eureka-server
+      eureka-server:
+        condition: service_healthy
     restart: always
     ports:
       - "80:8080"
@@ -71,7 +102,10 @@ services:
     build:
       context: ./services/auth/auth-server
     depends_on:
-      - crave-mysql
+      crave-mysql:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     restart: always
     ports:
       - "9000:9000"
@@ -90,8 +124,12 @@ services:
     build:
       context: ./services/item-service
     depends_on:
-      - crave-mysql
-      - eureka-server
+      crave-mysql:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
     restart: always
     #    ports:
     #      - 8082:8080
@@ -112,8 +150,12 @@ services:
     build:
       context: ./services/receipt-service
     depends_on:
-      - crave-mysql
-      - eureka-server
+      crave-mysql:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
     restart: always
     env_file:
       - .env
@@ -143,10 +185,10 @@ services:
       context: ./web
     #    container_name: web-server
     depends_on:
-      - crave-mysql
-      - item-service
-      - cloud-gateway
-      - eureka-server
+      crave-mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
     restart: always
     env_file:
       - .env
@@ -157,7 +199,23 @@ services:
       - "3000:3000"
     networks:
       - crave
-#    scale: 2
+  #    scale: 2
+
+  email-service:
+    build:
+      context: ./services/email-service
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - SERVER_PORT=8080
+      - APP_NAME=email-service
+    networks:
+      - crave
+    mem_limit: 450m
 
 networks:
   crave:

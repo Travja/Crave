@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @RestController
@@ -32,7 +33,8 @@ public class AuthController {
     private final Logger                logger = LoggerFactory.getLogger(AuthController.class);
 
     @PostMapping("/checkauth")
-    public ResponseEntity<AuthResponse> checkAuth(@RequestHeader("Authorization") String header) throws JWTAuthException {
+    public ResponseEntity<AuthResponse> checkAuth(
+            @RequestHeader("Authorization") String header) throws JWTAuthException {
         if (header == null || !header.startsWith("Bearer "))
             throw new JWTAuthException();
 
@@ -83,7 +85,7 @@ public class AuthController {
                                    @RequestParam String email,
                                    @RequestParam String password) throws JWTDetailsService.UserExistsException {
         CraveUser details = new CraveUser(username, email, passwordEncoder.encode(password),
-                List.of(), List.of("USER"));
+                Set.of(), List.of("USER"), true);
         jwtDetailsService.addUser(details);
 
         return ResponseEntity.ok(new TokenResponse(JWTUtil.generateToken(details)));

@@ -86,8 +86,8 @@
         if (!updating) return;
         let offsetLeft = wrap.getBoundingClientRect().left;
         let offsetTop = wrap.getBoundingClientRect().top;
-        let svgDx = offsetLeft - window.scrollX + margin.left;
-        let svgDy = offsetTop - window.scrollY + margin.top;
+        let svgDx = offsetLeft + margin.left;
+        let svgDy = offsetTop + margin.top;
 
         updating.x = e.clientX - svgDx;
         updating.y = e.clientY - svgDy;
@@ -232,7 +232,7 @@
 
     const checkResize = () => {
         if (!svg) return;
-        console.log(svg.clientWidth, svg.clientHeight);
+        // console.log(svg.clientWidth, svg.clientHeight);
         let updated = false;
         for (let circ of circles) {
             let rightBound = circ.x + margin.left + circ.size;

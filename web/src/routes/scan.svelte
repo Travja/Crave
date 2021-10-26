@@ -1,10 +1,12 @@
 <script>
-    import {title} from "$lib/variables";
+    import {title, variables} from "$lib/variables";
     import Cropper from "$lib/cropper/Cropper.svelte";
     import {slide} from "svelte/transition";
+    import {formSubmit} from "$lib/util";
 
     title.set("Scan");
 
+    let manForm;
     let rows = 2;
 
     let numRegex = /^[0-9]*?\.?[0-9]{0,2}$/
@@ -12,7 +14,13 @@
     let testInput = e => {
         if (!numRegex.test(e.target.value + e.key))
             e.preventDefault();
-    }
+    };
+
+    const submit = () => {
+        formSubmit(manForm, (data) => {
+            console.log(data);
+        });
+    };
 
 </script>
 <section>
@@ -21,7 +29,8 @@
     <section id="manual">
         <h1>Don't have a receipt? Is your receipt type not supported?</h1>
         <p>Enter your data manually here.</p>
-        <form id="man-form">
+        <form action="{variables.gateway}/item-service/receipt/web/items" bind:this={manForm}
+              id="man-form" method="POST">
             <div>
                 <label for="store-select">Store: </label>
                 <select id="store-select" name="store-select">
@@ -46,7 +55,7 @@
                 </div>
             {/if}
         </form>
-        <div class="button submit">Submit</div>
+        <div class="button submit" on:click={submit}>Submit</div>
         <div class="button" on:click={() => rows++}>Add Row
         </div>
         <div class="button" on:click={() => {if(rows > 0) rows--;}}>Remove Row

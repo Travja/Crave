@@ -94,7 +94,7 @@
         </dependency>
         <dependency>
             <groupId>me.travja.crave</groupId>
-            <artifactId>common</artifactId>
+            <artifactId>models-common</artifactId>
             <version>1.0-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>

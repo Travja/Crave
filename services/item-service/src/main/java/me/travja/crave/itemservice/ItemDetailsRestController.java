@@ -1,6 +1,7 @@
 package me.travja.crave.itemservice;
 
 import com.fasterxml.jackson.annotation.JsonView;
+import lombok.RequiredArgsConstructor;
 import me.travja.crave.common.models.ItemDetails;
 import me.travja.crave.common.repositories.ItemDetailsRepository;
 import org.springframework.web.bind.annotation.*;
@@ -10,14 +11,11 @@ import java.util.List;
 import static me.travja.crave.common.views.CraveViews.DetailsView;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/item-details")
 public class ItemDetailsRestController {
 
     private final ItemDetailsRepository repo;
-
-    public ItemDetailsRestController(ItemDetailsRepository repo) {
-        this.repo = repo;
-    }
 
     @GetMapping
     @JsonView(DetailsView.class)

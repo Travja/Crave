@@ -1,4 +1,6 @@
-FROM openjdk:16
+FROM openjdk:16-alpine
+
+RUN apk --no-cache add curl
 
 ARG JAR_FILE=target/*.jar
 

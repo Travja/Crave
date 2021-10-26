@@ -12,6 +12,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -22,28 +24,42 @@ public class ItemReceiptRestController {
     private final ItemsRepository       itemRepo;
     private final ItemDetailsRepository itemDetailsRepo;
     private final StoreRepository       storeRepo;
+    private final AsyncCaller           async;
 
     @PostMapping
     @Transactional
     public ResponseObject postReceipt(@RequestBody SimpleReceiptData data) {
         try {
+            int i = 0;
+            System.out.println(i++);
             ReceiptType type      = data.getReceiptType();
             String      storeName = WordUtils.capitalize(type.toString());
             int         updated   = 0;
+
+            Map<ItemDetails, Double> pricesUpdated = new HashMap<>();
+            System.out.println(i++);
 
             for (ProductInformation prod : data.getProductData()) {
                 Item                  item    = itemRepo.findByUpcUpc(prod.getUpc()).orElse(new Item());
                 Store                 store   = storeRepo.findStoreByNameIgnoreCase(storeName).orElse(null);
                 Optional<ItemDetails> details = item.getDetails(store);
-                details.ifPresentOrElse((dets) -> dets.update(prod),
+                details.ifPresentOrElse((dets) -> {
+                            double priceChange = dets.update(prod);
+                            if (Math.abs(priceChange) > 0.0001)
+                                pricesUpdated.put(dets, priceChange);
+                            itemDetailsRepo.save(dets);
+                        },
                         () -> item.getDetails().add(new ItemDetails(item, store, prod.getPrice())));
 
                 item.update(prod);
                 itemRepo.save(item);
                 updated++;
             }
+            System.out.println(i++);
 
             ResponseObject res = ResponseObject.success("updated", updated);
+            System.out.println("There are " + pricesUpdated.size() + " items with new prices.");
+            async.handlePriceUpdates(pricesUpdated);
             return res;
         } catch (Exception e) {
             e.printStackTrace();
