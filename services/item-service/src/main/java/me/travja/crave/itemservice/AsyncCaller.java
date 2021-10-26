@@ -28,10 +28,15 @@ public class AsyncCaller {
 
         for (CraveUser user : userRepo.findAll()) {
             int count = 0;
+            if (user.getFavorites().isEmpty()) continue;
+
             for (ItemDetails details : priceChanges.keySet()) {
-                if (!user.getFavorites().contains(details.getItem())) continue;
-                if (store == null) store =
-                        details.getStore().getName();
+                if (user.getFavorites().stream()
+                        .filter(itm -> itm.getStringUpc().equals(details.getItem().getStringUpc())).count() == 0) {
+                    continue;
+                }
+
+                if (store == null) store = details.getStore().getName();
 
                 count++;
                 double change = priceChanges.get(details);
@@ -39,8 +44,10 @@ public class AsyncCaller {
                 messageBody.append("\t")
                         .append(details.getItem().getName())
                         .append(": ")
+                        .append(Formatter.formatCurrency(details.getPrice()))
+                        .append(change > 0 ? " (+" : " (")
                         .append(Formatter.formatCurrency(change))
-                        .append("\n");
+                        .append(")\n");
             }
 
             if (count > 0)

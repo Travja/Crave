@@ -113,7 +113,7 @@
         if (timeout)
             clearTimeout(timeout);
 
-        timeout = setTimeout(warpImage, 50);
+        timeout = setTimeout(warpImage, 500);
     };
 
     const multiply = (matrix, vector) => {
@@ -282,6 +282,8 @@
             console.log(data);
             submitting = false;
             alert("Receipt submitted successfully");
+            //TODO Eventually allow approval of submitted receipt data.
+            location.reload();
         });
     };
 

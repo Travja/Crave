@@ -36,6 +36,7 @@ services:
     healthcheck:
       test: rabbitmq-diagnostics -q ping
       interval: 10s
+      start_period: 30s
       timeout: 3s
       retries: 10
 

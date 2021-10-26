@@ -3,6 +3,8 @@ package me.travja.crave.common.models;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.hibernate.Hibernate;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -29,6 +31,7 @@ public class CraveUser implements UserDetails {
 
     @OneToMany
     @ToString.Exclude
+    @LazyCollection(LazyCollectionOption.FALSE)
     private Set<Item> favorites = new HashSet<>();
 
     @ElementCollection(fetch = FetchType.EAGER)
