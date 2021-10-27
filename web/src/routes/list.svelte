@@ -1,13 +1,18 @@
 <script>
-    import {title, variables} from "$lib/variables";
+    import {gateway, title, variables} from "$lib/variables";
     import {fly, scale, slide} from "svelte/transition";
     import {elasticInOut, quintOut} from "svelte/easing";
-    import {onMount} from "svelte";
+    import {onDestroy, onMount} from "svelte";
 
     title.set("Shopping List");
 
     const custom = (node, {
-        delay = 0, duration = 400, easing: easing$1 = elasticInOut, start = 0, opacity = 0, enabled = true
+        delay = 0,
+        duration = 400,
+        easing: easing$1 = elasticInOut,
+        start = 0,
+        opacity = 0,
+        enabled = true
     } = {}) => {
         if (!enabled) return;
 
@@ -26,7 +31,7 @@
 			opacity: ${target_opacity - (od * u)}
 		`
         };
-    }
+    };
 
 
     let items = [
@@ -52,12 +57,12 @@
 
         if (items.length > 1 && !items[items.length - 2].text) {
             items.pop();
-            items[items.length-1].checked = false;
+            items[items.length - 1].checked = false;
         }
     }
 
-    onMount(() => {
-        fetch(variables.gateway + "/auth-service/list")
+    const getList = () => {
+        fetch(gateway() + "/auth-service/list")
             .then(res => res.json())
             .then(data => {
                 console.log(data);
@@ -67,12 +72,12 @@
             .catch(e => {
                 console.error(e);
             });
-    });
+    };
 
     const saveList = () => {
         let tmp = [...items];
         tmp.pop();
-        fetch(variables.gateway + "/auth-service/list", {
+        fetch(gateway() + "/auth-service/list", {
             method: "post",
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(tmp)
@@ -87,6 +92,10 @@
                 console.error(err);
             });
     };
+
+    let unsubscribe = variables.jwt.subscribe(getList);
+    onMount(getList);
+    onDestroy(unsubscribe);
 
     let itmCount = 0;
     $: itmCount = items.length - 1;
@@ -175,6 +184,7 @@
         width: 30%;
         min-width: 200px;
         margin: 0 auto;
+        flex-grow: 1;
     }
 
     .row {

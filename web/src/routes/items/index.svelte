@@ -2,7 +2,7 @@
 <!--    export const prerender = true;-->
 <!--</script>-->
 <script>
-    import {title, variables} from "$lib/variables";
+    import {title, variables, gateway} from "$lib/variables";
     import {onDestroy, onMount} from "svelte";
     import PageItem from "$lib/PageItem.svelte";
     import {fly} from 'svelte/transition';
@@ -11,18 +11,18 @@
     title.set("Items");
 
     let tip = true;
-    let gateway;
+    let gate;
     let items, error;
     let inProgress = false;
 
     const getItems = async (query) => {
-        console.log("Fetching items " + gateway);
-        if (!gateway)
+        console.log("Fetching items " + gate);
+        if (!gate)
             return;
 
         error = undefined;
         inProgress = true;
-        let url = gateway + '/item-service/items' + (query ? "?query=" + query : "");
+        let url = gate + '/item-service/items' + (query ? "?query=" + query : "");
         const res = await fetch(url);
         inProgress = false;
         if (res.ok) {
@@ -50,7 +50,8 @@
     };
 
     onMount(async () => {
-        gateway = variables.gateway ? variables.gateway : window.location.origin;
+        // gateway = variables.gateway ? variables.gateway : window.location.origin;
+        gate = gateway();
 
         await getItems();
     });

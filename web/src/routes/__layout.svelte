@@ -3,7 +3,7 @@
     import Header from "$lib/header/Header.svelte";
     import Footer from "$lib/Footer.svelte";
     // noinspection ES6UnusedImports
-    import {title, variables} from "$lib/variables.js";
+    import {title} from "$lib/variables.js";
     import {initScroll, overrideFetch, overrideXMLSend, scrollDistance, setupButtons} from "$lib/util";
     import {afterUpdate, beforeUpdate, onDestroy, onMount} from "svelte";
     import Parrallax from "$lib/Parrallax.svelte";
@@ -71,8 +71,8 @@
         position: relative;
         padding: 1rem;
         flex: 1;
-        /*display: flex;*/
-        /*flex-direction: column;*/
+        display: flex;
+        flex-direction: column;
         width: 100%;
         margin: 0 auto;
         box-sizing: border-box;

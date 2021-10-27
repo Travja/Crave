@@ -1,5 +1,5 @@
 <script>
-    import {title, variables} from "$lib/variables";
+    import {title, gateway} from "$lib/variables";
     import Cropper from "$lib/cropper/Cropper.svelte";
     import {slide} from "svelte/transition";
     import {formSubmit} from "$lib/util";
@@ -29,7 +29,7 @@
     <section id="manual">
         <h1>Don't have a receipt? Is your receipt type not supported?</h1>
         <p>Enter your data manually here.</p>
-        <form action="{variables.gateway}/item-service/receipt/web/items" bind:this={manForm}
+        <form action="{gateway()}/item-service/receipt/web/items" bind:this={manForm}
               id="man-form" method="POST">
             <div>
                 <label for="store-select">Store: </label>

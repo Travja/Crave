@@ -1,5 +1,5 @@
 <script>
-    import {login, title, variables} from "$lib/variables";
+    import {login, title, variables, gateway} from "$lib/variables";
     import {formSubmit} from "$lib/util";
 
     title.set("Register");
@@ -45,7 +45,7 @@
             userError = undefined;
             userStatus = "loading";
             //Verify that the username is valid
-            fetch(variables.gateway + "/auth-service/checkuser/" + user)
+            fetch(gateway() + "/auth-service/checkuser/" + user)
                 .then(res => res.json())
                 .then(data => {
                     if (data.error || !data.available) {
@@ -111,7 +111,7 @@
         </div>
     {:else}
         <h1>Please fill out the form!</h1>
-        <form bind:this={registerForm} id="registerForm" action="{variables.gateway}/auth-service/register"
+        <form bind:this={registerForm} id="registerForm" action="{gateway()}/auth-service/register"
               method="post">
             {#if error}
                 <div class="error">{error}</div>

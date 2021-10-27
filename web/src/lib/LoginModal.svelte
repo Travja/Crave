@@ -2,7 +2,7 @@
     import {fly} from 'svelte/transition';
     import {afterUpdate, createEventDispatcher} from 'svelte';
     import CloseButton from "$lib/ui/CloseButton.svelte";
-    import {login, variables} from "$lib/variables";
+    import {gateway, login, variables} from "$lib/variables";
     import {setupButtons} from "$lib/util";
 
     const dispatch = createEventDispatcher();
@@ -22,10 +22,9 @@
     };
 
     const handleLogin = () => {
-        let gateway = variables.gateway;
         errorMsg = false;
 
-        fetch(gateway + "/auth-service/authenticate", {
+        fetch(gateway() + "/auth-service/authenticate", {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({

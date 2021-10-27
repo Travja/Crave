@@ -1,6 +1,6 @@
 <script>
     import {findCheapest, formatter} from "$lib/util";
-    import {variables} from "$lib/variables";
+    import {gateway, variables} from "$lib/variables";
 
     export let name = "No Name",
         upc = "Missing UPC",
@@ -17,7 +17,7 @@
 
     const favoriteItem = e => {
         favorite = !favorite;
-        fetch(`${variables.gateway}/item-service/items/${favorite ? "" : "un"}favorite/${upc}`,
+        fetch(`${gateway()}/item-service/items/${favorite ? "" : "un"}favorite/${upc}`,
             {method: "post"})
             .then(res => res.json())
             .then(json => {

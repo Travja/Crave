@@ -1,5 +1,5 @@
 <script context="module">
-    import {title, variables} from "$lib/variables";
+    import {title, gateway} from "$lib/variables";
 
     title.set("Item Entry");
 
@@ -7,7 +7,7 @@
     let item;
 
     export async function load({page, fetch}) {
-        const url = `${variables.gateway}/item-service/items/${page.params.item}`;
+        const url = `${gateway()}/item-service/items/${page.params.item}`;
         console.log(url);
         const res = await fetch(url);
 

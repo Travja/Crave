@@ -24,6 +24,8 @@ export const variables = {
     jwt: createJWT()
 };
 
+export const gateway = () => variables.gateway ? variables.gateway : window.location.origin
+
 export let title = writable("Untitled");
 
 export let icons = {

@@ -3,22 +3,16 @@
 <!--</script>-->
 
 <script>
-    import {title, variables} from "$lib/variables";
-    import {onMount} from "svelte";
+    import {title, gateway} from "$lib/variables";
 
-    let gateway = "...";
     title.set("Home");
-
-    onMount(() => {
-        gateway = variables.gateway ? variables.gateway : window.location.origin;
-    });
 </script>
 
 <section>
     <h1>Welcome to Crave!</h1>
     <img class="construction" src="/construction.svg" alt="Under Construction"/>
     <p>This site is still under construction.</p>
-    <div>Gateway: {gateway}</div>
+    <div>Gateway: {gateway()}</div>
 </section>
 
 <style>

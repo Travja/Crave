@@ -1,5 +1,5 @@
 <script context="module">
-    import {title, variables} from "$lib/variables";
+    import {title, variables, gateway} from "$lib/variables";
     import {findCheapest} from "$lib/util";
 
     title.set("Item Entry");
@@ -9,7 +9,7 @@
     let item;
 
     export async function load({page, fetch}) {
-        const url = `${variables.gateway}/item-service/item-details/${page.params.item}`;
+        const url = `${gateway()}/item-service/item-details/${page.params.item}`;
         // console.log(url);
         const res = await fetch(url);
 
