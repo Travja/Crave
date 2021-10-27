@@ -27,6 +27,11 @@
             title: "Scan",
             auth: true
         },
+        {
+            path: "/list",
+            title: "Shopping List",
+            auth: true
+        }
     ];
 
     let requireLogin = false,

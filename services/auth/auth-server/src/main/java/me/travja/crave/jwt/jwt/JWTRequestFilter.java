@@ -4,9 +4,9 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.security.SignatureException;
 import lombok.RequiredArgsConstructor;
 import me.travja.crave.common.models.CraveUser;
+import me.travja.crave.common.models.AuthToken;
 import me.travja.crave.jwt.services.JWTDetailsService;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
@@ -19,6 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Base64;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -60,11 +61,11 @@ public class JWTRequestFilter extends OncePerRequestFilter {
         }
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            CraveUser userDetails = jwtUserDetailsService.loadUserByUsername(username);
+            CraveUser user = jwtUserDetailsService.loadUserByUsername(username);
 
-            if (jwt.isValid(userDetails)) {
-                UsernamePasswordAuthenticationToken userAuth = new UsernamePasswordAuthenticationToken(
-                        userDetails, null, userDetails.getAuthorities());
+            if (jwt.isValid(user)) {
+                AuthToken userAuth = new AuthToken(user.getUsername(), null, user.getAuthList());
+                userAuth.setFavorites(user.getFavorites().stream().map(itm -> itm.getStringUpc()).collect(Collectors.toList()));
                 userAuth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(userAuth);
             }

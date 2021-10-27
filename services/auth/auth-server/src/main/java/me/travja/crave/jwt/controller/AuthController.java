@@ -3,7 +3,10 @@ package me.travja.crave.jwt.controller;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import me.travja.crave.common.models.CraveUser;
+import me.travja.crave.common.models.ResponseObject;
 import me.travja.crave.jwt.jwt.*;
+import me.travja.crave.common.models.AuthToken;
+import me.travja.crave.common.models.ListItem;
 import me.travja.crave.jwt.services.JWTDetailsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,13 +16,13 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @RestController
@@ -84,8 +87,7 @@ public class AuthController {
     public ResponseEntity register(@RequestParam String username,
                                    @RequestParam String email,
                                    @RequestParam String password) throws JWTDetailsService.UserExistsException {
-        CraveUser details = new CraveUser(username, email, passwordEncoder.encode(password),
-                Set.of(), List.of("USER"), true);
+        CraveUser details = new CraveUser(username, email, passwordEncoder.encode(password), List.of("USER"));
         jwtDetailsService.addUser(details);
 
         return ResponseEntity.ok(new TokenResponse(JWTUtil.generateToken(details)));
@@ -95,6 +97,33 @@ public class AuthController {
     public ResponseEntity checkUser(@PathVariable String user) {
         return ResponseEntity.ok(new UserAvailable(!jwtDetailsService.containsUser(user)));
     }
+
+
+    @PostMapping("/list")
+    public ResponseObject saveList(@RequestBody List<ListItem> list, Authentication auth) {
+        if (auth instanceof AuthToken) {
+            CraveUser user = jwtDetailsService.loadUserByUsername(auth.getName());
+
+            user.setShoppingList(list);
+
+            jwtDetailsService.saveUser(user);
+            return ResponseObject.success();
+        }
+
+        return ResponseObject.failure();
+    }
+
+    @GetMapping("/list")
+    public List<ListItem> getList(Authentication auth) {
+        if (auth instanceof AuthToken) {
+            CraveUser user = jwtDetailsService.loadUserByUsername(auth.getName());
+
+            return user.getShoppingList();
+        }
+
+        return Collections.emptyList();
+    }
+
 
     private void authenticate(String username, String password) throws Exception {
         Objects.requireNonNull(username);
@@ -108,9 +137,10 @@ public class AuthController {
         }
     }
 
-    @AllArgsConstructor
     @Data
+    @AllArgsConstructor
     private class UserAvailable {
         private boolean available;
     }
+
 }

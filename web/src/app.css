@@ -140,3 +140,7 @@ a.button:hover, a.button {
 .clear {
     clear: both;
 }
+
+.material-icons-round {
+    font-size: 1.5em;
+}

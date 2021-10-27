@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -24,7 +23,7 @@ public class JWTDetailsService implements UserDetailsService {
     public void setupUsers() {
         if (!containsUser("travja"))
             userRepo.save(new CraveUser("travja", "tjeggett@yahoo.com",
-                    passwordEncoder.encode("test"), Set.of(), List.of("ADMIN", "USER"), true));
+                    passwordEncoder.encode("test"), List.of("ADMIN", "USER")));
     }
 
     @Override
@@ -42,6 +41,10 @@ public class JWTDetailsService implements UserDetailsService {
             userRepo.save(details);
         else
             throw new UserExistsException();
+    }
+
+    public void saveUser(CraveUser user) {
+        userRepo.save(user);
     }
 
     public boolean containsUser(String username) {

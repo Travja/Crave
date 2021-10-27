@@ -10,10 +10,9 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Entity
@@ -29,15 +28,31 @@ public class CraveUser implements UserDetails {
     private String email,
             password;
 
-    @OneToMany
+    @ManyToMany(cascade = CascadeType.ALL)
     @ToString.Exclude
     @LazyCollection(LazyCollectionOption.FALSE)
-    private Set<Item> favorites = new HashSet<>();
+    private List<Item> favorites = new ArrayList<>();
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @LazyCollection(LazyCollectionOption.FALSE)
+    private List<ListItem> shoppingList = new ArrayList<>();
 
     @ElementCollection(fetch = FetchType.EAGER)
-    private List<String> authList;
+    private List<String> authList = new ArrayList<>();
 
     private boolean notificationsEnabled = true;
+
+    public CraveUser(String username, String email, String password, List<String> authList) {
+        this.username = username;
+        this.email = email;
+        this.password = password;
+        this.authList = authList;
+    }
+
+    public void setShoppingList(List<ListItem> shoppingList) {
+        this.shoppingList.clear();
+        this.shoppingList.addAll(shoppingList);
+    }
 
     @JsonIgnore
     public List<? extends GrantedAuthority> getAuthorities() {
