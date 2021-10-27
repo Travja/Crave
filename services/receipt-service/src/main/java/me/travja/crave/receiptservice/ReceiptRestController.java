@@ -70,7 +70,7 @@ public class ReceiptRestController {
     @PostMapping("/parse")
     public ResponseObject parseReceipt(@RequestParam("file") MultipartFile file) {
         ReceiptData data = parse(file);
-        return ResponseObject.success(data.submit());
+        return ResponseObject.successConditional(data.submit());
     }
 
     @PostMapping("/parsestr")
@@ -85,7 +85,7 @@ public class ReceiptRestController {
 
             ReceiptData data = parse(new FileInputStream(file));
 
-            return ResponseObject.success(data.submit());
+            return ResponseObject.successConditional(data.submit());
         } catch (IOException e) {
             System.err.println("Could not parse image.");
             e.printStackTrace();

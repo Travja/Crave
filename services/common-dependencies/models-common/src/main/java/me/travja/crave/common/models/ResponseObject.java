@@ -23,7 +23,7 @@ public class ResponseObject {
         return ResponseObject.of(HttpStatus.OK, "success", true, data);
     }
 
-    public static ResponseObject success(boolean isSuccessful, Object... data) {
+    public static ResponseObject successConditional(boolean isSuccessful, Object... data) {
         if (isSuccessful)
             return ResponseObject.success(data);
         else
