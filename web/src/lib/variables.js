@@ -21,10 +21,11 @@ const createJWT = () => {
 
 export const variables = {
     gateway: import.meta.env.VITE_GATEWAY,
+    subKey: import.meta.env.VITE_AZURE_KEY,
     jwt: createJWT()
 };
 
-export const gateway = () => variables.gateway ? variables.gateway : window.location.origin
+export const gateway = () => variables.gateway ? variables.gateway : window?.location.origin
 
 export let title = writable("Untitled");
 

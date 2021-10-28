@@ -1,8 +1,9 @@
 <script>
-    import {title, gateway} from "$lib/variables";
+    import {gateway, title, variables} from "$lib/variables";
     import Cropper from "$lib/cropper/Cropper.svelte";
     import {slide} from "svelte/transition";
     import {formSubmit} from "$lib/util";
+    import {onMount} from "svelte";
 
     title.set("Scan");
 
@@ -22,6 +23,75 @@
         });
     };
 
+    let position;
+    const getLocation = (callback) => {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(pos => {
+                position = pos;
+                callback();
+            });
+        } else {
+            alert("Geolocation is not supported by this browser.");
+        }
+    };
+
+    let url = "https://atlas.microsoft.com/search/fuzzy/json" +
+        "?api-version=1.0" +
+        "&query={query}" +
+        "&subscription-key=" + variables.subKey +
+        "&lat={lat}" +
+        "&lon={lon}";
+    let strs = [];
+    const updateStore = e => {
+        getLocation(() => {
+
+            if (!position) return;
+
+            let selected = e.target.children[e.target.selectedIndex];
+            let newUrl = url.replace("{query}", selected.value)
+                .replace("{lat}", position.coords.latitude.toString())
+                .replace("{lon}", position.coords.longitude.toString());
+
+            fetch(newUrl)
+                .then(res => res.json())
+                .then(data => {
+                    strs = [];
+                    let results = data.results;
+
+                    for (let i = 0; i < 3; i++) {
+                        let store = results[i];
+                        let name = store.poi.name;
+                        let address = store.address.freeformAddress;
+                        let lat = store.position.lat;
+                        let lon = store.position.lon;
+
+                        strs.push({
+                            name,
+                            address,
+                            lat,
+                            lon
+                        });
+
+                        console.log(name + " at " + address + " (" + lat + ", " + lon + ") is .... Distance....");
+                    }
+
+                    console.log(strs);
+
+
+                })
+                .catch(e => console.error(e));
+
+        });
+    };
+
+    const selectStore = e => {
+        for (let sel of document.getElementsByClassName("selected")) {
+            sel.classList.remove("selected");
+        }
+
+        e.target.classList.toggle("selected");
+    };
+
 </script>
 <section>
     <Cropper/>
@@ -33,10 +103,22 @@
               id="man-form" method="POST">
             <div>
                 <label for="store-select">Store: </label>
-                <select id="store-select" name="store-select">
+                <select id="store-select" name="store-select" on:change={updateStore}>
+                    <option></option>
                     <option value="WALMART">Walmart</option>
                     <option value="TARGET">Target</option>
                 </select>
+                <div class="stores">
+                    {#each strs as store, i}
+                        {#if strs.selected}
+                            <div class="store selected"
+                                 on:click={selectStore}>{i + 1}) {store.name} - {store.address}</div>
+                        {:else}
+                            <div class="store"
+                                 on:click={selectStore}>{i + 1}) {store.name} - {store.address}</div>
+                        {/if}
+                    {/each}
+                </div>
             </div>
             {#if rows > 0}
                 <div id="table">
@@ -86,6 +168,32 @@
         align-items: center;
         justify-content: center;
         flex-direction: column;
+    }
+
+    .stores {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: center;
+        margin: 0.5em;
+    }
+
+    .store {
+        text-align: left;
+        width: 100%;
+        background: #ccc;
+        padding: 0.8em;
+        box-sizing: border-box;
+        border-bottom: 1px solid black;
+    }
+
+    .store.selected {
+        border: 2px solid blue;
+    }
+
+    .store:hover {
+        background: #aaa;
+        cursor: pointer;
     }
 
     #table {
