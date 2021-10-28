@@ -44,8 +44,6 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.PostConstruct;
-import javax.imageio.ImageIO;
-import java.awt.*;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.util.Base64;
@@ -72,8 +70,6 @@ public class ReceiptRestController {
     @PostMapping("/parse")
     public ResponseObject parseReceipt(@RequestParam("file") MultipartFile file) {
         ReceiptData data = parse(file);
-        Color color = new Color();
-        ImageIO.read().setRGB();
         return ResponseObject.successConditional(data.submit());
     }
 
