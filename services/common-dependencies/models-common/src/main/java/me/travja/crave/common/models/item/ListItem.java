@@ -1,4 +1,4 @@
-package me.travja.crave.common.models;
+package me.travja.crave.common.models.item;
 
 import lombok.*;
 

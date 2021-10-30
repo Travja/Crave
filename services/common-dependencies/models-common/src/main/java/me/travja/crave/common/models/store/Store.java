@@ -1,9 +1,10 @@
-package me.travja.crave.common.models;
+package me.travja.crave.common.models.store;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import me.travja.crave.common.models.item.ItemDetails;
 import org.hibernate.Hibernate;
 
 import javax.persistence.*;
@@ -28,10 +29,30 @@ public class Store {
     private String city;
     private String state;
 
+    private Location location = new Location();
+
     @JsonView(StoreView.class)
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "store")
     @ToString.Exclude
     private List<ItemDetails> items = new ArrayList<>();
+
+    @Column(name = "lat")
+    public double getLat() {
+        return location.getLat();
+    }
+
+    public void setLat(double lat) {
+        location.setLat(lat);
+    }
+
+    @Column(name = "lon")
+    public double getLon() {
+        return location.getLon();
+    }
+
+    public void setLon(double lon) {
+        location.setLon(lon);
+    }
 
     @Override
     public boolean equals(Object o) {

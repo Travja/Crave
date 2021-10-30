@@ -1,7 +1,7 @@
 package me.travja.crave.common.filters;
 
 import lombok.RequiredArgsConstructor;
-import me.travja.crave.common.models.AuthToken;
+import me.travja.crave.common.models.auth.AuthToken;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.http.*;

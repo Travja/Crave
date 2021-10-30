@@ -3,7 +3,7 @@ package me.travja.crave.receiptservice.models;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
 import lombok.Setter;
-import me.travja.crave.common.models.ItemDetails;
+import me.travja.crave.common.models.item.ItemDetails;
 
 import javax.persistence.*;
 import java.util.ArrayList;

@@ -45,14 +45,14 @@
             src}/>
             <input accept="image/*" bind:this={imgUpload} id="image" name="image" on:change={changeImg}
                    type="file"/>
+            <div class="clear"/>
+            <div>Test</div>
         </div>
         <div>
             <h1>{item.item.name}</h1>
             <div class="price">{formatter.format(item.price)}</div>
             <hr/>
-            <div>{item.item.description}</div>
-            <div class="clear"/>
-            <div>Test</div>
+            <div>{@html item.item.description.replaceAll("\n", "<br/>")}</div>
         </div>
     {/if}
 </div>

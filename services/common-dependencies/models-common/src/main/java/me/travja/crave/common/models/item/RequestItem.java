@@ -1,6 +1,7 @@
-package me.travja.crave.common.models;
+package me.travja.crave.common.models.item;
 
 import lombok.Data;
+import me.travja.crave.common.models.item.Item;
 
 import javax.persistence.GeneratedValue;
 import java.util.ArrayList;

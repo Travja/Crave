@@ -1,8 +1,11 @@
 package me.travja.crave.itemservice;
 
 import lombok.AllArgsConstructor;
-import me.travja.crave.common.models.*;
-import me.travja.crave.common.models.SimpleReceiptData.ReceiptType;
+import me.travja.crave.common.models.ResponseObject;
+import me.travja.crave.common.models.item.*;
+import me.travja.crave.common.models.item.SimpleReceiptData.ReceiptType;
+import me.travja.crave.common.models.store.Location;
+import me.travja.crave.common.models.store.Store;
 import me.travja.crave.common.repositories.ItemDetailsRepository;
 import me.travja.crave.common.repositories.ItemsRepository;
 import me.travja.crave.common.repositories.StoreRepository;
@@ -30,32 +33,47 @@ public class ItemReceiptRestController {
     @Transactional
     public ResponseObject postReceipt(@RequestBody SimpleReceiptData data) {
         try {
-            int i = 0;
-            System.out.println(i++);
+            System.out.println(data);
             ReceiptType type      = data.getReceiptType();
             String      storeName = WordUtils.capitalize(type.toString());
             int         updated   = 0;
 
             Map<ItemDetails, Double> pricesUpdated = new HashMap<>();
-            System.out.println(i++);
 
             for (ProductInformation prod : data.getProductData()) {
-                Item                  item    = itemRepo.findByUpcUpc(prod.getUpc()).orElse(new Item());
-                Store                 store   = storeRepo.findStoreByNameIgnoreCase(storeName).orElse(null);
-                Optional<ItemDetails> details = item.getDetails(store);
-                details.ifPresentOrElse((dets) -> {
-                            double priceChange = dets.update(prod);
-                            if (Math.abs(priceChange) > 0.0001)
-                                pricesUpdated.put(dets, priceChange);
-                            itemDetailsRepo.save(dets);
-                        },
-                        () -> item.getDetails().add(new ItemDetails(item, store, prod.getPrice())));
+                Item item = itemRepo.findByUpcUpc(prod.getUpc()).orElse(new Item());
+                Optional<Store> store = storeRepo.findStoreByStreetAddressAndCityAndState(data.getStreetAddress(),
+                        data.getCity(), data.getState());
+
+                store.ifPresentOrElse((stor) -> {
+                    Optional<ItemDetails> details = item.getDetails(stor);
+                    details.ifPresentOrElse((dets) -> {
+                                double priceChange = dets.update(prod);
+                                if (Math.abs(priceChange) > 0.0001)
+                                    pricesUpdated.put(dets, priceChange);
+                                itemDetailsRepo.save(dets);
+                            },
+                            () -> item.getDetails().add(new ItemDetails(item, stor, prod.getPrice())));
+                }, () -> { //Otherwise, if store is null
+                    Store stor = new Store();
+
+                    stor.setName(storeName);
+                    stor.setStreetAddress(data.getStreetAddress());
+                    stor.setCity(data.getCity());
+                    stor.setState(data.getState());
+                    //TODO Get the actual Lat/Lon for the store and save that too
+                    stor.setLocation(new Location());//new Location(lat, lon));
+                    storeRepo.save(stor);
+
+                    ItemDetails details = new ItemDetails(item, stor, prod.getPrice());
+                    itemDetailsRepo.save(details);
+                    item.getDetails().add(details);
+                });
 
                 item.update(prod);
                 itemRepo.save(item);
                 updated++;
             }
-            System.out.println(i++);
 
             ResponseObject res = ResponseObject.success("updated", updated);
             System.out.println("There are " + pricesUpdated.size() + " items with new prices.");

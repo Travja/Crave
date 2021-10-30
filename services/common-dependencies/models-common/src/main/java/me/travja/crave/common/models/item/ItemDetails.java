@@ -1,10 +1,11 @@
-package me.travja.crave.common.models;
+package me.travja.crave.common.models.item;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import me.travja.crave.common.models.store.Store;
 import org.hibernate.Hibernate;
 
 import javax.persistence.Entity;

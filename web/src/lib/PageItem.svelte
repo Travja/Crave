@@ -32,7 +32,7 @@
     <a alt="{name}" {href}>
         <img alt={name} src={image}/>
         <div class="sp"/>
-        <div>{name}</div>
+        <div class="name">{name}</div>
         <div class="price">Lowest price: <strong>{formatter.format(lowestDetails?.price)}</strong></div>
     </a>
     <div class="footer">
@@ -53,7 +53,7 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        flex-grow: 1;
+        flex: 1;
     }
 
     .section {
@@ -75,6 +75,10 @@
     img {
         min-width: 200px;
         max-width: 200px;
+    }
+
+    .name {
+        text-align: center;
     }
 
     .price {

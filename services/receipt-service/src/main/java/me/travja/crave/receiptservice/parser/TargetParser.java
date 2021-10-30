@@ -380,7 +380,8 @@ https://redsky.target.com/redsky_aggregations/v1/web/plp_search_v1?key=ff457966e
 */
 package me.travja.crave.receiptservice.parser;
 
-import me.travja.crave.common.models.ProductInformation;
+import me.travja.crave.common.models.item.ProductInformation;
+import me.travja.crave.common.models.store.Address;
 import me.travja.crave.receiptservice.models.TargetItem;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -396,10 +397,11 @@ public class TargetParser implements ReceiptProcessor {
     private static Pattern regPricePattern = Pattern.compile("Regular Price \\$(\\d+\\.\\d{2})",
             Pattern.CASE_INSENSITIVE);
 
-    public final RestTemplate restTemplate;
-    private final String targetVisitorId = "017C7143EA910201809F9312AD49BB2B";
-    private final String targetStoreId   = "2641";
-    private final String targetKey       = "ff457966e64d5e877fdbad070f276d18ecec4a01";
+    public final  RestTemplate restTemplate;
+    private final String       targetVisitorId = "017C7143EA910201809F9312AD49BB2B";
+    private final String       targetStoreId   = "2641";
+    private final String       targetKey       = "ff457966e64d5e877fdbad070f276d18ecec4a01";
+
     public TargetParser(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }
@@ -411,6 +413,7 @@ public class TargetParser implements ReceiptProcessor {
         for (int i = 0, listSize = list.size(); i < listSize; i++) {
             String line = list.get(i);
 
+            System.out.println(line);
             if (!line.matches(pattern.pattern()))
                 continue;
 
@@ -430,7 +433,6 @@ public class TargetParser implements ReceiptProcessor {
                     nextLine = next;
             }
 
-            System.out.println(line);
 
             Matcher mat = pattern.matcher(line);
             if (mat.find()) {
@@ -450,8 +452,7 @@ public class TargetParser implements ReceiptProcessor {
                     System.out.println("Couldn't get item information for " + name + "(" + dpci + ")");
                     continue;
                 }
-                ProductInformation info = new ProductInformation(item.getName(), item.getUpc(), price);
-                prodInfo.add(info);
+                prodInfo.add(item);
 
                 if (salePrice < price)
                     System.out.println(item.getName() + " is discounted for some reason from " + price + " to "
@@ -460,6 +461,24 @@ public class TargetParser implements ReceiptProcessor {
         }
 
         return prodInfo;
+    }
+
+    @Override
+    public Address getAddress(List<String> list) {
+        Address add = new Address();
+
+        for (int i = 0, listSize = list.size(); i < listSize; i++) {
+            String line = list.get(i);
+
+            if (i == 1) {
+                add.setStreetAddress(line);
+            } else if (i == 2) {
+                add.setState(line.split(",[ ]?")[1].split(" ")[0]);
+                add.setCity(line.split(",")[0]);
+            }
+        }
+
+        return add;
     }
 
     public TargetItem getTargetItem(String dpci) {
@@ -475,6 +494,7 @@ public class TargetParser implements ReceiptProcessor {
         //Should return a single item...
         if (response.getData().getSearch().getProducts().size() >= 1) {
             TargetResponse.TargetData.Product prod = response.getData().getSearch().getProducts().get(0);
+            System.out.println(prod.getItem().getProductDescription().getDescription());
             return new TargetItem(prod);
         } else
             return null;

@@ -2,11 +2,11 @@ package me.travja.crave.jwt.controller;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import me.travja.crave.common.models.CraveUser;
+import me.travja.crave.common.models.auth.CraveUser;
 import me.travja.crave.common.models.ResponseObject;
 import me.travja.crave.jwt.jwt.*;
-import me.travja.crave.common.models.AuthToken;
-import me.travja.crave.common.models.ListItem;
+import me.travja.crave.common.models.auth.AuthToken;
+import me.travja.crave.common.models.item.ListItem;
 import me.travja.crave.jwt.services.JWTDetailsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

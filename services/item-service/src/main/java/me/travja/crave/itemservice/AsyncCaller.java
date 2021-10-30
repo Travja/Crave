@@ -1,8 +1,8 @@
 package me.travja.crave.itemservice;
 
 import lombok.AllArgsConstructor;
-import me.travja.crave.common.models.CraveUser;
-import me.travja.crave.common.models.ItemDetails;
+import me.travja.crave.common.models.auth.CraveUser;
+import me.travja.crave.common.models.item.ItemDetails;
 import me.travja.crave.common.rabbit.RabbitMqService;
 import me.travja.crave.common.repositories.UserRepo;
 import me.travja.crave.common.util.Formatter;

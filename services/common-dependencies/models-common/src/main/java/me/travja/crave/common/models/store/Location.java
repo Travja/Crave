@@ -1,12 +1,25 @@
-package me.travja.crave.common.models.geo;
+package me.travja.crave.common.models.store;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.*;
+import org.hibernate.Hibernate;
 
-@Data
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import java.util.Objects;
+
+@Getter
+@Setter
+@Entity
+@ToString
+@NoArgsConstructor
 @AllArgsConstructor
 public class Location {
-    private double lat, lon;
+    @Id
+    @GeneratedValue
+    private long id;
+
+    private double lat = 0, lon = 0;
 
     public static double distance(Location loc1, Location loc2) {
         double lat1 = loc1.getLat();
@@ -29,5 +42,13 @@ public class Location {
 
     public double distance(Location loc) {
         return distance(this, loc);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        Location location = (Location) o;
+        return id != null && Objects.equals(id, location.id);
     }
 }

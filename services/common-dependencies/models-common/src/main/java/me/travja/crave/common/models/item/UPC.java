@@ -1,4 +1,4 @@
-package me.travja.crave.common.models;
+package me.travja.crave.common.models.item;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;

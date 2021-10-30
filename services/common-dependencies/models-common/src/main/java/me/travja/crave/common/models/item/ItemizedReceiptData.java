@@ -1,4 +1,4 @@
-package me.travja.crave.common.models;
+package me.travja.crave.common.models.item;
 
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -23,7 +23,7 @@ public class ItemizedReceiptData extends SimpleReceiptData {
             String upc   = map.getFirst("item-" + index + "-upc");
             double price = Double.parseDouble(map.getFirst("item-" + index + "-price"));
 
-            ProductInformation info = new ProductInformation(name, upc, price);
+            ProductInformation info = new ProductInformation(name, upc, null, null, price);
             getProductData().add(info);
         }
     }

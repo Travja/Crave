@@ -5,9 +5,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import me.travja.crave.common.models.ItemizedReceiptData;
-import me.travja.crave.common.models.ProductInformation;
-import me.travja.crave.common.models.SimpleReceiptData;
+import me.travja.crave.common.models.item.ItemizedReceiptData;
+import me.travja.crave.common.models.item.ProductInformation;
+import me.travja.crave.common.models.item.SimpleReceiptData;
 
 import java.io.IOException;
 
@@ -36,7 +36,7 @@ public class ItemizedDeserializer extends StdDeserializer<ItemizedReceiptData> {
             String upc   = node.get("item-" + index + "-upc").asText();
             double price = node.get("item-" + index + "-price").asDouble();
 
-            ProductInformation info = new ProductInformation(name, upc, price);
+            ProductInformation info = new ProductInformation(name, upc, null, null, price);
             data.getProductData().add(info);
         }
 

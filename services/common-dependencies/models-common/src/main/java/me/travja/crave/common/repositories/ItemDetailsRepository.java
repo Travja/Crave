@@ -1,6 +1,6 @@
 package me.travja.crave.common.repositories;
 
-import me.travja.crave.common.models.ItemDetails;
+import me.travja.crave.common.models.item.ItemDetails;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 

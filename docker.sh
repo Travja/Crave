@@ -12,3 +12,4 @@ cd ../
 docker-compose --profile services up --build
 docker-compose down
 docker image prune -f
+docker volume prune -f

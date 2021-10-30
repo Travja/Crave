@@ -5,7 +5,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import me.travja.crave.common.models.CraveUser;
+import me.travja.crave.common.models.auth.CraveUser;
 
 import java.util.Date;
 import java.util.Map;

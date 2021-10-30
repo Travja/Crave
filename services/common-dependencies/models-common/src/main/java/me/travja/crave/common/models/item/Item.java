@@ -1,10 +1,11 @@
-package me.travja.crave.common.models;
+package me.travja.crave.common.models.item;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
 import me.travja.crave.common.conf.AppContext;
+import me.travja.crave.common.models.store.Store;
 import me.travja.crave.common.repositories.UPCRepository;
 import org.hibernate.Hibernate;
 
@@ -25,16 +26,19 @@ import static me.travja.crave.common.views.CraveViews.*;
 @JsonView({ItemView.class, UPCView.class, DetailsView.class})
 public class Item {
 
+    private static final String DEF_IMAGE = "/find-image.svg";
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long   id;
-    private String name,
-            description;
+    private String name;
+    @Column(columnDefinition = "TEXT")
+    private String description;
     @JsonIgnore
     @OneToOne(mappedBy = "item", cascade = CascadeType.ALL, optional = false)
     private UPC    upc;
     @Column(columnDefinition = "TEXT")
-    private String image = "/find-image.svg";
+    private String image = DEF_IMAGE;
 
     @JsonView(ItemView.class)
     @OneToMany(mappedBy = "item", cascade = CascadeType.ALL)
@@ -59,6 +63,12 @@ public class Item {
 
         if (getUpc() == null)
             setUpc(prodInfo.getUpc());
+
+        if (getDescription() == null)
+            setDescription(prodInfo.getDescription());
+
+        if (getImage() == DEF_IMAGE)
+            setImage(prodInfo.getImage());
     }
 
     @Transient
@@ -91,7 +101,10 @@ public class Item {
     }
 
     public Optional<ItemDetails> getDetails(Store store) {
-        return getDetails(store.getName());
+        if (store != null)
+            return getDetails(store.getName());
+        else
+            return Optional.empty();
     }
 
     @Override

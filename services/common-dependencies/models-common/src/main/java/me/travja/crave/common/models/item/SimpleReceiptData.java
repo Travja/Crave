@@ -1,4 +1,4 @@
-package me.travja.crave.common.models;
+package me.travja.crave.common.models.item;
 
 import lombok.AccessLevel;
 import lombok.Data;
@@ -13,7 +13,8 @@ import java.util.List;
 public class SimpleReceiptData {
 
     @Setter(AccessLevel.NONE)
-    protected ReceiptType              receiptType;
+    protected ReceiptType receiptType;
+    protected String      streetAddress, city, state;
     protected List<ProductInformation> productData = new ArrayList<>();
 
     public SimpleReceiptData(ReceiptType type) {

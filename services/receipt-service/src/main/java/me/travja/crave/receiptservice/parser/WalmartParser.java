@@ -1,6 +1,7 @@
 package me.travja.crave.receiptservice.parser;
 
-import me.travja.crave.common.models.ProductInformation;
+import me.travja.crave.common.models.item.ProductInformation;
+import me.travja.crave.common.models.store.Address;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -24,10 +25,11 @@ public class WalmartParser implements ReceiptProcessor {
             Matcher mat = pattern.matcher(str);
             if (mat.find()) {
                 firstIndex = i;
-                String             name  = mat.group(1);
-                String             upc   = mat.group(2);
-                double             price = Double.parseDouble(mat.group(3));
-                ProductInformation info  = new ProductInformation(name, upc, price);
+                String name  = mat.group(1);
+                String upc   = mat.group(2);
+                double price = Double.parseDouble(mat.group(3));
+                //TODO Get image url and description;
+                ProductInformation info = new ProductInformation(name, upc, null, null, price);
                 items.add(info);
             } else if (firstIndex != -1) {
                 System.out.println("DOES NOT MATCH: " + str);
@@ -39,5 +41,10 @@ public class WalmartParser implements ReceiptProcessor {
         }
 
         return items;
+    }
+
+    @Override
+    public Address getAddress(List<String> list) {
+        return null;
     }
 }

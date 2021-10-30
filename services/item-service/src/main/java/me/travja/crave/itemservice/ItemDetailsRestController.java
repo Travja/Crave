@@ -2,7 +2,7 @@ package me.travja.crave.itemservice;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.RequiredArgsConstructor;
-import me.travja.crave.common.models.ItemDetails;
+import me.travja.crave.common.models.item.ItemDetails;
 import me.travja.crave.common.repositories.ItemDetailsRepository;
 import org.springframework.web.bind.annotation.*;
 

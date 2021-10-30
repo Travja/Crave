@@ -1,8 +1,7 @@
 package me.travja.crave.receiptservice.models;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+import me.travja.crave.common.models.item.ProductInformation;
 import me.travja.crave.receiptservice.parser.TargetResponse;
 
 import java.io.BufferedReader;
@@ -13,23 +12,17 @@ import java.net.URL;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@AllArgsConstructor
-public class TargetItem {
-
-    @Getter
-    @Setter
-    protected String name, upc;
-
-    @Getter
-    @Setter
-    protected double price;
+@Data
+public class TargetItem extends ProductInformation {
 
     private static final Pattern upcPat = Pattern.compile("UPC: (\\d+)", Pattern.CASE_INSENSITIVE & Pattern.MULTILINE);
 
     public TargetItem(TargetResponse.TargetData.Product product) {
-        this.name = product.getItem().getProductDescription().getTitle();
-        this.price = product.getPrice().getCurrentRetail();
-        this.upc = getTargetUPC(product.getTcin());
+        super(product.getItem().getProductDescription().getTitle(),
+                getTargetUPC(product.getTcin()),
+                product.getItem().getEnrichment().getPrimaryImageUrl(),
+                product.getItem().getProductDescription().getDescription(),
+                product.getRetailPrice());
     }
 
     private static String getTargetUPC(String tcin) {

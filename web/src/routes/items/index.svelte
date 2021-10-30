@@ -111,7 +111,6 @@
         /*justify-content: center;*/
         /*align-items: center;*/
         flex: 1;
-        flex-grow: 1;
     }
 
     h1 {
@@ -136,7 +135,7 @@
         flex: auto;
         background: transparent;
         padding: 0px 21px;
-        flex-grow: 1;
+        flex: 1;
     }
 
     .fix::after {

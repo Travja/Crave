@@ -1,78 +1,91 @@
 package me.travja.crave.receiptservice.parser;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.Data;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-@NoArgsConstructor
+@Data
 public class TargetResponse {
 
-    @Getter
-    @Setter
     private TargetData data;
 
-    @NoArgsConstructor
+    @Data
     public static class TargetData {
-        @Getter
-        @Setter
         private SearchData search;
 
-        @NoArgsConstructor
+        @Data
         public static class Product {
 
-            @Getter
-            @Setter
-            private Item item;
-
-            @Getter
-            @Setter
+            private Item             item;
             private PriceInformation price;
+            private String           tcin;
 
-            @Getter
-            @Setter
-            private String tcin;
+            public double getRetailPrice() {
+                return price.getCurrentRetail();
+            }
 
-            @NoArgsConstructor
+            @Data
             public static class Item {
 
-                @Getter
-                @Setter
                 @JsonProperty("product_description")
                 private ProductDescription productDescription;
+                private Enrichment         enrichment;
 
-                @NoArgsConstructor
+                @Data
                 public static class ProductDescription {
+                    private String       title;
+                    @JsonProperty("soft_bullets")
+                    private SoftBullets  softBullets;
+                    @JsonProperty("bullet_descriptions")
+                    private List<String> bulletDescriptions = new ArrayList<>();
 
-                    @Getter
-                    @Setter
-                    private String title;
+                    public String getDescription() {
+                        StringBuilder sb = new StringBuilder();
+                        getBulletDescriptions().forEach(str -> sb.append(str + "\n"));
+                        sb.append("\n\n");
+                        getSoftBullets().getBullets().forEach(str -> sb.append(str + "\n"));
+                        sb.substring(0, sb.length() - 1);
+                        return sb.toString();
+                    }
 
+                    @Data
+                    public static class SoftBullets {
+                        private List<String> bullets = new ArrayList<>();
+                    }
+                }
+
+                @Data
+                public static class Enrichment {
+                    private Map<String, Object> images = new HashMap<>();
+
+                    public String getPrimaryImageUrl() {
+                        images.keySet().forEach(img -> System.out.println(img + ". " + images.get(img)));
+                        return (String) images.get("primary_image_url");
+                    }
+
+                    public List<String> getAlternateImages() {
+                        return (List<String>) images.get("alternate_image_urls");
+                    }
                 }
             }
 
-            @NoArgsConstructor
+            @Data
             public static class PriceInformation {
-                @Getter
-                @Setter
                 @JsonProperty("current_retail")
                 private double currentRetail;
 
-                @Getter
-                @Setter
                 private String formattedCurrentPrice;
             }
 
         }
 
+        @Data
         public class SearchData {
-
-            @Getter
-            @Setter
             private List<Product> products;
-
         }
 
     }

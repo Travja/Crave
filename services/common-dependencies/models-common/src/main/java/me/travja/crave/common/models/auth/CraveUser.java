@@ -1,7 +1,9 @@
-package me.travja.crave.common.models;
+package me.travja.crave.common.models.auth;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
+import me.travja.crave.common.models.item.Item;
+import me.travja.crave.common.models.item.ListItem;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;

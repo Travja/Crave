@@ -1,9 +1,9 @@
 <script>
-    import {gateway, title, variables} from "$lib/variables";
+    import {gateway, title} from "$lib/variables";
     import Cropper from "$lib/cropper/Cropper.svelte";
     import {slide} from "svelte/transition";
     import {formSubmit} from "$lib/util";
-    import {onMount} from "svelte";
+    import StoreSelector from "$lib/ui/StoreSelector.svelte";
 
     title.set("Scan");
 
@@ -23,77 +23,11 @@
         });
     };
 
-    let position;
-    const getLocation = (callback) => {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(pos => {
-                position = pos;
-                callback();
-            });
-        } else {
-            alert("Geolocation is not supported by this browser.");
-        }
-    };
-
-    let url = "https://atlas.microsoft.com/search/fuzzy/json" +
-        "?api-version=1.0" +
-        "&query={query}" +
-        "&subscription-key=" + variables.subKey +
-        "&lat={lat}" +
-        "&lon={lon}";
-    let strs = [];
-    const updateStore = e => {
-        getLocation(() => {
-
-            if (!position) return;
-
-            let selected = e.target.children[e.target.selectedIndex];
-            let newUrl = url.replace("{query}", selected.value)
-                .replace("{lat}", position.coords.latitude.toString())
-                .replace("{lon}", position.coords.longitude.toString());
-
-            fetch(newUrl)
-                .then(res => res.json())
-                .then(data => {
-                    strs = [];
-                    let results = data.results;
-
-                    for (let i = 0; i < 3; i++) {
-                        let store = results[i];
-                        let name = store.poi.name;
-                        let address = store.address.freeformAddress;
-                        let lat = store.position.lat;
-                        let lon = store.position.lon;
-
-                        strs.push({
-                            name,
-                            address,
-                            lat,
-                            lon
-                        });
-
-                        console.log(name + " at " + address + " (" + lat + ", " + lon + ") is .... Distance....");
-                    }
-
-                    console.log(strs);
-
-
-                })
-                .catch(e => console.error(e));
-
-        });
-    };
-
-    const selectStore = e => {
-        for (let sel of document.getElementsByClassName("selected")) {
-            sel.classList.remove("selected");
-        }
-
-        e.target.classList.toggle("selected");
-    };
+    let store;
 
 </script>
 <section>
+    <p>*The receipt scanner currently supports receipts from Walmart and Target.</p>
     <Cropper/>
     <hr>
     <section id="manual">
@@ -101,25 +35,10 @@
         <p>Enter your data manually here.</p>
         <form action="{gateway()}/item-service/receipt/web/items" bind:this={manForm}
               id="man-form" method="POST">
-            <div>
-                <label for="store-select">Store: </label>
-                <select id="store-select" name="store-select" on:change={updateStore}>
-                    <option></option>
-                    <option value="WALMART">Walmart</option>
-                    <option value="TARGET">Target</option>
-                </select>
-                <div class="stores">
-                    {#each strs as store, i}
-                        {#if strs.selected}
-                            <div class="store selected"
-                                 on:click={selectStore}>{i + 1}) {store.name} - {store.address}</div>
-                        {:else}
-                            <div class="store"
-                                 on:click={selectStore}>{i + 1}) {store.name} - {store.address}</div>
-                        {/if}
-                    {/each}
-                </div>
-            </div>
+            <StoreSelector bind:selected={store}/>
+            {#if store}
+                <div>Enter items from your {store} receipt.</div>
+            {/if}
             {#if rows > 0}
                 <div id="table">
                     {#each Array(rows).fill(1).map((n, i) => i + 1) as r (r)}
@@ -168,32 +87,6 @@
         align-items: center;
         justify-content: center;
         flex-direction: column;
-    }
-
-    .stores {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        justify-content: center;
-        margin: 0.5em;
-    }
-
-    .store {
-        text-align: left;
-        width: 100%;
-        background: #ccc;
-        padding: 0.8em;
-        box-sizing: border-box;
-        border-bottom: 1px solid black;
-    }
-
-    .store.selected {
-        border: 2px solid blue;
-    }
-
-    .store:hover {
-        background: #aaa;
-        cursor: pointer;
     }
 
     #table {

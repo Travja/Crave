@@ -1,7 +1,7 @@
 package me.travja.crave.jwt.services;
 
 import lombok.RequiredArgsConstructor;
-import me.travja.crave.common.models.CraveUser;
+import me.travja.crave.common.models.auth.CraveUser;
 import me.travja.crave.common.repositories.UserRepo;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
