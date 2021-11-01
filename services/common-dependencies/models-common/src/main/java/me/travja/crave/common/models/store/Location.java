@@ -49,6 +49,6 @@ public class Location {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
         Location location = (Location) o;
-        return id != null && Objects.equals(id, location.id);
+        return Objects.equals(id, location.id);
     }
 }
