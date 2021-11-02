@@ -2,7 +2,7 @@
 <!--    export const prerender = true;-->
 <!--</script>-->
 <script>
-    import {title, variables, gateway} from "$lib/variables";
+    import {gateway, title, variables} from "$lib/variables";
     import {onDestroy, onMount} from "svelte";
     import PageItem from "$lib/PageItem.svelte";
     import {fly} from 'svelte/transition';
@@ -60,9 +60,11 @@
     onDestroy(unsubscribe);
 
     const search = (e) => {
-        let terms = e.detail;
+        let terms = e.detail.search;
+        let storeFilter = e.detail.filters.stores.split(",");
+        let distanceFilter = e.detail.filters.distance;
         getItems(terms);
-    };
+    }
 </script>
 <section>
     <h1>Directory</h1>

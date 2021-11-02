@@ -29,6 +29,7 @@ public class Store {
     private String city;
     private String state;
 
+    @OneToOne
     private Location location = new Location();
 
     @JsonView(StoreView.class)

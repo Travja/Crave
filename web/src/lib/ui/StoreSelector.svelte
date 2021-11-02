@@ -2,8 +2,6 @@
     import {variables} from "$lib/variables";
     import {slide} from "svelte/transition";
 
-    let validStores = ["Walmart", "Target"];
-
     let position;
     const getLocation = (callback) => {
         if (navigator.geolocation) {
@@ -103,7 +101,7 @@
 
 <div>
     <h4>Pick Your Store</h4>
-    {#each validStores as validStore}
+    {#each variables.validStores as validStore}
         <label>
             <input name="store" on:click={() => updateStore(validStore)} type="radio"/>
             {validStore}

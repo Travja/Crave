@@ -129,7 +129,7 @@
         justify-content: space-between;
         background: var(--bg-color);
         padding-bottom: 0.5em;
-        z-index: 2;
+        z-index: 100;
         width: 100%;
         margin: 0 auto;
     }

@@ -129,7 +129,6 @@
 
     hr {
         margin: 12px 0;
-        border-color: var(--fg-color);
         transition: border;
         transition-duration: .3s;
         transition-timing-function: ease-in-out;
