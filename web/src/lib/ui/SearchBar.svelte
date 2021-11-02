@@ -42,7 +42,7 @@
                 }
             }
         }, 100);
-    } else {
+    } else if(filterContainer) {
         window.onclick = undefined;
     }
 

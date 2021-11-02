@@ -2,17 +2,20 @@ package me.travja.crave.itemservice;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.RequiredArgsConstructor;
-import me.travja.crave.common.models.*;
+import me.travja.crave.common.models.ResponseObject;
 import me.travja.crave.common.models.auth.AuthToken;
 import me.travja.crave.common.models.auth.CraveUser;
 import me.travja.crave.common.models.item.Item;
+import me.travja.crave.common.models.item.ItemDetails;
 import me.travja.crave.common.models.item.RequestItem;
+import me.travja.crave.common.models.store.Location;
 import me.travja.crave.common.repositories.ItemsRepository;
 import me.travja.crave.common.repositories.UserRepo;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -29,20 +32,54 @@ public class ItemRestController {
 
     @GetMapping
     @JsonView(ItemView.class)
-    public List<Item> getItems(@RequestParam(required = false) String query, Authentication auth) {
+    public List<Item> getItems(@RequestParam(required = false) String query,
+                               @RequestParam(required = false) String store,
+                               @RequestParam(required = false) Double distance,
+                               @RequestParam(required = false) Double lat,
+                               @RequestParam(required = false) Double lon,
+                               Authentication auth) {
         List<Item> items;
         if (query == null)
             items = (List<Item>) repo.findAll();
         else
             items = repo.findAllByQuery(query);
 
+        List<String> stores = new ArrayList<>();
+        if (store != null && !store.isEmpty())
+            stores = Arrays.stream(store.split(",")).map(str -> str.toLowerCase()).collect(Collectors.toList());
+
+        Location location = null;
+        if (lat != null && lon != null)
+            location = new Location(lat, lon);
+
+        if (!stores.isEmpty() || distance != null) {
+            for (Item item : items) {
+                Location     finalLocation = location;
+                List<String> finalStores   = stores;
+                List<ItemDetails> details = item.getDetails().stream().filter(dets -> {
+                    boolean good = true;
+                    if (store != null && !finalStores.isEmpty() && !finalStores.contains(dets.getStore().getName().toLowerCase()))
+                        good = false;
+
+                    if (good && distance != null && distance > 0 && finalLocation != null)
+                        good = dets.getStore().getDistance(finalLocation) <= distance;
+
+                    return good;
+                }).collect(Collectors.toList());
+
+                item.setDetails(details);
+            }
+        }
+
+        items = items.stream().filter(item -> item.getDetails().size() > 0).collect(Collectors.toList());
+
         if (auth != null) {
             Optional<CraveUser> user = userRepo.findByUsernameIgnoreCase(auth.getName());
-            user.ifPresent(usr ->
-                    items.stream()
-                            .filter(itm -> usr.getFavorites().contains(itm))
-                            .forEach(itm -> itm.setFavorite(true))
-            );
+            if (user.isPresent()) {
+                items.stream()
+                        .filter(itm -> user.get().getFavorites().contains(itm))
+                        .forEach(itm -> itm.setFavorite(true));
+            }
         }
 
         return items;

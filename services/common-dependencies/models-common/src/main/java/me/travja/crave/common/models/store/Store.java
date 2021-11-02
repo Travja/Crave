@@ -55,6 +55,10 @@ public class Store {
         location.setLon(lon);
     }
 
+    public double getDistance(Location loc) {
+        return location.distance(loc);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

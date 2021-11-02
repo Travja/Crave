@@ -21,6 +21,11 @@ public class Location {
 
     private double lat = 0, lon = 0;
 
+    public Location(double lat, double lon) {
+        this.lat = lat;
+        this.lon = lon;
+    }
+
     public static double distance(Location loc1, Location loc2) {
         double lat1 = loc1.getLat();
         double lon1 = loc1.getLon();

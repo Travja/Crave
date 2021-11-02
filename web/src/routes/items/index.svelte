@@ -15,37 +15,74 @@
     let items, error;
     let inProgress = false;
 
-    const getItems = async (query) => {
-        console.log("Fetching items " + gate);
+    const getLocation = (callback) => {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(pos => callback(pos));
+        } else {
+            alert("Geolocation is not supported by this browser.");
+        }
+    };
+
+    const getItems = async (query, storeFilter, distanceFilter) => {
         if (!gate)
             return;
 
         error = undefined;
         inProgress = true;
-        let url = gate + '/item-service/items' + (query ? "?query=" + query : "");
-        const res = await fetch(url);
-        inProgress = false;
-        if (res.ok) {
-            items = await res.json();
-            console.log("Items: ", items);
-            return;
-        }
+        const get = async (queries) => {
+            let q = "";
+            console.log(queries);
+            for (let qu in queries) {
+                let param = queries[qu];
+                if (qu == "store" && param == "all")
+                    continue;
+                q += (q.length > 1 ? "&" : "?") + qu + "=" + param;
+                console.log(qu + ": " + param);
+            }
+            let url = gate + '/item-service/items' + q;
+            console.log("Fetching items: " + url);
 
-        error = await res.json();
-        // console.error("Could not fetch items.");
-        // console.error(error);
-        switch (error.status) {
-            case 401:
-                error = "User not authenticated.";
-                break;
-            case 403:
-                error = "User is not allowed to access this resource";
-                break;
-            case 503:
-                error = "Services unavailable";
-                break;
-            default:
-                error = "An unknown error occurred.";
+            const res = await fetch(url);
+            inProgress = false;
+            if (res.ok) {
+                items = await res.json();
+                console.log("Items: ", items);
+                return;
+            }
+
+            error = await res.json();
+            // console.error("Could not fetch items.");
+            // console.error(error);
+            switch (error.status) {
+                case 401:
+                    error = "User not authenticated.";
+                    break;
+                case 403:
+                    error = "User is not allowed to access this resource";
+                    break;
+                case 503:
+                    error = "Services unavailable";
+                    break;
+                default:
+                    error = "An unknown error occurred.";
+            }
+        };
+
+        let queries = {};
+        if (query)
+            queries.query = query;
+        if (storeFilter)
+            queries.store = storeFilter;
+        if (distanceFilter && distanceFilter > 0) {
+            queries.distance = distanceFilter;
+            getLocation(pos => {
+                console.log(pos);
+                queries.lat = pos.coords.latitude;
+                queries.lon = pos.coords.longitude;
+                get(queries);
+            });
+        } else {
+            await get(queries);
         }
     };
 
@@ -61,9 +98,9 @@
 
     const search = (e) => {
         let terms = e.detail.search;
-        let storeFilter = e.detail.filters.stores.split(",");
+        let storeFilter = e.detail.filters.stores;
         let distanceFilter = e.detail.filters.distance;
-        getItems(terms);
+        getItems(terms, storeFilter, distanceFilter);
     }
 </script>
 <section>

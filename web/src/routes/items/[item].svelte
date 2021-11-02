@@ -1,5 +1,5 @@
 <script context="module">
-    import {title, variables, gateway} from "$lib/variables";
+    import {gateway, title} from "$lib/variables";
     import {findCheapest} from "$lib/util";
 
     title.set("Item Entry");
@@ -52,7 +52,8 @@
             <h1>{item.item.name}</h1>
             <div class="price">{formatter.format(item.price)}</div>
             <hr/>
-            <div>{@html item.item.description.replaceAll("\n", "<br/>")}</div>
+            <div>{@html item.item.description ? item.item.description?.replaceAll("\n", "<br/>") :
+                "No description"}</div>
         </div>
     {/if}
 </div>
