@@ -2,11 +2,11 @@ package me.travja.crave.jwt.controller;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import me.travja.crave.common.models.auth.CraveUser;
 import me.travja.crave.common.models.ResponseObject;
-import me.travja.crave.jwt.jwt.*;
 import me.travja.crave.common.models.auth.AuthToken;
+import me.travja.crave.common.models.auth.CraveUser;
 import me.travja.crave.common.models.item.ListItem;
+import me.travja.crave.jwt.jwt.*;
 import me.travja.crave.jwt.services.JWTDetailsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -100,7 +101,7 @@ public class AuthController {
 
 
     @PostMapping("/list")
-    public ResponseObject saveList(@RequestBody List<ListItem> list, Authentication auth) {
+    public ResponseObject saveList(@RequestBody Map<Integer, ListItem> list, Authentication auth) {
         if (auth instanceof AuthToken) {
             CraveUser user = jwtDetailsService.loadUserByUsername(auth.getName());
 
@@ -114,14 +115,14 @@ public class AuthController {
     }
 
     @GetMapping("/list")
-    public List<ListItem> getList(Authentication auth) {
+    public Map<Integer, ListItem> getList(Authentication auth) {
         if (auth instanceof AuthToken) {
             CraveUser user = jwtDetailsService.loadUserByUsername(auth.getName());
 
             return user.getShoppingList();
         }
 
-        return Collections.emptyList();
+        return Collections.emptyMap();
     }
 
 

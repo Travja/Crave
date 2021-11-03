@@ -42,6 +42,7 @@
         }
     ];
 
+    let itemContainer;
     let complete = 0;
 
     $: {
@@ -51,7 +52,7 @@
                 complete++;
         });
 
-        if (items.length > 0 && items[items.length - 1].text) {
+        if (items.length == 0 || (items.length > 0 && items[items.length - 1].text)) {
             items.push({text: "", checked: false, uid: {}});
         }
 
@@ -66,8 +67,17 @@
             .then(res => res.json())
             .then(data => {
                 console.log(data);
-                items = data;
-                items.forEach(itm => itm.uid = {});
+                let list = [];
+
+                for (let e in data) {
+                    list.push(data[e]);
+                }
+
+                items = list;
+                items.forEach(itm => {
+                    itm.uid = {};
+                    itm.id = undefined;
+                });
             })
             .catch(e => {
                 console.error(e);
@@ -77,10 +87,15 @@
     const saveList = () => {
         let tmp = [...items];
         tmp.pop();
+
+        let map = {};
+        for (let i = 0; i < tmp.length; i++) {
+            map[i] = tmp[i];
+        }
         fetch(gateway() + "/auth-service/list", {
             method: "post",
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(tmp)
+            body: JSON.stringify(map)
         })
             .then(res => res.json())
             .then(data => {
@@ -121,6 +136,59 @@
         saveList();
     };
 
+    let pos1 = 0, pos2 = 0;
+    let tracking, activeIndex, targetIndex = -1;
+    const dragStart = e => {
+        e.preventDefault();
+        tracking = e.target;
+        activeIndex = parseInt(tracking.getAttribute("index"));
+        pos1 = e.clientY;
+    };
+
+    const dragging = e => {
+        if (!tracking) return;
+        e.preventDefault();
+        pos2 = pos1 - e.clientY;
+        pos1 = e.clientY;
+
+        tracking.style.top = (tracking.offsetTop - pos2) + "px";
+    };
+
+    const endDrag = e => {
+        if (!tracking) return;
+
+        e.preventDefault();
+        let itm = items[activeIndex];
+
+        let tmp = [];
+        if (targetIndex < 0 || targetIndex == NaN) targetIndex = activeIndex;
+        console.log(targetIndex)
+        for (let i = 0; i < items.length; i++) {
+            if (targetIndex == i)
+                tmp.push(itm);
+
+            if (activeIndex == i) continue;
+
+            tmp.push(items[i]);
+        }
+
+        tracking.style = undefined;
+        items = [...tmp];
+        tracking = undefined;
+        activeIndex = targetIndex = -1;
+        saveList();
+    };
+
+    const dragOver = e => {
+        if (!tracking || e.target == null) return;
+        let target = e.target;
+        while (!target.getAttribute("index") && target.parentNode) {
+            target = target.parentNode;
+        }
+        e.preventDefault();
+        targetIndex = parseInt(target.getAttribute("index"));
+    };
+
 </script>
 
 <div class="container" out:slide>
@@ -138,9 +206,25 @@
             &nbsp;complete)
         </div>
     </div>
-    <div class="items">
+    <div bind:this={itemContainer} class="items"
+         on:mouseleave={endDrag}
+         on:mousemove={dragging}
+         on:mouseup={endDrag}>
         {#each items as itm, i (itm.uid)}
-            <div class="row" transition:slide>
+            {#if targetIndex == i}
+                <div class="filler row"><span class="material-icons-round drag">keyboard_double_arrow_right</span>
+                    <div class="material-icons-round check">
+                        check_box_outline_blank
+                    </div>
+                    <input type="text" placeholder="{items[activeIndex].text}"/>
+                </div>
+            {/if}
+            <div class="row" draggable="{itm.text ? true : false}" on:dragstart={dragStart}
+                 class:active={activeIndex == i}
+                 index="{i}"
+                 on:mousemove={dragOver}
+                 transition:slide>
+                <span class="material-icons-round dr" class:drag={itm.text}>keyboard_double_arrow_right</span>
                 {#if itm.text}
                     {#if itm.checked}
                         <div class="material-icons-round check"
@@ -190,13 +274,21 @@
     .row {
         position: relative;
         padding: 0.5em;
+        background: var(--bg-color);
         border-bottom: 1px solid;
         border-image-source: linear-gradient(to right, rgba(0, 0, 0, 0), var(--disabled-fg-color),
         rgba(0, 0, 0, 0), rgba(0, 0, 0, 0));
         border-image-slice: 1;
         display: flex;
         align-items: center;
-        transition: border 1s linear;
+        transition: border 1s linear, transform 0.2s ease-in-out;
+    }
+
+    .row.active {
+        position: absolute;
+        pointer-events: none;
+        z-index: 5;
+        transform: rotate(15deg);
     }
 
     .items > div:last-child {
@@ -239,5 +331,18 @@
     .complete {
         margin-left: 0.5em;
         color: var(--disabled-fg-color)
+    }
+
+    .dr {
+        color: #ccc;
+    }
+
+    .drag:hover {
+        cursor: move;
+    }
+
+    .filler {
+        min-height: 1em;
+        background: var(--secondary-color);
     }
 </style>

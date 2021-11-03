@@ -12,9 +12,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Entity
@@ -37,7 +35,7 @@ public class CraveUser implements UserDetails {
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @LazyCollection(LazyCollectionOption.FALSE)
-    private List<ListItem> shoppingList = new ArrayList<>();
+    private Map<Integer, ListItem> shoppingList = new HashMap<>();
 
     @ElementCollection(fetch = FetchType.EAGER)
     private List<String> authList = new ArrayList<>();
@@ -51,9 +49,9 @@ public class CraveUser implements UserDetails {
         this.authList = authList;
     }
 
-    public void setShoppingList(List<ListItem> shoppingList) {
+    public void setShoppingList(Map<Integer, ListItem> shoppingList) {
         this.shoppingList.clear();
-        this.shoppingList.addAll(shoppingList);
+        this.shoppingList.putAll(shoppingList);
     }
 
     @JsonIgnore

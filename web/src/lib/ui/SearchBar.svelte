@@ -18,7 +18,7 @@
     });
 
     const search = (e) => {
-        if (e.keyCode == 13) {
+        if (!e || e.keyCode == 13) {
             dispatch("search", {search: searchBox.value, filters: {stores: storeFilter, distance: distanceFilter}});
         }
     };
@@ -42,7 +42,7 @@
                 }
             }
         }, 100);
-    } else if(filterContainer) {
+    } else if (filterContainer) {
         window.onclick = undefined;
     }
 
@@ -97,7 +97,7 @@
             <input bind:value={distanceFilter} id="dist" max="2500" min="-1" name="dist" placeholder="10"
                    type="number">
         </label>
-        <div class="button">Apply Filters</div>
+        <div class="button" on:click={() => search()}>Apply Filters</div>
     </dialog>
 </div>
 <div class="search">
@@ -137,7 +137,6 @@
     }
 
     .filter-container {
-        /*display: block;*/
         position: absolute;
         max-width: 300px;
         width: 20em;
@@ -148,10 +147,6 @@
         padding: 1em;
         box-shadow: 5px 5px 5px #666;
         tab-index: 0;
-    }
-
-    .filter-container.show-filters {
-        display: block;
     }
 
     h4 {
