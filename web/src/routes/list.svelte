@@ -42,7 +42,7 @@
         }
     ];
 
-    let itemContainer;
+    let itemContainer, dataList = [];
     let complete = 0;
 
     $: {
@@ -141,7 +141,7 @@
     const dragStart = e => {
         e.preventDefault();
         tracking = e.target;
-        activeIndex = parseInt(tracking.getAttribute("index"));
+        targetIndex = activeIndex = parseInt(tracking.getAttribute("index"));
         pos1 = e.clientY;
     };
 
@@ -189,6 +189,20 @@
         targetIndex = parseInt(target.getAttribute("index"));
     };
 
+    const getApplicableItems = (target) => {
+        let input = target.value;
+
+        fetch(variables.gateway + "/item-service/items/search?query=" + input)
+            .then(res => res.json())
+            .then(data => {
+                console.log(data);
+                dataList = data;
+            })
+            .catch(e => {
+                console.error(e);
+            });
+    };
+
 </script>
 
 <div class="container" out:slide>
@@ -216,7 +230,10 @@
                     <div class="material-icons-round check">
                         check_box_outline_blank
                     </div>
-                    <input type="text" placeholder="{items[activeIndex].text}"/>
+                    <span class="wrapper">
+                        <span class="placeholder">{items[activeIndex].text}</span>
+                        <input type="text" placeholder="{items[activeIndex].text}"/>
+                    </span>
                 </div>
             {/if}
             <div class="row" draggable="{itm.text ? true : false}" on:dragstart={dragStart}
@@ -248,11 +265,22 @@
                     </div>
                 {/if}
 
-                <input id="input{i}" type="text" bind:value="{itm.text}" placeholder="New item..."
-                       on:keypress={e => checkNext(e, i)}
-                       on:keydown={e => checkPrev(e, i)}/>
+                <span class="wrapper">
+                    <span class="placeholder">{itm.text}</span>
+                    <input id="input{i}" type="text" bind:value="{itm.text}" placeholder="New item..."
+                           list="data"
+                           on:focus={e => getApplicableItems(e.target)}
+                           on:keyup={e => getApplicableItems(e.target)}
+                           on:keypress={e => checkNext(e, i)}
+                           on:keydown={e => checkPrev(e, i)}/>
+                </span>
             </div>
         {/each}
+        <datalist id="data">
+            {#each dataList as data}
+                <option value="{data}"/>
+            {/each}
+        </datalist>
     </div>
 
     <div class="button" on:click={saveList}>Save List</div>
@@ -263,12 +291,16 @@
         position: relative;
         display: flex;
         flex-direction: column;
-        align-items: stretch;
+        align-items: center;
         justify-content: center;
-        width: 30%;
+        /*width: 30%;*/
         min-width: 200px;
         margin: 0 auto;
         flex-grow: 1;
+    }
+
+    .header {
+        width: 100%;
     }
 
     .row {
@@ -306,7 +338,8 @@
     }
 
     input {
-        width: 100%;
+        /*min-width: 100%;*/
+        flex-grow: 1;
         border: none;
         border-left: 1px solid black;
         padding: 0 0 0 0.5em;
@@ -314,6 +347,10 @@
         margin: 0;
         font-size: 1em;
         position: relative;
+    }
+
+    input::-webkit-calendar-picker-indicator {
+        display: none !important;
     }
 
     input:focus {
@@ -344,5 +381,25 @@
     .filler {
         min-height: 1em;
         background: var(--secondary-color);
+    }
+
+    .placeholder {
+        padding-left: 0.5em;
+        padding-right: 2em;
+        white-space: nowrap;
+        font-size: 1em;
+        height: 0px;
+        overflow: hidden;
+    }
+
+    .wrapper {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+    }
+
+    .button {
+        width: 30%;
+        min-width: 200px;
     }
 </style>

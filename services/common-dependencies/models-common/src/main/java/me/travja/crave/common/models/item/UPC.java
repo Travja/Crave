@@ -61,6 +61,26 @@ public class UPC {
     }
 
     public int calculateCheckDigit() {
+        String upc = this.upc;
+        if (upc.startsWith("00")) {
+            upc = upc.substring(1);
+        } else if (upc.length() == 12) {
+            upc = upc.substring(0, upc.length() - 1);
+        }
+
+        int odd = 0, even = 0;
+        for (int i = 0; i < upc.length(); i++) {
+            int num = Integer.parseInt(String.valueOf(upc.charAt(i)));
+
+            if (i % 2 == 0) odd += num;
+            else even += num;
+        }
+        odd *= 3;
+
+        int checkDigit = 10 - (odd + even) % 10;
+        if (checkDigit == 10) checkDigit = 0;
+        this.checkDigit = checkDigit;
+
         return checkDigit;
     }
 

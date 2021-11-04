@@ -35,10 +35,11 @@ public class ReceiptData extends SimpleReceiptData {
         data = data.replaceAll("\n+", "\n");
 
         List<String> list = Arrays.stream(data.split("\n"))
-                .filter(s -> s.length() > 2).collect(Collectors.toList());
+                .filter(s -> s.length() > 2).map(str -> str.replaceAll("[\\[\\]]", "1")).collect(Collectors.toList());
 
+        System.out.println(String.join("\n", list));
         for (String str : list) {
-            if (str.toLowerCase().contains("walmart"))
+            if (str.toLowerCase().contains("walmart") || str.toLowerCase().contains("live better"))
                 receiptType = ReceiptType.WALMART;
             else if (str.toLowerCase().contains("target"))
                 receiptType = ReceiptType.TARGET;
@@ -51,6 +52,9 @@ public class ReceiptData extends SimpleReceiptData {
             receiptType = ReceiptType.UNKNOWN;
 
         ReceiptProcessor processor = parserManager.getParser(receiptType);
+
+        if (receiptType == ReceiptType.UNKNOWN)
+            throw new IllegalArgumentException("Unknown receipt type.");
 
         productData = processor.parseData(list);
         Address address = processor.getAddress(list);

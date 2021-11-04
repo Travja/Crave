@@ -11,13 +11,11 @@ import me.travja.crave.common.models.item.RequestItem;
 import me.travja.crave.common.models.store.Location;
 import me.travja.crave.common.repositories.ItemsRepository;
 import me.travja.crave.common.repositories.UserRepo;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static me.travja.crave.common.views.CraveViews.ItemView;
@@ -40,7 +38,7 @@ public class ItemRestController {
                                Authentication auth) {
         List<Item> items;
         if (query == null)
-            items = (List<Item>) repo.findAll();
+            items = repo.findAll();
         else
             items = repo.findAllByQuery(query);
 
@@ -83,6 +81,17 @@ public class ItemRestController {
         }
 
         return items;
+    }
+
+    @GetMapping("/search")
+    public List<String> searchNames(@RequestParam(required = false) String query,
+                                    @RequestParam(required = false, defaultValue = "0") int page,
+                                    @RequestParam(required = false, defaultValue = "4") int count) {
+        if (query == null || query.isEmpty()) return Collections.emptyList();
+
+        List<Item> items = repo.findAllByNameLike(query, PageRequest.of(page, count));
+
+        return items.stream().map(item -> item.getName()).collect(Collectors.toList());
     }
 
     @GetMapping("/{upc}")
