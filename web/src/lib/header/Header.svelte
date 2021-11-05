@@ -3,7 +3,7 @@
     import logo from './logo.png';
     import gitLogo from '../github-logo.svg';
     import LoginButton from "$lib/header/LoginButton.svelte";
-    import {loadJWT, parseJWT, verifyJWT} from "$lib/util";
+    import {loadJWT, verifyJWT} from "$lib/util";
     import LoginModal from "$lib/LoginModal.svelte";
     import {onMount} from "svelte";
     import {loginState, logout, variables} from "$lib/variables";
@@ -56,7 +56,6 @@
     onMount(() => {
         loggedIn.set(verifyJWT());
         if ($loggedIn) {
-            let jwt = parseJWT();
             variables.jwt.set(loadJWT());
         } else {
             variables.jwt.set(undefined);
@@ -67,10 +66,8 @@
 
     const handleLogin = e => {
         let detail = e.detail;
-        if (detail.success) {
-            loggedIn.set(true);
-            prompt = showLoginModal = requireLogin = false;
-        }
+        if (detail.success)
+            closeLoginModal();
     };
 
     const closeLoginModal = () => {

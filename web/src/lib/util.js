@@ -142,7 +142,7 @@ export const getScrollHeight = (element) => {
 };
 
 export const setupButtons = () => {
-    for (let btn of document.getElementsByClassName("button")) {
+    for (let btn of document.getElementsByClassName("button blank-button")) {
         btn.setAttribute("tabindex", 0);
         btn.onkeypress = (e) => {
             if (e.keyCode == 32 || e.keyCode == 13)

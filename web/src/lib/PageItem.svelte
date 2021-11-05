@@ -1,12 +1,16 @@
 <script>
     import {findCheapest, formatter} from "$lib/util";
-    import {gateway, variables} from "$lib/variables";
+    import {gateway} from "$lib/variables";
+    import {createEventDispatcher} from "svelte";
+
+    const dispatch = createEventDispatcher();
 
     export let name = "No Name",
         upc = "Missing UPC",
         image = "/find-image.svg",
         favorite = false;
     export let details = [];
+    export let inShoppingList = false;
 
     let lowestDetails,
         store,
@@ -26,6 +30,10 @@
             })
             .catch(e => console.error(e));
     };
+
+    const addToShoppingList = () => {
+        dispatch("addtolist", name);
+    };
 </script>
 
 <div class="section">
@@ -40,8 +48,12 @@
         <div class="upc">{upc}</div>
     </div>
     <div class="icons hcenter">
-        <span alt="{favorite ? 'Un-favorite' : 'Favorite'}" class="material-icons-round favorite"
-              on:click={favoriteItem}>{favorite ? "star" : "star_outline"}</span>
+        <div class="material-icons-round favorite" on:click={favoriteItem}
+             title="{favorite ? 'Un-favorite' : 'Favorite'}">{favorite ? "star" : "star_outline"}</div>
+        <div class="material-icons-round blank-button" on:click={addToShoppingList}
+             title="Add to Shopping List">{inShoppingList ? "playlist_add_check" :
+            "playlist_add"}
+        </div>
     </div>
 </div>
 
@@ -101,6 +113,17 @@
     .upc {
         font-size: 0.8em;
         color: #666;
+    }
+
+    .icons {
+        display: flex;
+        flex-direction: row;
+    }
+
+    .icons > * {
+        margin: 0 0.3em;
+        align-items: center;
+        display: flex;
     }
 
     .icons .favorite {

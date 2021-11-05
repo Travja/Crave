@@ -67,17 +67,19 @@
             .then(res => res.json())
             .then(data => {
                 console.log(data);
-                let list = [];
+                if (!data.status || data.status == 200) {
+                    let list = [];
 
-                for (let e in data) {
-                    list.push(data[e]);
+                    for (let e in data) {
+                        list.push(data[e]);
+                    }
+
+                    items = list;
+                    items.forEach(itm => {
+                        itm.uid = {};
+                        itm.id = undefined;
+                    });
                 }
-
-                items = list;
-                items.forEach(itm => {
-                    itm.uid = {};
-                    itm.id = undefined;
-                });
             })
             .catch(e => {
                 console.error(e);
@@ -108,7 +110,7 @@
             });
     };
 
-    let unsubscribe = variables.jwt.subscribe(getList);
+    let unsubscribe = variables.jwt.subscribe(() => getList());
     onMount(getList);
     onDestroy(unsubscribe);
 
@@ -192,7 +194,7 @@
     const getApplicableItems = (target) => {
         let input = target.value;
 
-        fetch(variables.gateway + "/item-service/items/search?query=" + input)
+        fetch(gateway() + "/item-service/items/search?query=" + input)
             .then(res => res.json())
             .then(data => {
                 console.log(data);
@@ -201,6 +203,12 @@
             .catch(e => {
                 console.error(e);
             });
+    };
+
+    const del = (index) => {
+        items.splice(index, 1);
+        items = [...items];
+        saveList();
     };
 
 </script>
@@ -274,6 +282,9 @@
                            on:keypress={e => checkNext(e, i)}
                            on:keydown={e => checkPrev(e, i)}/>
                 </span>
+                <div class="material-icons-round close"
+                     on:click={e => del(i)}>close
+                </div>
             </div>
         {/each}
         <datalist id="data">
@@ -401,5 +412,22 @@
     .button {
         width: 30%;
         min-width: 200px;
+    }
+
+    .row .close {
+        opacity: 0;
+        transition: opacity 0.2s ease-in-out;
+    }
+
+    .row:hover .close {
+        opacity: 1;
+    }
+
+    .close {
+        color: var(--disabled-fg-color);
+    }
+
+    .close:hover {
+        cursor: pointer;
     }
 </style>

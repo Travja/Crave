@@ -12,7 +12,7 @@
 
     let tip = true;
     let gate;
-    let items, error;
+    let items, list = [], fullList = [], error;
     let inProgress = false;
 
     const getLocation = (callback) => {
@@ -22,6 +22,19 @@
             alert("Geolocation is not supported by this browser.");
         }
     };
+
+    const loadShoppingList = async () => {
+        fetch(gateway() + "/auth-service/list")
+            .then(res => res.json())
+            .then(data => {
+                list = [];
+                for (let e in data) {
+                    list.push(data[e].text);
+                    fullList.push(data[e]);
+                }
+            })
+            .catch(e => console.error(e));
+    }
 
     const getItems = async (query, storeFilter, distanceFilter) => {
         if (!gate)
@@ -90,6 +103,7 @@
         // gateway = variables.gateway ? variables.gateway : window.location.origin;
         gate = gateway();
 
+        await loadShoppingList();
         await getItems();
     });
 
@@ -101,7 +115,35 @@
         let storeFilter = e.detail.filters.stores;
         let distanceFilter = e.detail.filters.distance;
         getItems(terms, storeFilter, distanceFilter);
-    }
+    };
+
+    const addToList = item => {
+        console.log(item);
+        list.push(item);
+        fullList.push({id: fullList.length + 1, text: item, checked: false});
+        let tmp = [...fullList];
+
+        let map = {};
+        for (let i = 0; i < tmp.length; i++) {
+            map[i] = tmp[i];
+        }
+        fetch(gateway() + "/auth-service/list", {
+            method: "post",
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(map)
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (!data?.success) {
+                    alert("Shopping list could not be saved!");
+                } else {
+                    list = [...list];
+                }
+            })
+            .catch(err => {
+                console.error(err);
+            });
+    };
 </script>
 <section>
     <h1>Directory</h1>
@@ -117,7 +159,8 @@
         <div id="items">
             {#each items as item, i}
                 {#if item.details}
-                    <PageItem {...item}/>
+                    <PageItem {...item} inShoppingList="{list.includes(item.name)}"
+                              on:addtolist={() => addToList(item.name)}/>
                     <!--{#if i < items.length - 1}-->
                     <!--    <div class="spacer"/>-->
                     <!--{/if}-->
