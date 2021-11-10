@@ -89,12 +89,16 @@
         padding: 20px;
         border: 1px solid rgba(0, 0, 0, 0.25);
         align-items: stretch;
+        transition: background-color 0.3s;
+    }
+
+    .section:hover {
+        background-color: #ddd;
     }
 
     .section:hover, a:hover {
         color: var(--fg-color);
         text-decoration: none;
-        background-color: #ddd;
     }
 
     a:visited {

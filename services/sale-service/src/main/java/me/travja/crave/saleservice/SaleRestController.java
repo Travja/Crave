@@ -2,6 +2,7 @@ package me.travja.crave.saleservice;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.RequiredArgsConstructor;
+import me.travja.crave.common.models.ResponseObject;
 import me.travja.crave.common.models.item.Sale;
 import me.travja.crave.common.models.store.Store;
 import me.travja.crave.common.repositories.SaleRepository;
@@ -63,10 +64,11 @@ public class SaleRestController {
 
     @PostMapping
     @JsonView(SaleView.class)
-    public Sale createItem(@RequestBody Sale sale) {
+    public ResponseObject createItem(@RequestBody Sale sale) {
         //TODO validate that the sale information is actually valid and not a duplicate.
         // Also notify any users that have favorited any items on this sale.
-        return repo.save(sale);
+        Sale s = repo.save(sale);
+        return ResponseObject.successConditional(s != null, "sale", s);
     }
 
     //TODO Create update (PATCH) method

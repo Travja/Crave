@@ -9,6 +9,7 @@ import me.travja.crave.common.exceptions.ItemNotFoundException;
 import me.travja.crave.common.exceptions.StoreNotFoundException;
 import me.travja.crave.common.models.item.ItemDetails;
 import me.travja.crave.common.models.item.Sale;
+import me.travja.crave.common.models.store.Location;
 import me.travja.crave.common.models.store.Store;
 import me.travja.crave.common.repositories.ItemDetailsRepository;
 import me.travja.crave.common.repositories.StoreRepository;
@@ -36,11 +37,52 @@ public class SaleDeserializer extends StdDeserializer<Sale> {
 
         JsonNode node = jp.getCodec().readTree(jp);
         Sale     sale = new Sale();
+        long     storeId;
 
-        long            storeId = node.get("storeId").asLong();
-        Optional<Store> oStore  = storeRepo.findById(storeId);
-        oStore.ifPresentOrElse(store -> sale.setStore(store),
-                () -> {throw new StoreNotFoundException("Could not find store by id " + storeId);});
+
+        if (node.has("store")) {
+            JsonNode storeNode = node.get("store");
+
+            double lat = storeNode.get("lat").asDouble(),
+                    lon = storeNode.get("lon").asDouble();
+            String   storeName = storeNode.get("name").asText();
+            String   address   = storeNode.get("address").asText();
+            String[] split     = address.split(", ");
+            String   streetAddress, city, state;
+
+//            if (storeNode.get("name").asText().equalsIgnoreCase("Walmart")) {
+
+            streetAddress = split[0];
+            city = split[1];
+            state = split[2].split(" ")[0];
+
+            System.out.println("Street: " + streetAddress + " -- City: " + city + " -- State: " + state);
+
+//            }
+
+            Optional<Store> oStore = storeRepo.findStoreByStreetAddressAndCityAndState(streetAddress, city, state);
+
+            Store store;
+            if (oStore.isPresent()) {
+                store = oStore.get();
+            } else {
+                store = new Store();
+                store.setName(storeName);
+                store.setStreetAddress(streetAddress);
+                store.setCity(city);
+                store.setState(state);
+                store.setLocation(new Location(lat, lon));
+                store = storeRepo.save(store);
+            }
+            storeId = store.getId();
+
+        } else {
+            storeId = node.get("storeId").asLong();
+            Optional<Store> oStore       = storeRepo.findById(storeId);
+            long            finalStoreId = storeId;
+            oStore.ifPresentOrElse(store -> sale.setStore(store),
+                    () -> {throw new StoreNotFoundException("Could not find store by id " + finalStoreId);});
+        }
 
         String                upc   = node.get("item").asText();
         Optional<ItemDetails> oItem = itemRepo.findByItemUpcUpcAndStoreId(upc, storeId);

@@ -6,8 +6,8 @@ import lombok.Data;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Data
 public class ResponseObject {
@@ -20,7 +20,9 @@ public class ResponseObject {
     private HttpStatus status = HttpStatus.OK;
 
     public static ResponseObject success(Object... data) {
-        return ResponseObject.of(HttpStatus.OK, "success", true, data);
+        List<Object> dat = new ArrayList<>(Arrays.asList("success", true));
+        Arrays.stream(data).forEach(dat::add);
+        return ResponseObject.of(HttpStatus.OK, dat.toArray());
     }
 
     public static ResponseObject successConditional(boolean isSuccessful, Object... data) {
@@ -31,7 +33,9 @@ public class ResponseObject {
     }
 
     public static ResponseObject failure(Object... data) {
-        return ResponseObject.of(HttpStatus.BAD_REQUEST, "success", false, data);
+        List<Object> dat = new ArrayList<>(Arrays.asList("success", false));
+        Arrays.stream(data).forEach(dat::add);
+        return ResponseObject.of(HttpStatus.BAD_REQUEST, dat.toArray());
     }
 
     public static ResponseObject of(HttpStatus statusCode, String key, Object val) {
@@ -50,7 +54,8 @@ public class ResponseObject {
     public static ResponseObject of(HttpStatus statusCode, Object... data) {
         ResponseObject res = new ResponseObject();
         res.setStatus(statusCode);
-        System.out.println(data.length + " " + data);
+        System.out.println(data.length + " "
+                + String.join(",", Arrays.stream(data).map(dat -> dat.toString()).collect(Collectors.toList())));
         for (int i = 0; i + 1 < data.length; i += 2) {
             String key = (String) data[i];
             Object val = data[i + 1];

@@ -1,11 +1,12 @@
 <script>
     import {variables} from "$lib/variables";
     import {slide} from "svelte/transition";
+    import {onMount} from "svelte";
 
     export let store;
     let position;
     const getLocation = (callback) => {
-        if (navigator.geolocation) {
+        if (navigator && navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(pos => {
                 position = pos;
                 callback();
@@ -108,9 +109,11 @@
         return null;
     };
 
-    if (store) {
-        updateStore(store);
-    }
+    onMount(() => {
+        if (store) {
+            updateStore(store);
+        }
+    });
 </script>
 
 <div>
