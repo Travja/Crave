@@ -23,6 +23,7 @@
     --button-fg-color: #333;
     --button-clicked: #ddd;
     --accent-color: #ff4040;
+    --submit-color: #23a8fc;
 }
 
 :root[data-theme="dark"] {
@@ -35,6 +36,7 @@
     --button-fg-color: #eee;
     --button-clicked: #4a4a4a;
     --accent-color: #caff93;
+    --submit-color: #23a8fc;
 }
 
 html, body {

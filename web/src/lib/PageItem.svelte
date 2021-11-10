@@ -1,5 +1,5 @@
 <script>
-    import {findCheapest, formatter} from "$lib/util";
+    import {findCheapest, formatter, parseJWT} from "$lib/util";
     import {gateway} from "$lib/variables";
     import {createEventDispatcher} from "svelte";
 
@@ -41,7 +41,13 @@
         <img alt={name} src={image}/>
         <div class="sp"/>
         <div class="name">{name}</div>
-        <div class="price">Lowest price: <strong>{formatter.format(lowestDetails?.price)}</strong></div>
+        <div class="price">Lowest price:&nbsp;
+            {#if lowestDetails.onSale}
+                <span class="sale">SALE</span>
+                <strong class="oldPrice">{formatter.format(lowestDetails?.originalPrice)}</strong>
+            {/if}
+            <strong class:costSale={lowestDetails.onSale}>{formatter.format(lowestDetails?.price)}</strong>
+        </div>
     </a>
     <div class="footer">
         <div class="store">{lowestDetails?.store?.name}</div>
@@ -54,11 +60,18 @@
              title="Add to Shopping List">{inShoppingList ? "playlist_add_check" :
             "playlist_add"}
         </div>
+        <a alt="Post a Sale!" class="material-icons-round blank-button"
+           href="sale?item={upc}&store={lowestDetails.store.name}"
+           title="Post a Sale!">
+            newspaper</a>
+        {#if parseJWT()?.authorities.includes("ADMIN")}
+            <a href="/items/edit/{upc}" class="material-icons-round blank-button" alt="Edit" title="Edit">edit</a>
+        {/if}
     </div>
 </div>
 
 <style>
-    .section, a {
+    .section, .section > a {
         color: var(--fg-color);
         position: relative;
         display: flex;
@@ -66,6 +79,10 @@
         align-items: center;
         justify-content: center;
         flex: 1;
+    }
+
+    a.blank-button {
+        color: var(--fg-color);
     }
 
     .section {
@@ -94,6 +111,7 @@
     }
 
     .price {
+        display: flex;
         color: #666;
         margin-top: 10px;
     }
@@ -118,6 +136,12 @@
     .icons {
         display: flex;
         flex-direction: row;
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+
+    .section:hover .icons {
+        opacity: 1;
     }
 
     .icons > * {
@@ -133,5 +157,27 @@
 
     .icons .favorite:hover {
         cursor: pointer;
+    }
+
+    .sale {
+        position: absolute;
+        top: 0;
+        right: 0;
+        display: inline;
+        color: red;
+        font-weight: bold;
+        transform: rotate(30deg);
+    }
+
+    .oldPrice {
+        display: flex;
+        align-items: center;
+        font-size: 0.7em;
+        text-decoration: line-through;
+        margin-right: 0.3em;
+    }
+
+    .costSale {
+        color: red;
     }
 </style>

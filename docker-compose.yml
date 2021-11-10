@@ -31,8 +31,8 @@ services:
       - "15672:15672"
     env_file:
       - .env
-    volumes:
-      - ./.data/rabbit:/var/lib/rabbitmq/mnesia
+#    volumes:
+#      - ./.data/rabbit:/var/lib/rabbitmq/mnesia
     healthcheck:
       test: rabbitmq-diagnostics -q ping
       interval: 10s
@@ -121,7 +121,6 @@ services:
   #    scale: 2
 
   item-service:
-    #    profiles: ["services"]
     build:
       context: ./services/item-service
     depends_on:
@@ -132,8 +131,6 @@ services:
       eureka-server:
         condition: service_healthy
     restart: always
-    #    ports:
-    #      - 8082:8080
     expose:
       - 8080
     env_file:
@@ -141,6 +138,27 @@ services:
     environment:
       - SERVER_PORT=8080
       - APP_NAME=item-service
+    networks:
+      - crave
+    mem_limit: 450m
+  #    scale: 2
+
+  sale-service:
+    build:
+      context: ./services/sale-service
+    depends_on:
+      crave-mysql:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - SERVER_PORT=8080
+      - APP_NAME=sale-service
     networks:
       - crave
     mem_limit: 450m

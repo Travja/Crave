@@ -1,0 +1,1 @@
+mvn clean package install -f services/common-dependencies -DskipTests

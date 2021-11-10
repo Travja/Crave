@@ -23,7 +23,7 @@ import static me.travja.crave.common.views.CraveViews.*;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonView({ItemView.class, UPCView.class, DetailsView.class})
+@JsonView({ItemView.class, UPCView.class, DetailsView.class, SaleView.class, StoreSaleView.class})
 public class Item {
 
     private static final String DEF_IMAGE = "/find-image.svg";
@@ -105,6 +105,10 @@ public class Item {
             return getDetails(store.getName());
         else
             return Optional.empty();
+    }
+
+    public void cleanSales() {
+        details.forEach(dets -> dets.cleanSales());
     }
 
     @Override

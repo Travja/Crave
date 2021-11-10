@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import me.travja.crave.common.models.auth.CraveUser;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 @RequiredArgsConstructor
@@ -21,9 +22,11 @@ public class JWTToken {
     private final String token;
     @Getter
     private final String username;
+
     @Getter
-    private final Date   issuedAt, expiration;
+    private final Date issuedAt, expiration;
     private final Claims claims;
+
 
     public static JWTToken parseToken(String token) {
         Claims claims = JWTToken.getAllClaims(token);
@@ -58,6 +61,10 @@ public class JWTToken {
 
     public boolean canRefresh() {
         return (!isExpired() || JWTUtil.isExpirationIgnored(token));
+    }
+
+    public List<String> getAuthorities() {
+        return get("authorities");
     }
 
     public String getString(String key) {

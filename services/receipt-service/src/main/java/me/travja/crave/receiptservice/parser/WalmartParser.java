@@ -77,7 +77,7 @@ public class WalmartParser implements ReceiptProcessor {
                 String name  = mat.group(1);
                 String upc   = mat.group(2);
                 double price = Double.parseDouble(mat.group(3));
-                //TODO Get image url and description;
+                //TODO Get description;
                 ProductInformation info = new ProductInformation(name, upc, null, null, price);
                 items.add(info);
                 upcs.add(upc);

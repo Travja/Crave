@@ -12,4 +12,8 @@ public class CraveViews {
 
     public interface UPCView extends JsonView {}
 
+    public interface SaleView extends JsonView {}
+
+    public interface StoreSaleView extends JsonView {}
+
 }

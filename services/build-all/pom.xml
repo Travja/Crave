@@ -10,12 +10,11 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>../common-dependencies/models-common</module>
-        <module>../common-dependencies/rabbit-common</module>
-        <module>../common-dependencies/security-common</module>
+        <module>../common-dependencies</module>
         <module>../cloud-gateway</module>
         <module>../eureka-server</module>
         <module>../item-service</module>
+        <module>../sale-service</module>
         <module>../receipt-service</module>
         <module>../email-service</module>
         <module>../auth</module>

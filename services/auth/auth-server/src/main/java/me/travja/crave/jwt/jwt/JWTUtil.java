@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Component
 public class JWTUtil {
@@ -16,6 +17,8 @@ public class JWTUtil {
 
     public static String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
+        claims.put("authorities",
+                userDetails.getAuthorities().stream().map(auth -> auth.getAuthority()).collect(Collectors.toList()));
 //        claims.put("test", new ArrayList<>(List.of(new String[]{"Hey... does this work?", "Indeed it does!"})));
         return generateToken(userDetails.getUsername(), claims);
     }

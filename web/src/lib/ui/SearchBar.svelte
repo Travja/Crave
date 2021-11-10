@@ -80,7 +80,7 @@
         <h4>Stores</h4>
         <hr/>
         <label>
-            <input bind:this={allStores} on:click={clickAll} type="checkbox" value="all"/>
+            <input bind:this={allStores} on:click={clickAll} type="checkbox" value="all" checked/>
             All
         </label>
         {#each filterStores as validStore (validStore.name)}

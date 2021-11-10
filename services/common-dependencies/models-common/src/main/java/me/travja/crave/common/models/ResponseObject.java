@@ -50,12 +50,18 @@ public class ResponseObject {
     public static ResponseObject of(HttpStatus statusCode, Object... data) {
         ResponseObject res = new ResponseObject();
         res.setStatus(statusCode);
+        System.out.println(data.length + " " + data);
         for (int i = 0; i + 1 < data.length; i += 2) {
             String key = (String) data[i];
             Object val = data[i + 1];
             res.getData().put(key, val);
+            System.out.println(key + ": " + val);
         }
         return res;
+    }
+
+    public int getCode() {
+        return status.value();
     }
 
     public ResponseEntity<Map<String, Object>> build() {

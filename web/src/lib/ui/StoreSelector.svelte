@@ -2,6 +2,7 @@
     import {variables} from "$lib/variables";
     import {slide} from "svelte/transition";
 
+    export let store;
     let position;
     const getLocation = (callback) => {
         if (navigator.geolocation) {
@@ -97,13 +98,28 @@
         }
         strs[i].selected = !strs[i].selected;
     };
+
+    export const getSelectedStore = () => {
+        for (const stor of strs) {
+            if (stor.selected)
+                return stor;
+        }
+
+        return null;
+    };
+
+    if (store) {
+        updateStore(store);
+    }
 </script>
 
 <div>
     <h4>Pick Your Store</h4>
     {#each variables.validStores as validStore}
         <label>
-            <input name="store" on:click={() => updateStore(validStore)} type="radio"/>
+            <!-- disabled="{!!store}" -->
+            <input name="store" on:click={() => updateStore(validStore)} type="radio"
+                   checked="{validStore.toLowerCase() == store?.toLowerCase()}"/>
             {validStore}
         </label>
     {/each}

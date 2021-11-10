@@ -8,11 +8,13 @@ import lombok.ToString;
 import me.travja.crave.common.models.store.Store;
 import org.hibernate.Hibernate;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
+import javax.annotation.PostConstruct;
+import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static me.travja.crave.common.views.CraveViews.*;
 
@@ -21,7 +23,7 @@ import static me.travja.crave.common.views.CraveViews.*;
 @Entity
 @ToString
 @NoArgsConstructor
-@JsonView({ItemView.class, StoreView.class, DetailsView.class})
+@JsonView({ItemView.class, StoreView.class, DetailsView.class, SaleView.class})
 public class ItemDetails {
 
     @Id
@@ -35,10 +37,21 @@ public class ItemDetails {
     private Store  store;
     private double price;
 
+    @OneToMany(mappedBy = "item", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonView({DetailsView.class, ItemView.class})
+    private List<Sale> sales = new ArrayList<>();
+
     public ItemDetails(Item item, Store store, double price) {
         setItem(item);
         setStore(store);
         setPrice(price);
+    }
+
+    @PostConstruct
+    public void cleanSales() {
+        sales.removeAll(sales.stream()
+                .filter(sale -> sale.getEndDate().before(new Date()))
+                .collect(Collectors.toList()));
     }
 
     /**

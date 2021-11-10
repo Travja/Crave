@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import me.travja.crave.common.models.item.ItemDetails;
+import me.travja.crave.common.models.item.Sale;
 import org.hibernate.Hibernate;
 
 import javax.persistence.*;
@@ -18,7 +19,7 @@ import static me.travja.crave.common.views.CraveViews.*;
 @Getter
 @Setter
 @ToString
-@JsonView({ItemView.class, StoreView.class, DetailsView.class})
+@JsonView({ItemView.class, StoreView.class, DetailsView.class, SaleView.class, StoreSaleView.class})
 public class Store {
 
     @Id
@@ -36,6 +37,11 @@ public class Store {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "store")
     @ToString.Exclude
     private List<ItemDetails> items = new ArrayList<>();
+
+    @JsonView({StoreView.class, StoreSaleView.class})
+    @OneToMany(mappedBy = "store", cascade = CascadeType.ALL)
+    @ToString.Exclude
+    private List<Sale> sales = new ArrayList<>();
 
     @Column(name = "lat")
     public double getLat() {

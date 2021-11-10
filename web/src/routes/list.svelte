@@ -52,7 +52,8 @@
                 complete++;
         });
 
-        if (items.length == 0 || (items.length > 0 && items[items.length - 1].text)) {
+        if (items.length == 0 ||
+            (items.length > 0 && items[items.length - 1].text && items[items.length - 1].text.length > 0)) {
             items.push({text: "", checked: false, uid: {}});
         }
 
@@ -110,8 +111,11 @@
             });
     };
 
-    let unsubscribe = variables.jwt.subscribe(() => getList());
-    onMount(getList);
+    let unsubscribe = () => {
+    };
+    onMount(() => {
+        unsubscribe = variables.jwt.subscribe(getList);
+    });
     onDestroy(unsubscribe);
 
     let itmCount = 0;

@@ -6,7 +6,7 @@
     import {loadJWT, verifyJWT} from "$lib/util";
     import LoginModal from "$lib/LoginModal.svelte";
     import {onMount} from "svelte";
-    import {loginState, logout, variables} from "$lib/variables";
+    import {login, loginState, logout, variables} from "$lib/variables";
 
     //Define nav bar routes here and which pages should be authenticated.
     let pages = [
@@ -54,11 +54,10 @@
         }
     }
     onMount(() => {
-        loggedIn.set(verifyJWT());
-        if ($loggedIn) {
-            variables.jwt.set(loadJWT());
+        if (verifyJWT()) {
+            login(loadJWT());
         } else {
-            variables.jwt.set(undefined);
+            logout();
         }
 
         mounted = true;

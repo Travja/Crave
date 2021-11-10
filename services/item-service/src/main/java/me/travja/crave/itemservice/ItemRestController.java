@@ -70,6 +70,7 @@ public class ItemRestController {
         }
 
         items = items.stream().filter(item -> item.getDetails().size() > 0).collect(Collectors.toList());
+        items.forEach(Item::cleanSales);
 
         if (auth != null) {
             Optional<CraveUser> user = userRepo.findByUsernameIgnoreCase(auth.getName());
@@ -81,6 +82,16 @@ public class ItemRestController {
         }
 
         return items;
+    }
+
+    @GetMapping("/name/{upc}")
+    public ResponseObject getName(@PathVariable String upc) {
+        Item item = repo.findByUpcUpc(upc).orElse(null);
+        if (item != null) {
+            System.out.println(item.getName());
+            return ResponseObject.success("name", item.getName());
+        } else
+            return ResponseObject.failure();
     }
 
     @GetMapping("/search")
@@ -102,6 +113,9 @@ public class ItemRestController {
         if (item != null && auth != null)
             userRepo.findByUsernameIgnoreCase(auth.getName())
                     .ifPresent(user -> item.setFavorite(user.getFavorites().contains(item)));
+
+        if (item != null)
+            item.cleanSales();
 
         return item;
     }

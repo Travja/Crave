@@ -51,9 +51,7 @@ export const overrideXMLSend = () => {
     };
 };
 
-export const verifyJWT = () => {
-    let jwt = parseJWT();
-
+export const verifyJWT = (jwt = parseJWT()) => {
     return !!jwt && new Date(jwt.exp * 1000) > Date.now();
 };
 
@@ -63,7 +61,9 @@ export const parseJWT = () => {
         return undefined;
 
     let payload = atob(token.split('.')[1]);
-    return JSON.parse(payload);
+    let jwt = JSON.parse(payload);
+    // console.log(jwt);
+    return jwt;
 };
 
 export const loadJWT = () => {
@@ -95,6 +95,24 @@ export const findCheapest = details => {
             if (lowestDetails.price > det.price)
                 lowestDetails = det;
         }
+
+        if (det.sales) {
+            det.sales.forEach(sale => {
+                if (!lowestDetails) {
+                    lowestDetails = {...det};
+                    lowestDetails.onSale = true;
+                    lowestDetails.price = sale.newPrice;
+                    lowestDetails.originalPrice = det.price;
+                } else {
+                    if (lowestDetails.price > sale.newPrice) {
+                        lowestDetails = {...det};
+                        lowestDetails.onSale = true;
+                        lowestDetails.price = sale.newPrice;
+                        lowestDetails.originalPrice = det.price;
+                    }
+                }
+            })
+        }
     });
 
     return lowestDetails;
@@ -110,35 +128,17 @@ export const formatter = new Intl.NumberFormat('en-US', {
 });
 
 let scrollEnabled = false;
-let scrollPos = 0;
 export const initScroll = () => {
     if (scrollEnabled) return;
     const updateScroll = (e) => {
-        // scrollDistance.set(getScrollHeight());
         let pos = (document.documentElement || document.body).scrollTop / 100;
         scrollDistance.set(pos);
-        // let pos = (document.documentElement || document.body).scrollTop;
-        // scrollDistance.set(pos-scrollPos);
-        // scrollPos = pos;
     };
 
     document.addEventListener("scroll", updateScroll);
-    // scrollDistance.set(getScrollHeight());
     let pos = (document.documentElement || document.body).scrollTop / 100;
     scrollDistance.set(pos);
-    // scrollDistance.set(pos - scrollPos);
-    // scrollPos = pos;
     scrollEnabled = true;
-};
-
-export const getScrollHeight = (element) => {
-    if (!element || element == document.body) {
-        let h = document.documentElement,
-            b = document.body,
-            st = 'scrollTop',
-            sh = 'scrollHeight';
-        return (h[st] || b[st]) / ((h[sh] || b[sh]) - h.clientHeight);
-    }
 };
 
 export const setupButtons = () => {
