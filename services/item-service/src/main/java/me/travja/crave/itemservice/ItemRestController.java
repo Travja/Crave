@@ -5,9 +5,7 @@ import lombok.RequiredArgsConstructor;
 import me.travja.crave.common.models.ResponseObject;
 import me.travja.crave.common.models.auth.AuthToken;
 import me.travja.crave.common.models.auth.CraveUser;
-import me.travja.crave.common.models.item.Item;
-import me.travja.crave.common.models.item.ItemDetails;
-import me.travja.crave.common.models.item.RequestItem;
+import me.travja.crave.common.models.item.*;
 import me.travja.crave.common.models.store.Location;
 import me.travja.crave.common.repositories.ItemsRepository;
 import me.travja.crave.common.repositories.UserRepo;
@@ -18,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static me.travja.crave.common.views.CraveViews.DetailsView;
 import static me.travja.crave.common.views.CraveViews.ItemView;
 
 @RequiredArgsConstructor
@@ -95,14 +94,37 @@ public class ItemRestController {
     }
 
     @GetMapping("/search")
-    public List<String> searchNames(@RequestParam(required = false) String query,
-                                    @RequestParam(required = false, defaultValue = "0") int page,
-                                    @RequestParam(required = false, defaultValue = "4") int count) {
+    @JsonView(DetailsView.class)
+    public List<ListItem> searchNames(@RequestParam(required = false) String query,
+                                      @RequestParam(required = false, defaultValue = "false") boolean detailed,
+                                      @RequestParam(required = false, defaultValue = "0") int page,
+                                      @RequestParam(required = false, defaultValue = "4") int count) {
         if (query == null || query.isEmpty()) return Collections.emptyList();
 
         List<Item> items = repo.findAllByNameLike(query, PageRequest.of(page, count));
 
-        return items.stream().map(item -> item.getName()).collect(Collectors.toList());
+        return items.stream().map(item -> {
+            if (detailed) {
+                ItemDetails details = null;
+                for (ItemDetails dets : item.getDetails()) {
+                    if (details == null || details.getPrice() > dets.getPrice())
+                        details = dets;
+
+                    dets.cleanSales();
+
+                    for (Sale sale : dets.getSales()) {
+                        if (sale.getEndDate().before(new Date())) continue;
+
+                        if (details == null || details.getPrice() > sale.getNewPrice()) {
+                            details = dets;
+                            details.setPrice(sale.getNewPrice());
+                        }
+                    }
+                }
+                return new DetailedListItem(item.getId(), item.getName(), false, details);
+            } else
+                return new ListItem(item.getId(), item.getName(), false);
+        }).collect(Collectors.toList());
     }
 
     @GetMapping("/{upc}")

@@ -12,5 +12,7 @@ public interface ItemDetailsRepository extends CrudRepository<ItemDetails, Long>
 
     List<ItemDetails> findAllByItemUpcUpc(String upc);
     Optional<ItemDetails> findByItemUpcUpcAndStoreId(String upc, long storeId);
+    Optional<ItemDetails> findFirstByItemNameLike(String name);
+    Optional<ItemDetails> findFirstByItemNameLikeOrderBySalesNewPriceAscPriceAsc(String name);
 
 }

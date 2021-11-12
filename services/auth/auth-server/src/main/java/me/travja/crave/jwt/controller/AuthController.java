@@ -1,11 +1,15 @@
 package me.travja.crave.jwt.controller;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import me.travja.crave.common.models.ResponseObject;
 import me.travja.crave.common.models.auth.AuthToken;
 import me.travja.crave.common.models.auth.CraveUser;
+import me.travja.crave.common.models.item.DetailedListItem;
+import me.travja.crave.common.models.item.ItemDetails;
 import me.travja.crave.common.models.item.ListItem;
+import me.travja.crave.common.repositories.ItemDetailsRepository;
 import me.travja.crave.jwt.jwt.*;
 import me.travja.crave.jwt.services.JWTDetailsService;
 import org.slf4j.Logger;
@@ -20,11 +24,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
+
+import static me.travja.crave.common.views.CraveViews.DetailsView;
 
 @RestController
 //@CrossOrigin
@@ -33,6 +36,7 @@ public class AuthController {
 
     private final AuthenticationManager authenticationManager;
     private final JWTDetailsService     jwtDetailsService;
+    private final ItemDetailsRepository itemRepo;
     private final PasswordEncoder       passwordEncoder;
     private final Logger                logger = LoggerFactory.getLogger(AuthController.class);
 
@@ -101,7 +105,8 @@ public class AuthController {
 
 
     @PostMapping("/list")
-    public ResponseObject saveList(@RequestBody Map<Integer, ListItem> list, Authentication auth) {
+    public ResponseObject saveList(@RequestBody Map<Integer, ListItem> list,
+                                   Authentication auth) {
         if (auth instanceof AuthToken) {
             CraveUser user = jwtDetailsService.loadUserByUsername(auth.getName());
 
@@ -115,11 +120,24 @@ public class AuthController {
     }
 
     @GetMapping("/list")
-    public Map<Integer, ListItem> getList(Authentication auth) {
+    @JsonView(DetailsView.class)
+    public Map<Integer, ListItem> getList(@RequestParam(required = false, defaultValue = "false") boolean detailed,
+                                          Authentication auth) {
         if (auth instanceof AuthToken) {
-            CraveUser user = jwtDetailsService.loadUserByUsername(auth.getName());
+            CraveUser              user = jwtDetailsService.loadUserByUsername(auth.getName());
+            Map<Integer, ListItem> list = new HashMap<>();
 
-            return user.getShoppingList();
+            if (detailed) {
+                user.getShoppingList().forEach((index, li) -> {
+                    Optional<ItemDetails> item = itemRepo.findFirstByItemNameLikeOrderBySalesNewPriceAscPriceAsc(li.getText());
+                    item.ifPresentOrElse(it -> list.put(index, new DetailedListItem(li.getId(), li.getText(),
+                                    li.isChecked(), it.cleanSales())),
+                            () -> list.put(index, li));
+                });
+            } else
+                list.putAll(user.getShoppingList());
+
+            return list;
         }
 
         return Collections.emptyMap();

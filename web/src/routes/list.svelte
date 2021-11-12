@@ -3,6 +3,8 @@
     import {fly, scale, slide} from "svelte/transition";
     import {elasticInOut, quintOut} from "svelte/easing";
     import {onDestroy, onMount} from "svelte";
+    import {formatter} from "$lib/util";
+    import Thumb from "$lib/ui/Thumb.svelte";
 
     title.set("Shopping List");
 
@@ -38,6 +40,8 @@
         {
             text: "",
             checked: false,
+            cost: 0,
+            store: "",
             uid: {}
         }
     ];
@@ -54,7 +58,13 @@
 
         if (items.length == 0 ||
             (items.length > 0 && items[items.length - 1].text && items[items.length - 1].text.length > 0)) {
-            items.push({text: "", checked: false, uid: {}});
+            items.push({
+                text: "",
+                checked: false,
+                cost: 0,
+                store: "",
+                uid: {}
+            });
         }
 
         if (items.length > 1 && !items[items.length - 2].text) {
@@ -63,8 +73,23 @@
         }
     }
 
+    let totalCost = 0;
+    let numStores = 0;
+    $: if (items.length > 1) {
+        totalCost = 0;
+        let stores = [];
+        items.forEach(item => {
+            if (item.lowestDetails) {
+                if (!stores.includes(item.lowestDetails.store.id))
+                    stores.push(item.lowestDetails.store.id);
+                totalCost += item.lowestDetails.price;
+            }
+        });
+        numStores = stores.length;
+    }
+
     const getList = () => {
-        fetch(gateway() + "/auth-service/list")
+        fetch(gateway() + "/auth-service/list?detailed=true")
             .then(res => res.json())
             .then(data => {
                 console.log(data);
@@ -79,6 +104,16 @@
                     items.forEach(itm => {
                         itm.uid = {};
                         itm.id = undefined;
+
+                        if (itm.lowestDetails?.sales) {
+                            let lowestCost = itm.lowestDetails.price;
+                            itm.lowestDetails.sales.forEach(sale => {
+                                if (sale.newPrice < lowestCost)
+                                    lowestCost = sale.newPrice;
+                            });
+
+                            itm.lowestDetails.price = lowestCost;
+                        }
                     });
                 }
             })
@@ -146,9 +181,9 @@
     let tracking, activeIndex, targetIndex = -1;
     const dragStart = e => {
         e.preventDefault();
-        tracking = e.target;
+        tracking = e.target.parentNode;
         targetIndex = activeIndex = parseInt(tracking.getAttribute("index"));
-        pos1 = e.clientY;
+        pos1 = e.clientY + tracking.getBoundingClientRect().height;
     };
 
     const dragging = e => {
@@ -156,7 +191,6 @@
         e.preventDefault();
         pos2 = pos1 - e.clientY;
         pos1 = e.clientY;
-
         tracking.style.top = (tracking.offsetTop - pos2) + "px";
     };
 
@@ -195,14 +229,24 @@
         targetIndex = parseInt(target.getAttribute("index"));
     };
 
-    const getApplicableItems = (target) => {
+    const getApplicableItems = (target, index) => {
         let input = target.value;
 
-        fetch(gateway() + "/item-service/items/search?query=" + input)
+        fetch(gateway() + "/item-service/items/search?detailed=true&query=" + input)
             .then(res => res.json())
             .then(data => {
                 console.log(data);
-                dataList = data;
+                let dList = [];
+                if (data.length >= 1) {
+                    items[index].lowestDetails = data[0].lowestDetails;
+                } else {
+                    items[index].lowestDetails = undefined;
+                }
+                data.forEach(dat => {
+                    console.log(dat);
+                    dList.push(dat.text);
+                });
+                dataList = dList;
             })
             .catch(e => {
                 console.error(e);
@@ -248,12 +292,12 @@
                     </span>
                 </div>
             {/if}
-            <div class="row" draggable="{itm.text ? true : false}" on:dragstart={dragStart}
+            <div class="row"
                  class:active={activeIndex == i}
                  index="{i}"
                  on:mousemove={dragOver}
                  transition:slide>
-                <span class="material-icons-round dr" class:drag={itm.text}>keyboard_double_arrow_right</span>
+                <Thumb canDrag="{!!itm.text}" on:dragstart={dragStart}/>
                 {#if itm.text}
                     {#if itm.checked}
                         <div class="material-icons-round check"
@@ -281,10 +325,21 @@
                     <span class="placeholder">{itm.text}</span>
                     <input id="input{i}" type="text" bind:value="{itm.text}" placeholder="New item..."
                            list="data"
-                           on:focus={e => getApplicableItems(e.target)}
-                           on:keyup={e => getApplicableItems(e.target)}
+                           on:focus={e => getApplicableItems(e.target, i)}
+                           on:keyup={e => getApplicableItems(e.target, i)}
                            on:keypress={e => checkNext(e, i)}
                            on:keydown={e => checkPrev(e, i)}/>
+                    {#if itm.lowestDetails}
+                        <div class="details"
+                             transition:slide>
+                            <div class="predicted-name">{itm.lowestDetails.item.name}</div>
+                            <div>
+                                {formatter.format(itm.lowestDetails.price)} -
+                                {itm.lowestDetails.store.name} -
+                                {itm.lowestDetails.store.streetAddress}
+                            </div>
+                        </div>
+                    {/if}
                 </span>
                 <div class="material-icons-round close"
                      on:click={e => del(i)}>close
@@ -297,6 +352,9 @@
             {/each}
         </datalist>
     </div>
+
+    <div>Total Cost: {formatter.format(totalCost)}</div>
+    <div>Number of Stores: {numStores}</div>
 
     <div class="button" on:click={saveList}>Save List</div>
 </div>
@@ -335,7 +393,7 @@
         position: absolute;
         pointer-events: none;
         z-index: 5;
-        transform: rotate(15deg);
+        /*transform: rotate(15deg);*/
     }
 
     .items > div:last-child {
@@ -344,7 +402,7 @@
     }
 
     .add, .check {
-        margin-right: 0.5em;
+        margin-right: 0.5rem;
         user-select: none;
     }
 
@@ -356,11 +414,10 @@
         /*min-width: 100%;*/
         flex-grow: 1;
         border: none;
-        border-left: 1px solid black;
-        padding: 0 0 0 0.5em;
+        padding: 0 0 0 0.5rem;
         background: transparent;
         margin: 0;
-        font-size: 1em;
+        font-size: 1rem;
         position: relative;
     }
 
@@ -381,16 +438,8 @@
     }
 
     .complete {
-        margin-left: 0.5em;
+        margin-left: 0.5rem;
         color: var(--disabled-fg-color)
-    }
-
-    .dr {
-        color: #ccc;
-    }
-
-    .drag:hover {
-        cursor: move;
     }
 
     .filler {
@@ -399,8 +448,8 @@
     }
 
     .placeholder {
-        padding-left: 0.5em;
-        padding-right: 2em;
+        padding-left: 0.5rem;
+        padding-right: 2rem;
         white-space: nowrap;
         font-size: 1em;
         height: 0px;
@@ -411,6 +460,7 @@
         display: flex;
         flex-direction: column;
         flex: 1;
+        border-left: 1px solid black;
     }
 
     .button {
@@ -433,5 +483,15 @@
 
     .close:hover {
         cursor: pointer;
+    }
+
+    .details {
+        margin-left: 1rem;
+        font-size: 0.8rem;
+        color: var(--disabled-fg-color);
+    }
+
+    .predicted-name {
+        font-size: 0.6rem;
     }
 </style>

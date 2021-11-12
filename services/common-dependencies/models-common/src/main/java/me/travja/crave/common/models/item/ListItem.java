@@ -15,7 +15,7 @@ import javax.persistence.Id;
 public class ListItem {
     @Id
     @GeneratedValue
-    public  int     id;
+    public  long     id;
     private String  text    = "";
     private boolean checked = false;
 }

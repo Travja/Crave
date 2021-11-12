@@ -24,6 +24,7 @@
 </script>
 
 <script>
+    //TODO Need frontend start/end dates.
     import {page} from "$app/stores";
     import {slide} from "svelte/transition";
     import StoreSelector from "$lib/ui/StoreSelector.svelte";
@@ -127,10 +128,6 @@
         flex-direction: column;
         align-items: center;
         text-align: center;
-    }
-
-    .in label {
-        flex-grow: 1;
     }
 
     .name {

@@ -48,10 +48,11 @@ public class ItemDetails {
     }
 
     @PostConstruct
-    public void cleanSales() {
+    public ItemDetails cleanSales() {
         sales.removeAll(sales.stream()
                 .filter(sale -> sale.getEndDate().before(new Date()))
                 .collect(Collectors.toList()));
+        return this;
     }
 
     /**
