@@ -18,6 +18,8 @@
     };
 
     const submit = () => {
+        //TODO Validate the form before submission.
+        console.log(manForm);
         formSubmit(manForm, (data) => {
             console.log(data);
         });
@@ -43,8 +45,8 @@
                 <div id="table">
                     {#each Array(rows).fill(1).map((n, i) => i + 1) as r (r)}
                         <div class="row" transition:slide={{duration: 250}}>
-                            <div><label for="item-{r}">Item {r}</label></div>
-                            <div><input id="item-{r}" name="item-{r}" placeholder="Item Name" type="text"/></div>
+                            <div><label for="item-{r}-name">Item {r}</label></div>
+                            <div><input id="item-{r}-name" name="item-{r}-name" placeholder="Item Name" type="text"/></div>
                             <div><input id="item-{r}-upc" name="item-{r}-upc" placeholder="Item UPC" type="text"/></div>
                             <div><input id="item-{r}-price" class="price" name="item-{r}-price" placeholder="Item Price"
                                         type="number"

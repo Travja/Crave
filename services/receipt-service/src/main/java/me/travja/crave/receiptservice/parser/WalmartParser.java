@@ -95,7 +95,7 @@ public class WalmartParser implements ReceiptProcessor {
 
                     if (str.toLowerCase().contains("debit")) {
                         cardType = "debit";
-                    } else if (str.toLowerCase().contains("credit")) {
+                    } else if (str.toLowerCase().contains("credit") || str.toLowerCase().contains("card")) {
                         String type = str.split(" ")[0].toLowerCase();
                         if (cardTypes.contains(type))
                             cardType = type;

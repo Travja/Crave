@@ -37,7 +37,7 @@ public class ItemRestController {
                                Authentication auth) {
         List<Item> items;
         if (query == null)
-            items = repo.findAll();
+            items = repo.findAllByOrderByNameAsc();
         else
             items = repo.findAllByQuery(query);
 

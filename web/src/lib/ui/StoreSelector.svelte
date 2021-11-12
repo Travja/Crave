@@ -5,6 +5,10 @@
 
     export let store;
     let position;
+    let storeSelect,
+        addressInput,
+        cityInput,
+        stateInput;
     const getLocation = (callback) => {
         if (navigator && navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(pos => {
@@ -98,6 +102,14 @@
             strs[j].selected = false;
         }
         strs[i].selected = !strs[i].selected;
+        storeSelect.value = strs[i].name;
+
+        let address = strs[i].address;
+        let split = address.split(", ");
+
+        addressInput.value = split[0];
+        stateInput.value = split[2].split(" ")[0];
+        cityInput.value = split[1];
     };
 
     export const getSelectedStore = () => {
@@ -117,6 +129,12 @@
 </script>
 
 <div>
+    <div class="hidden">
+        <input bind:this={storeSelect} id="store-select" name="store-select" type="text"/>
+        <input bind:this={addressInput} id="address" name="address" type="text"/>
+        <input bind:this={stateInput} id="state" name="state" type="text"/>
+        <input bind:this={cityInput} id="city" name="city" type="text"/>
+    </div>
     <h4>Pick Your Store</h4>
     {#each variables.validStores as validStore}
         <label>
@@ -141,6 +159,10 @@
 </div>
 
 <style>
+    .hidden {
+        display: none;
+    }
+    
     label {
         user-select: none;
     }

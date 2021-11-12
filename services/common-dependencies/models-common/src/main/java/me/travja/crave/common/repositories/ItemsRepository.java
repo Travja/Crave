@@ -14,8 +14,10 @@ public interface ItemsRepository extends JpaRepository<Item, Long> {
 
     Optional<Item> findByUpcUpc(String upc);
 
+    List<Item> findAllByOrderByNameAsc();
+
     @Query("from Item i where i.name like %:query% or i.description like %:query% " +
-            "or i.upc.upc like %:query%")
+            "or i.upc.upc like %:query% order by i.name asc")
     List<Item> findAllByQuery(String query);
 
     @Query("from Item i where i.name like %:name%")

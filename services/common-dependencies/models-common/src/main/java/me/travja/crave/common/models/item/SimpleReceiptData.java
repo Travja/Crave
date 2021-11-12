@@ -21,6 +21,10 @@ public class SimpleReceiptData {
         this.receiptType = type;
     }
 
+    public void setStreetAddress(String streetAddress) {
+        this.streetAddress = streetAddress.toUpperCase().replaceAll("\\bAVE\\b", "AVENUE");
+    }
+
     public enum ReceiptType {
         WALMART,
         TARGET,
