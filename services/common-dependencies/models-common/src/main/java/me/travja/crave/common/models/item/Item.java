@@ -8,8 +8,6 @@ import me.travja.crave.common.conf.AppContext;
 import me.travja.crave.common.models.store.Store;
 import me.travja.crave.common.repositories.UPCRepository;
 import org.hibernate.Hibernate;
-import org.hibernate.annotations.LazyCollection;
-import org.hibernate.annotations.LazyCollectionOption;
 
 import javax.annotation.PostConstruct;
 import javax.persistence.*;
@@ -46,9 +44,9 @@ public class Item {
     @ToString.Exclude
     private List<ItemDetails> details = new ArrayList<>();
 
-    @LazyCollection(LazyCollectionOption.FALSE)
+    @ElementCollection
     private List<String> tags    = new ArrayList();
-    @LazyCollection(LazyCollectionOption.FALSE)
+    @ElementCollection
     private List<String> aliases = new ArrayList();
 
     @Transient
