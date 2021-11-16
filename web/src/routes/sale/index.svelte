@@ -35,7 +35,6 @@
     let upc = $page.query.get("item");
     let store = $page.query.get("store");
 
-    let name;
     let selector, upcInput, saleForm, newPrice;
 
     const submit = () => {

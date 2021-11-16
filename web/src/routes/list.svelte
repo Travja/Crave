@@ -275,6 +275,7 @@
             {#key itmCount}<span style="display: block" in:fly={{y: -10}}>{itmCount}</span>{/key}
             &nbsp;complete)
         </div>
+        <div class="material-icons-round">filter</div>
     </div>
     <div bind:this={itemContainer} class="items"
          on:mouseleave={endDrag}

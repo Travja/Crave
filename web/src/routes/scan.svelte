@@ -4,13 +4,17 @@
     import {slide} from "svelte/transition";
     import {formSubmit} from "$lib/util";
     import StoreSelector from "$lib/ui/StoreSelector.svelte";
+    import {onMount} from "svelte";
 
     title.set("Scan");
 
     let manForm;
     let rows = 2;
+    let gate;
 
     let numRegex = /^[0-9]*?\.?[0-9]{0,2}$/
+
+    onMount(() => gate = gateway());
 
     let testInput = e => {
         if (!numRegex.test(e.target.value + e.key))
@@ -35,7 +39,7 @@
     <section id="manual">
         <h1>Don't have a receipt? Is your receipt type not supported?</h1>
         <p>Enter your data manually here.</p>
-        <form action="{gateway()}/item-service/receipt/web/items" bind:this={manForm}
+        <form action="{gate}/item-service/receipt/web/items" bind:this={manForm}
               id="man-form" method="POST">
             <StoreSelector bind:selected={store}/>
             {#if store}
@@ -46,7 +50,8 @@
                     {#each Array(rows).fill(1).map((n, i) => i + 1) as r (r)}
                         <div class="row" transition:slide={{duration: 250}}>
                             <div><label for="item-{r}-name">Item {r}</label></div>
-                            <div><input id="item-{r}-name" name="item-{r}-name" placeholder="Item Name" type="text"/></div>
+                            <div><input id="item-{r}-name" name="item-{r}-name" placeholder="Item Name" type="text"/>
+                            </div>
                             <div><input id="item-{r}-upc" name="item-{r}-upc" placeholder="Item UPC" type="text"/></div>
                             <div><input id="item-{r}-price" class="price" name="item-{r}-price" placeholder="Item Price"
                                         type="number"

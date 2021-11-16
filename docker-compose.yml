@@ -76,7 +76,7 @@ services:
       test: curl -f localhost:8761 || exit 1
       interval: 10s
       timeout: 3s
-      start_period: 5s
+      start_period: 20s
       retries: 5
 
   cloud-gateway:

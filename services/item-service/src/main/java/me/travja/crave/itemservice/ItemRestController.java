@@ -7,7 +7,7 @@ import me.travja.crave.common.models.auth.AuthToken;
 import me.travja.crave.common.models.auth.CraveUser;
 import me.travja.crave.common.models.item.*;
 import me.travja.crave.common.models.store.Location;
-import me.travja.crave.common.repositories.ItemsRepository;
+import me.travja.crave.common.repositories.ItemService;
 import me.travja.crave.common.repositories.UserRepo;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.Authentication;
@@ -24,8 +24,8 @@ import static me.travja.crave.common.views.CraveViews.ItemView;
 @RequestMapping("/items")
 public class ItemRestController {
 
-    private final ItemsRepository repo;
-    private final UserRepo        userRepo;
+    private final ItemService itemService;
+    private final UserRepo    userRepo;
 
     @GetMapping
     @JsonView(ItemView.class)
@@ -37,9 +37,9 @@ public class ItemRestController {
                                Authentication auth) {
         List<Item> items;
         if (query == null)
-            items = repo.findAllByOrderByNameAsc();
+            items = itemService.getAllItemsSorted();
         else
-            items = repo.findAllByQuery(query);
+            items = itemService.getAllByQuery(query);
 
         List<String> stores = new ArrayList<>();
         if (store != null && !store.isEmpty())
@@ -69,7 +69,6 @@ public class ItemRestController {
         }
 
         items = items.stream().filter(item -> item.getDetails().size() > 0).collect(Collectors.toList());
-        items.forEach(Item::cleanSales);
 
         if (auth != null) {
             Optional<CraveUser> user = userRepo.findByUsernameIgnoreCase(auth.getName());
@@ -85,7 +84,7 @@ public class ItemRestController {
 
     @GetMapping("/name/{upc}")
     public ResponseObject getName(@PathVariable String upc) {
-        Item item = repo.findByUpcUpc(upc).orElse(null);
+        Item item = itemService.getItem(upc).orElse(null);
         if (item != null) {
             System.out.println(item.getName());
             return ResponseObject.success("name", item.getName());
@@ -101,7 +100,7 @@ public class ItemRestController {
                                       @RequestParam(required = false, defaultValue = "4") int count) {
         if (query == null || query.isEmpty()) return Collections.emptyList();
 
-        List<Item> items = repo.findAllByNameLike(query, PageRequest.of(page, count));
+        List<Item> items = itemService.getAllByName(query, PageRequest.of(page, count));
 
         return items.stream().map(item -> {
             if (detailed) {
@@ -109,8 +108,6 @@ public class ItemRestController {
                 for (ItemDetails dets : item.getDetails()) {
                     if (details == null || details.getPrice() > dets.getPrice())
                         details = dets;
-
-                    dets.cleanSales();
 
                     for (Sale sale : dets.getSales()) {
                         if (sale.getEndDate().before(new Date())) continue;
@@ -130,14 +127,11 @@ public class ItemRestController {
     @GetMapping("/{upc}")
     @JsonView(ItemView.class)
     public Item getItem(@PathVariable String upc, Authentication auth) {
-        Item item = repo.findByUpcUpc(upc).orElse(null);
+        Item item = itemService.getItem(upc).orElse(null);
 
         if (item != null && auth != null)
             userRepo.findByUsernameIgnoreCase(auth.getName())
                     .ifPresent(user -> item.setFavorite(user.getFavorites().contains(item)));
-
-        if (item != null)
-            item.cleanSales();
 
         return item;
     }
@@ -145,13 +139,13 @@ public class ItemRestController {
     @PostMapping
     @JsonView(ItemView.class)
     public Item createItem(@RequestBody RequestItem item) {
-        return repo.save(item.toItem());
+        return itemService.save(item.toItem());
     }
 
     @PatchMapping("/{upc}")
     @JsonView(ItemView.class)
     public Item patchOrCreateItem(@PathVariable String upc, @RequestBody RequestItem item, Authentication auth) {
-        Optional<Item> it = repo.findByUpcUpc(upc);
+        Optional<Item> it = itemService.getItem(upc);
         if (it.isPresent()) {
             List<String> authorities = auth != null
                     ? auth.getAuthorities().stream().map(at -> at.getAuthority()).collect(Collectors.toList())
@@ -166,9 +160,9 @@ public class ItemRestController {
                 itm.setImage(item.getImage());
             if (item.getName() != null && (itm.getName() == null || authorities.contains("ADMIN")))
                 itm.setName(item.getName());
-            return repo.save(itm);
+            return itemService.save(itm);
         } else {
-            return repo.save(item.toItem());
+            return itemService.save(item.toItem());
         }
     }
 
@@ -177,7 +171,7 @@ public class ItemRestController {
         System.out.println(auth);
         if (auth instanceof AuthToken) {
             CraveUser user = userRepo.findByUsernameIgnoreCase(auth.getName()).orElse(null);
-            Item      item = repo.findByUpcUpc(upc).orElse(null);
+            Item      item = itemService.getItem(upc).orElse(null);
             if (user == null)
                 return ResponseObject.failure("error", "User not authenticated (Or not found).");
             else if (item == null)
@@ -198,7 +192,7 @@ public class ItemRestController {
         System.out.println(auth);
         if (auth instanceof AuthToken) {
             CraveUser user = userRepo.findByUsernameIgnoreCase(auth.getName()).orElse(null);
-            Item      item = repo.findByUpcUpc(upc).orElse(null);
+            Item      item = itemService.getItem(upc).orElse(null);
             if (user == null)
                 return ResponseObject.failure("error", "User not authenticated (Or not found).");
             else if (item == null)

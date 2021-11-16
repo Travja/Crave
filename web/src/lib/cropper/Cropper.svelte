@@ -261,9 +261,11 @@
 
     // let script;
 
+    let gate;
     onMount(() => {
         img = new Image();
         utils = new Utils('errorMessage');
+        gate = gateway();
 
         img.onload = () => {
             imgWidth = img.width;
@@ -361,7 +363,7 @@
     <!--    <input type="range" min="0" max="3" step="0.1" id="alpha" bind:value={alpha}/>-->
     <!--    <label for="beta">Beta: </label>-->
     <!--    <input type="range" min="0" max="100" step="1" id="beta" bind:value={beta}/>-->
-    <form action="{gateway()}/receipt-service/receipt/parsestr"
+    <form action="{gate}/receipt-service/receipt/parsestr"
           bind:this={form} method="post">
         <input bind:this={fileInput} id="file" name="file" type="hidden"/>
     </form>
@@ -373,7 +375,7 @@
             </div>
         </div>
     {/if}
-<!--    <script async src="/cropper/opencv.js"></script>-->
+    <!--    <script async src="/cropper/opencv.js"></script>-->
 </section>
 
 <style>

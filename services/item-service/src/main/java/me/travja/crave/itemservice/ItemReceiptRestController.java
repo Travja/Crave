@@ -6,8 +6,7 @@ import me.travja.crave.common.models.item.*;
 import me.travja.crave.common.models.item.SimpleReceiptData.ReceiptType;
 import me.travja.crave.common.models.store.Location;
 import me.travja.crave.common.models.store.Store;
-import me.travja.crave.common.repositories.ItemDetailsRepository;
-import me.travja.crave.common.repositories.ItemsRepository;
+import me.travja.crave.common.repositories.ItemService;
 import me.travja.crave.common.repositories.StoreRepository;
 import org.apache.commons.lang.WordUtils;
 import org.springframework.http.MediaType;
@@ -24,10 +23,9 @@ import java.util.Optional;
 @RequestMapping("/receipt")
 public class ItemReceiptRestController {
 
-    private final ItemsRepository       itemRepo;
-    private final ItemDetailsRepository itemDetailsRepo;
-    private final StoreRepository       storeRepo;
-    private final AsyncCaller           async;
+    private final ItemService     itemService;
+    private final StoreRepository storeRepo;
+    private final AsyncCaller     async;
 
     @PostMapping
     @Transactional
@@ -41,7 +39,7 @@ public class ItemReceiptRestController {
             Map<ItemDetails, Double> pricesUpdated = new HashMap<>();
 
             for (ProductInformation prod : data.getProductData()) {
-                Item item = itemRepo.findByUpcUpc(prod.getUpc()).orElse(new Item());
+                Item item = itemService.getItem(prod.getUpc()).orElse(new Item());
                 Optional<Store> store = storeRepo.findStoreByStreetAddressAndCityAndState(data.getStreetAddress(),
                         data.getCity(), data.getState());
 
@@ -51,7 +49,7 @@ public class ItemReceiptRestController {
                                 double priceChange = dets.update(prod);
                                 if (Math.abs(priceChange) > 0.0001)
                                     pricesUpdated.put(dets, priceChange);
-                                itemDetailsRepo.save(dets);
+                                itemService.save(dets);
                             },
                             () -> item.getDetails().add(new ItemDetails(item, stor, prod.getPrice())));
                 }, () -> { //Otherwise, if store is null
@@ -66,12 +64,12 @@ public class ItemReceiptRestController {
                     storeRepo.save(stor);
 
                     ItemDetails details = new ItemDetails(item, stor, prod.getPrice());
-                    itemDetailsRepo.save(details);
+                    itemService.save(details);
                     item.getDetails().add(details);
                 });
 
                 item.update(prod);
-                itemRepo.save(item);
+                itemService.save(item);
                 updated++;
             }
 

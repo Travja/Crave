@@ -24,6 +24,8 @@ public class JWTDetailsService implements UserDetailsService {
         if (!containsUser("travja"))
             userRepo.save(new CraveUser("travja", "tjeggett@yahoo.com",
                     passwordEncoder.encode("test"), List.of("ADMIN", "USER")));
+        if (!containsUser("services"))
+            userRepo.save(new CraveUser("services", "travjadev@gmail.com", "", List.of("ADMIN", "USER")));
     }
 
     @Override

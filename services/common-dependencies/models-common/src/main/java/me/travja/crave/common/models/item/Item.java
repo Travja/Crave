@@ -8,12 +8,13 @@ import me.travja.crave.common.conf.AppContext;
 import me.travja.crave.common.models.store.Store;
 import me.travja.crave.common.repositories.UPCRepository;
 import org.hibernate.Hibernate;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 
+import javax.annotation.PostConstruct;
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static me.travja.crave.common.views.CraveViews.*;
 
@@ -44,6 +45,11 @@ public class Item {
     @OneToMany(mappedBy = "item", cascade = CascadeType.ALL)
     @ToString.Exclude
     private List<ItemDetails> details = new ArrayList<>();
+
+    @LazyCollection(LazyCollectionOption.FALSE)
+    private List<String> tags    = new ArrayList();
+    @LazyCollection(LazyCollectionOption.FALSE)
+    private List<String> aliases = new ArrayList();
 
     @Transient
     private boolean isFavorite = false;
@@ -107,8 +113,27 @@ public class Item {
             return Optional.empty();
     }
 
+    @PostConstruct
     public void cleanSales() {
         details.forEach(dets -> dets.cleanSales());
+    }
+
+    public void addTags(String... tags) {
+        Arrays.stream(tags).filter(tag -> !this.tags.contains(tag.toLowerCase()))
+                .forEach(tag -> this.tags.add(tag.toLowerCase()));
+    }
+
+    public void removeTags(String... tags) {
+        this.tags.removeAll(Arrays.stream(tags).map(tag -> tag.toLowerCase()).collect(Collectors.toList()));
+    }
+
+    public void addAliases(String... aliases) {
+        Arrays.stream(aliases).filter(alias -> !this.aliases.contains(alias.toLowerCase()))
+                .forEach(alias -> this.aliases.add(alias.toLowerCase()));
+    }
+
+    public void removeAliases(String... aliases) {
+        this.aliases.removeAll(Arrays.stream(aliases).map(alias -> alias.toLowerCase()).collect(Collectors.toList()));
     }
 
     @Override
