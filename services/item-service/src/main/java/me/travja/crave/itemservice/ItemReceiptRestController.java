@@ -1,34 +1,44 @@
 package me.travja.crave.itemservice;
 
-import lombok.AllArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonView;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import me.travja.crave.common.annotations.CraveController;
 import me.travja.crave.common.models.ResponseObject;
 import me.travja.crave.common.models.item.*;
 import me.travja.crave.common.models.item.SimpleReceiptData.ReceiptType;
 import me.travja.crave.common.models.store.Location;
 import me.travja.crave.common.models.store.Store;
 import me.travja.crave.common.repositories.ItemService;
+import me.travja.crave.common.repositories.PendingDetailsRepository;
 import me.travja.crave.common.repositories.StoreRepository;
+import me.travja.crave.common.util.Formatter;
+import me.travja.crave.common.views.CraveViews.DetailsView;
 import org.apache.commons.lang.WordUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
-@RestController
-@AllArgsConstructor
-@RequestMapping("/receipt")
+@RequiredArgsConstructor
+@CraveController("/receipt")
+@Slf4j
 public class ItemReceiptRestController {
 
-    private final ItemService     itemService;
-    private final StoreRepository storeRepo;
-    private final AsyncCaller     async;
+    private final ItemService              itemService;
+    private final PendingDetailsRepository pendingRepo;
+    private final StoreRepository          storeRepo;
+    private final AsyncCaller              async;
 
     @PostMapping
     @Transactional
+    @JsonView(DetailsView.class)
     public ResponseObject postReceipt(@RequestBody SimpleReceiptData data) {
         try {
             System.out.println(data);
@@ -37,6 +47,7 @@ public class ItemReceiptRestController {
             int         updated   = 0;
 
             Map<ItemDetails, Double> pricesUpdated = new HashMap<>();
+            List<PendingDetails>     pending       = new ArrayList<>();
 
             for (ProductInformation prod : data.getProductData()) {
                 Item item = itemService.getItem(prod.getUpc()).orElse(new Item());
@@ -46,10 +57,22 @@ public class ItemReceiptRestController {
                 store.ifPresentOrElse((stor) -> {
                     Optional<ItemDetails> details = item.getDetails(stor);
                     details.ifPresentOrElse((dets) -> {
+                                double originalPrice = dets.getPrice();
+
                                 double priceChange = dets.update(prod);
-                                if (Math.abs(priceChange) > 0.0001)
-                                    pricesUpdated.put(dets, priceChange);
-                                itemService.save(dets);
+
+                                //Check for big changes...
+                                if (priceChange > originalPrice * 0.10) {
+                                    pending.add(pendingRepo.save(new PendingDetails(dets.getItem(), dets.getStore(),
+                                            dets.getPrice())));
+                                    dets.setPrice(originalPrice);
+                                    log.info(dets.getItem().getName() + " changed by " + Formatter.formatCurrency(priceChange) +
+                                            "! This will need some attention!");
+                                } else { //This is a safe range.
+                                    if (Math.abs(priceChange) > 0.0001)
+                                        pricesUpdated.put(dets, priceChange);
+                                    itemService.save(dets);
+                                }
                             },
                             () -> item.getDetails().add(new ItemDetails(item, stor, prod.getPrice())));
                 }, () -> { //Otherwise, if store is null
@@ -73,8 +96,9 @@ public class ItemReceiptRestController {
                 updated++;
             }
 
-            ResponseObject res = ResponseObject.success("updated", updated);
-            System.out.println("There are " + pricesUpdated.size() + " items with new prices.");
+            ResponseObject res = ResponseObject.success("updated", updated, "pending", pending);
+            log.info("There are " + pricesUpdated.size() + " items with new prices. And " + pending.size() +
+                    " pending price updates.");
             async.handlePriceUpdates(pricesUpdated);
             return res;
         } catch (Exception e) {

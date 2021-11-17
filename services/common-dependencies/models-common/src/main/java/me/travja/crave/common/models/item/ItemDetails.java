@@ -78,6 +78,22 @@ public class ItemDetails {
         return priceChange;
     }
 
+    @Transient
+    public double getLowestPrice() {
+        cleanSales();
+        double cheapestSale = Double.MAX_VALUE;
+        Sale sale = getSales().stream()
+                .sorted((s1, s2) -> (int) Math.ceil(s2.getNewPrice() - s1.getNewPrice())).findFirst().orElse(null);
+        if (sale != null)
+            cheapestSale = sale.getNewPrice();
+
+        return Math.min(getPrice(), cheapestSale);
+    }
+
+    public boolean isCheaper(ItemDetails detail) {
+        return getLowestPrice() < detail.getLowestPrice();
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

@@ -25,8 +25,9 @@ Engine mode:
 
 package me.travja.crave.receiptservice;
 
+import lombok.RequiredArgsConstructor;
+import me.travja.crave.common.annotations.CraveController;
 import me.travja.crave.common.models.ResponseObject;
-import me.travja.crave.common.repositories.ItemsRepository;
 import me.travja.crave.receiptservice.models.ReceiptData;
 import me.travja.crave.receiptservice.models.TargetItem;
 import me.travja.crave.receiptservice.parser.ParserManager;
@@ -39,7 +40,10 @@ import org.apache.tika.parser.Parser;
 import org.apache.tika.parser.ocr.TesseractOCRConfig;
 import org.apache.tika.parser.pdf.PDFParserConfig;
 import org.apache.tika.sax.BodyContentHandler;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -48,24 +52,17 @@ import java.io.*;
 import java.nio.charset.Charset;
 import java.util.Base64;
 
-@RestController
-@RequestMapping("/receipt")
+@RequiredArgsConstructor
+@CraveController("/receipt")
 public class ReceiptRestController {
 
-    public final  RestTemplate    restTemplate;
-    private final ItemsRepository repo;
-    private final ParserManager   parserManager;
+    public final  RestTemplate  restTemplate;
+    private final ParserManager parserManager;
 
     private PDFParserConfig    parser   = new PDFParserConfig();
     private TesseractOCRConfig tessConf = new TesseractOCRConfig();
     private ParseContext       ctx      = new ParseContext();
     private Tika               tika;
-
-    public ReceiptRestController(ItemsRepository repo, RestTemplate restTemplate, ParserManager parserManager) {
-        this.repo = repo;
-        this.restTemplate = restTemplate;
-        this.parserManager = parserManager;
-    }
 
     @PostMapping("/parse")
     public ResponseObject parseReceipt(@RequestParam("file") MultipartFile file) {

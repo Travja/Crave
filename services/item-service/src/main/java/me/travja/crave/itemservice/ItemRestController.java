@@ -2,6 +2,7 @@ package me.travja.crave.itemservice;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.RequiredArgsConstructor;
+import me.travja.crave.common.annotations.CraveController;
 import me.travja.crave.common.models.ResponseObject;
 import me.travja.crave.common.models.auth.AuthToken;
 import me.travja.crave.common.models.auth.CraveUser;
@@ -20,8 +21,7 @@ import static me.travja.crave.common.views.CraveViews.DetailsView;
 import static me.travja.crave.common.views.CraveViews.ItemView;
 
 @RequiredArgsConstructor
-@RestController
-@RequestMapping("/items")
+@CraveController("/items")
 public class ItemRestController {
 
     private final ItemService itemService;
@@ -96,11 +96,16 @@ public class ItemRestController {
     @JsonView(DetailsView.class)
     public List<ListItem> searchNames(@RequestParam(required = false) String query,
                                       @RequestParam(required = false, defaultValue = "false") boolean detailed,
+                                      @RequestParam(required = false, defaultValue = "-1") long storeId,
                                       @RequestParam(required = false, defaultValue = "0") int page,
                                       @RequestParam(required = false, defaultValue = "4") int count) {
         if (query == null || query.isEmpty()) return Collections.emptyList();
 
-        List<Item> items = itemService.getAllByName(query, PageRequest.of(page, count));
+        List<Item> items;
+        if (storeId != -1)
+            items = itemService.getAllFromStore(query, storeId, PageRequest.of(page, count));
+        else
+            items = itemService.getAllByName(query, PageRequest.of(page, count));
 
         return items.stream().map(item -> {
             if (detailed) {

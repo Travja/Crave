@@ -1,5 +1,6 @@
 <script>
     import {createEventDispatcher, onDestroy, onMount} from "svelte";
+    import {fly} from "svelte/transition";
 
     let dispatch = createEventDispatcher();
 
@@ -7,27 +8,18 @@
     let displayFilters = false;
     const activateFilters = () => displayFilters = !displayFilters;
 
-    $: {
-        if (filterContainer) {
-            if (displayFilters)
-                filterContainer.show();
-            else
-                filterContainer.close();
-        }
-    }
-
     let destroy;
     onMount(() => {
-        if (filterContainer) destroy = closeOnClickOutside(filterContainer);
+        destroy = closeOnClickOutside();
     });
 
     onDestroy(() => {
         if (destroy) destroy.destroy();
     });
 
-    function closeOnClickOutside(node) {
+    const closeOnClickOutside = () => {
         const handleClick = (event) => {
-            if (displayFilters && !node.contains(event.target)) {
+            if (displayFilters && !filterContainer.contains(event.target)) {
                 displayFilters = false;
                 event.stopImmediatePropagation();
             }
@@ -43,15 +35,18 @@
                 );
             }
         }
-    }
+    };
 </script>
 
 <div class="filter-box">
     <span class="material-icons-round filter-btn" on:click={activateFilters}>filter_alt</span>
-    <dialog bind:this={filterContainer} class="filter-container">
-        <slot></slot>
-        <div class="button apply-btn" on:click={() => dispatch("apply")}>Apply Filters</div>
-    </dialog>
+    {#if displayFilters}
+        <div bind:this={filterContainer} class="filter-container"
+             transition:fly="{{ y: -50, duration: 500}}">
+            <slot></slot>
+            <div class="button apply-btn" on:click={() => dispatch("apply")}>Apply Filters</div>
+        </div>
+    {/if}
 </div>
 
 <style>
@@ -65,6 +60,8 @@
     }
 
     .filter-container {
+        border-radius: 0.6em;
+        border: 2px solid var(--fg-color);
         position: absolute;
         max-width: 300px;
         width: 20em;
@@ -79,6 +76,6 @@
 
     .apply-btn {
         display: block;
-        margin: 0 auto;
+        margin: 1em auto 0 auto;
     }
 </style>

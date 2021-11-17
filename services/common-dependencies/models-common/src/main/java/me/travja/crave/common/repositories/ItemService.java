@@ -2,6 +2,7 @@ package me.travja.crave.common.repositories;
 
 import me.travja.crave.common.models.item.Item;
 import me.travja.crave.common.models.item.ItemDetails;
+import me.travja.crave.common.models.store.Store;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -72,7 +73,11 @@ public class ItemService {
     }
 
     public List<Item> getAllByName(String name, Pageable page) {
-        return clean(itemsRepo.findAllByNameLike(name, page));
+        return clean(itemsRepo.findAllByNameLike("%" + name + "%", page));
+    }
+
+    public List<Item> getAllFromStore(String name, long storeId, Pageable pageable) {
+        return clean(itemsRepo.findAllByNameLikeAndDetailsStoreId("%" + name + "%", storeId, pageable));
     }
 
     public Optional<Item> getItem(String upc) {
@@ -80,6 +85,10 @@ public class ItemService {
         item.ifPresent(it -> it.cleanSales());
 
         return item;
+    }
+
+    public List<ItemDetails> getDetailsByName(String name) {
+        return cleanDetails(detailsRepo.findAllByItemNameLike("%" + name + "%"));
     }
 
     public List<ItemDetails> getItemDetails(String upc) {
@@ -92,6 +101,10 @@ public class ItemService {
         dets.ifPresent(det -> det.getClass());
 
         return dets;
+    }
+
+    public Optional<ItemDetails> getCheapestAtStore(String name, Store store) {
+        return detailsRepo.findFirstByItemNameLikeAndStoreOrderBySalesNewPriceAscPriceAsc("%" + name + "%", store);
     }
 
     public Optional<ItemDetails> getFirstCheapest(String name) {

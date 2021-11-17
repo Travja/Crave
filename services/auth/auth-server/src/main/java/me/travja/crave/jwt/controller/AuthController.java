@@ -3,12 +3,15 @@ package me.travja.crave.jwt.controller;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import me.travja.crave.common.models.PriceStrategy;
 import me.travja.crave.common.models.ResponseObject;
 import me.travja.crave.common.models.auth.AuthToken;
 import me.travja.crave.common.models.auth.CraveUser;
 import me.travja.crave.common.models.item.DetailedListItem;
+import me.travja.crave.common.models.item.Item;
 import me.travja.crave.common.models.item.ItemDetails;
 import me.travja.crave.common.models.item.ListItem;
+import me.travja.crave.common.models.store.Store;
 import me.travja.crave.common.repositories.ItemService;
 import me.travja.crave.jwt.jwt.*;
 import me.travja.crave.jwt.services.JWTDetailsService;
@@ -122,18 +125,85 @@ public class AuthController {
     @GetMapping("/list")
     @JsonView(DetailsView.class)
     public Map<Integer, ListItem> getList(@RequestParam(required = false, defaultValue = "false") boolean detailed,
+                                          @RequestParam(required = false, defaultValue = "CHEAPEST_PRICE")
+                                                  PriceStrategy priceStrategy,
                                           Authentication auth) {
         if (auth instanceof AuthToken) {
             CraveUser              user = jwtDetailsService.loadUserByUsername(auth.getName());
             Map<Integer, ListItem> list = new HashMap<>();
 
             if (detailed) {
-                user.getShoppingList().forEach((index, li) -> {
-                    Optional<ItemDetails> item = itemService.getFirstCheapest(li.getText());
-                    item.ifPresentOrElse(it -> list.put(index, new DetailedListItem(li.getId(), li.getText(),
-                                    li.isChecked(), it.cleanSales())),
-                            () -> list.put(index, li));
-                });
+                if (priceStrategy == PriceStrategy.CHEAPEST_PRICE) {
+                    user.getShoppingList().forEach((index, li) -> {
+                        Optional<ItemDetails> item = itemService.getFirstCheapest(li.getText());
+                        item.ifPresentOrElse(it -> list.put(index, new DetailedListItem(li.getId(), li.getText(),
+                                        li.isChecked(), it.cleanSales())),
+                                () -> list.put(index, li));
+                    });
+                } else if (priceStrategy == PriceStrategy.SINGLE_PRICE) {
+                    Map<Store, Double>                   prices        = new HashMap<>();
+                    Map<Store, Integer>                  totalCount    = new HashMap<>();
+                    Map<String, Map<Store, ItemDetails>> lowestAtStore = new HashMap<>();
+
+                    user.getShoppingList().forEach((index, li) -> {
+                        Map<Store, ItemDetails> lowest = new HashMap<>();
+                        List<Item>              items  = itemService.getAllByName(li.getText());
+                        for (Item item : items) {
+                            for (ItemDetails detail : item.getDetails()) {
+                                if (!lowest.containsKey(detail.getStore())) {
+                                    lowest.put(detail.getStore(), detail);
+                                    continue;
+                                }
+
+                                if (detail.isCheaper(lowest.get(detail.getStore())))
+                                    lowest.put(detail.getStore(), detail);
+                            }
+                        }
+
+                        lowest.forEach((store, detail) -> {
+                            totalCount.put(store, totalCount.containsKey(store) ? totalCount.get(store) + 1 : 1);
+
+                            if (!prices.containsKey(store))
+                                prices.put(store, detail.getLowestPrice());
+                            else
+                                prices.put(store, prices.get(store) + detail.getLowestPrice());
+                        });
+                        lowestAtStore.put(li.getText(), lowest);
+                    });
+
+
+                    Store cheapestStore = null;
+                    for (Store store : prices.keySet()) {
+                        if (cheapestStore == null) {
+                            cheapestStore = store;
+                            continue;
+                        }
+
+                        /*
+                        TODO
+                         Find a better method for this.
+                         This feels a bit hacky and not really a solution.
+                         */
+                        if (totalCount.get(store) > totalCount.get(cheapestStore))
+                            cheapestStore = store;
+                        else if (totalCount.get(store) == totalCount.get(cheapestStore)
+                                && prices.get(store) < prices.get(cheapestStore))
+                            cheapestStore = store;
+                    }
+
+                    if (cheapestStore != null) {
+                        for (Map.Entry<Integer, ListItem> entry : user.getShoppingList().entrySet()) {
+                            Integer                 index = entry.getKey();
+                            ListItem                li    = entry.getValue();
+                            Map<Store, ItemDetails> map   = lowestAtStore.get(li.getText());
+                            if (map != null && map.containsKey(cheapestStore)) {
+                                list.put(index, new DetailedListItem(li.getId(), li.getText(),
+                                        li.isChecked(), map.get(cheapestStore)));
+                            } else
+                                list.put(index, li);
+                        }
+                    }
+                }
             } else
                 list.putAll(user.getShoppingList());
 

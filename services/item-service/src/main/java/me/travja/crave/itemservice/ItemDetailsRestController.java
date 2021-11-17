@@ -2,6 +2,7 @@ package me.travja.crave.itemservice;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.RequiredArgsConstructor;
+import me.travja.crave.common.annotations.CraveController;
 import me.travja.crave.common.models.item.ItemDetails;
 import me.travja.crave.common.repositories.ItemService;
 import org.springframework.web.bind.annotation.*;
@@ -10,9 +11,8 @@ import java.util.List;
 
 import static me.travja.crave.common.views.CraveViews.DetailsView;
 
-@RestController
 @RequiredArgsConstructor
-@RequestMapping("/item-details")
+@CraveController("/item-details")
 public class ItemDetailsRestController {
 
     private final ItemService itemService;

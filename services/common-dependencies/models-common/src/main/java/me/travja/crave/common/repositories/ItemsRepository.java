@@ -22,5 +22,6 @@ public interface ItemsRepository extends JpaRepository<Item, Long> {
 
     @Query("from Item i where i.name like %:name%")
     List<Item> findAllByNameLike(String name, Pageable pageable);
+    List<Item> findAllByNameLikeAndDetailsStoreId(String name, long storeId, Pageable pageable);
 
 }

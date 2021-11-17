@@ -2,6 +2,7 @@ package me.travja.crave.saleservice;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.RequiredArgsConstructor;
+import me.travja.crave.common.annotations.CraveController;
 import me.travja.crave.common.models.ResponseObject;
 import me.travja.crave.common.models.item.Sale;
 import me.travja.crave.common.models.store.Store;
@@ -18,8 +19,7 @@ import static me.travja.crave.common.views.CraveViews.SaleView;
 import static me.travja.crave.common.views.CraveViews.StoreSaleView;
 
 @RequiredArgsConstructor
-@RestController
-@RequestMapping("/sale")
+@CraveController("/sale")
 public class SaleRestController {
 
     private final StoreRepository storeRepo;

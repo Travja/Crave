@@ -47,8 +47,29 @@
         }
     ];
 
-    let itemContainer, dataList = [];
+    let itemContainer, priceContainer, dataList = [];
+    let priceStrategy = "cheapest-price";
     let complete = 0;
+
+    let pos1 = 0, pos2 = 0;
+    let tracking, activeIndex, targetIndex = -1;
+    let active = -1, focused = -1;
+    let dList;
+
+    let itmCount = 0;
+    $: itmCount = items.length - 1;
+
+    let totalCost = 0, lowestCost = 0;
+    let cheapestStore = "Unknown";
+    let numStores = 0;
+    let lowestStore = -1;
+
+    let unsubscribe = () => {
+    };
+    onMount(() => {
+        unsubscribe = variables.jwt.subscribe(getList);
+    });
+    onDestroy(unsubscribe);
 
     $: {
         complete = 0;
@@ -72,25 +93,24 @@
             items.pop();
             items[items.length - 1].checked = false;
         }
-    }
 
-    let totalCost = 0;
-    let numStores = 0;
-    $: if (items.length > 1) {
-        totalCost = 0;
-        let stores = [];
-        items.forEach(item => {
-            if (item.lowestDetails) {
-                if (!stores.includes(item.lowestDetails.store.id))
-                    stores.push(item.lowestDetails.store.id);
-                totalCost += item.lowestDetails.price;
-            }
-        });
-        numStores = stores.length;
+        if (items.length > 1) {
+            totalCost = 0;
+            let stores = [];
+            items.forEach(item => {
+                if (item.lowestDetails) {
+                    if (!stores.includes(item.lowestDetails.store.id))
+                        stores.push(item.lowestDetails.store.id);
+                    totalCost += item.lowestDetails.price;
+                }
+            });
+            numStores = stores.length;
+        }
     }
 
     const getList = () => {
-        fetch(gateway() + "/auth-service/list?detailed=true")
+        fetch(`${gateway()}/auth-service/list?detailed=true&priceStrategy=` +
+            `${priceStrategy.toUpperCase().replace("-", "_")}`)
             .then(res => res.json())
             .then(data => {
                 if (!data.status || data.status == 200) {
@@ -104,6 +124,9 @@
                     items.forEach(itm => {
                         itm.uid = {};
                         itm.id = undefined;
+
+                        if (itm.lowestDetails)
+                            lowestStore = itm.lowestDetails.store.id;
 
                         if (itm.lowestDetails?.sales) {
                             let lowestCost = itm.lowestDetails.price;
@@ -146,16 +169,6 @@
                 console.error(err);
             });
     };
-
-    let unsubscribe = () => {
-    };
-    onMount(() => {
-        unsubscribe = variables.jwt.subscribe(getList);
-    });
-    onDestroy(unsubscribe);
-
-    let itmCount = 0;
-    $: itmCount = items.length - 1;
 
     const checkNext = (e, index) => {
         if (e.keyCode == 13) {
@@ -206,7 +219,6 @@
     };
 
     const clickDataList = (e, index) => {
-        console.log(index, e.target.innerText);
         items[index].text = e.target.innerText;
         focused = -1;
         getApplicableItems(e, index);
@@ -216,12 +228,18 @@
     const check = index => {
         let itm = items[index];
         itm.checked = !itm.checked;
-        items = [...items];
+        let its = [];
+        let checked = [];
+        items.forEach(item => {
+            if (!item.checked && item.text)
+                its.push(item);
+            else
+                checked.push(item);
+        });
+        items = [...its, ...checked];
         saveList();
     };
 
-    let pos1 = 0, pos2 = 0;
-    let tracking, activeIndex, targetIndex = -1;
     const dragStart = e => {
         e.preventDefault();
         tracking = e.target.parentNode;
@@ -286,7 +304,16 @@
         let input = target.innerText;
         // let input = target.value;
 
-        fetch(gateway() + "/item-service/items/search?detailed=true&query=" + input)
+        if (input.length == 0) {
+            dataList = [];
+            return;
+        }
+
+        let url = `${gateway()}/item-service/items/search?detailed=true&query=${input}`;
+        if (priceStrategy == 'single-price')
+            url += `&storeId=${lowestStore}`;
+
+        fetch(url)
             .then(res => res.json())
             .then(data => {
                 let dList = [];
@@ -306,13 +333,21 @@
     };
 
     const del = (index) => {
-        let itm = items.splice(index, 1);
+        items.splice(index, 1);
         items = [...items];
         saveList();
     };
 
-    let active = -1, focused = -1;
-    let dList;
+    const applyFilters = () => {
+        console.log("applying filters");
+        let selected = priceContainer.querySelector("input[name='display']:checked");
+        priceStrategy = selected.value;
+        console.log(selected);
+        saveList();
+        getList();
+    };
+
+
 </script>
 
 <div class="container" out:slide>
@@ -329,8 +364,12 @@
             {#key itmCount}<span style="display: block" in:fly={{y: -10}}>{itmCount}</span>{/key}
             &nbsp;complete)
         </div>
-        <FilterBox on:apply={() => console.log("applying filter")}>
-            <p>Test</p>
+        <FilterBox on:apply={applyFilters}>
+            <div bind:this={priceContainer} class="priceContainer">
+                <h4>Price Display</h4>
+                <label><input name="display" type="radio" value="single-price"/>Single Store Price</label>
+                <label><input checked name="display" type="radio" value="cheapest-price"/>Cheapest Price</label>
+            </div>
         </FilterBox>
     </div>
     <div bind:this={itemContainer} class="items"
@@ -419,6 +458,11 @@
                                 {itm.lowestDetails.store.streetAddress}
                             </div>
                         </div>
+                    {:else if itm.text.length > 1 && !itm.lowestDetails && priceStrategy == "single-price"}
+                        <div class="details"
+                             transition:slide>
+                            <div class="predicted-name">Not found at store with other items.</div>
+                        </div>
                     {/if}
                 </div>
                 <div class="material-icons-round close"
@@ -426,14 +470,10 @@
                 </div>
             </div>
         {/each}
-        <datalist id="data">
-            {#each dataList as data}
-                <option value="{data}"/>
-            {/each}
-        </datalist>
     </div>
 
-    <div>Total Cost: {formatter.format(totalCost)}</div>
+    <div>Cheapest Single-Store Cost: {formatter.format(lowestCost)} - {cheapestStore}</div>
+    <div>Lowest Cost: {formatter.format(totalCost)}</div>
     <div>Number of Stores: {numStores}</div>
 
     <div class="button" on:click={saveList}>Save List</div>
@@ -616,10 +656,25 @@
     }
 
     .focus {
-        background: red;
+        background: var(--secondary-color);
     }
 
     .checked {
         color: var(--disabled-fg-color);
+    }
+
+    input[type="radio"] {
+        margin-right: 0.5em;
+    }
+
+    .priceContainer {
+        display: flex;
+        flex-direction: column;
+        border-left: 0.2em solid var(--accent-color);
+        padding-left: 0.5em;
+    }
+
+    .priceContainer h4 {
+        margin: 0 0 0.5em;
     }
 </style>
