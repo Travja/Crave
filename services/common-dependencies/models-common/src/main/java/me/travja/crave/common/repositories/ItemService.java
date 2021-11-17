@@ -94,6 +94,10 @@ public class ItemService {
         return dets;
     }
 
+    public Optional<ItemDetails> getFirstCheapest(String name) {
+        return detailsRepo.findFirstByItemNameLikeOrderBySalesNewPriceAscPriceAsc("%" + name + "%");
+    }
+
     public void filter() {
 
     }

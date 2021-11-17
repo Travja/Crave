@@ -3,8 +3,9 @@
     import {fly, scale, slide} from "svelte/transition";
     import {elasticInOut, quintOut} from "svelte/easing";
     import {onDestroy, onMount} from "svelte";
-    import {formatter} from "$lib/util";
     import Thumb from "$lib/ui/Thumb.svelte";
+    import FilterBox from "$lib/ui/FilterBox.svelte";
+    import {formatter} from "$lib/util";
 
     title.set("Shopping List");
 
@@ -92,7 +93,6 @@
         fetch(gateway() + "/auth-service/list?detailed=true")
             .then(res => res.json())
             .then(data => {
-                console.log(data);
                 if (!data.status || data.status == 200) {
                     let list = [];
 
@@ -124,7 +124,8 @@
 
     const saveList = () => {
         let tmp = [...items];
-        tmp.pop();
+        if (tmp[tmp.length - 1]?.text == "")
+            tmp.pop();
 
         let map = {};
         for (let i = 0; i < tmp.length; i++) {
@@ -158,16 +159,58 @@
 
     const checkNext = (e, index) => {
         if (e.keyCode == 13) {
-            let next = document.getElementById("input" + (index + 1));
-            if (next) next.focus();
+            if (focused > -1) {
+                e.stopPropagation();
+                e.preventDefault();
+                let focusedVal = dataList[focused];
+                items[index].text = focusedVal;
+                focused = -1;
+            } else {
+                let next = document.getElementById("input" + (index + 1));
+                if (next) next.focus();
+                e.preventDefault();
+            }
         }
     };
 
     const checkPrev = (e, index) => {
-        if (e.keyCode == 8 && e.target.value == "") {
+        if (e.keyCode == 8 && e.target.innerText == "") {
             let prev = document.getElementById("input" + (index - 1));
-            if (prev) prev.focus();
+            if (prev) {
+                prev.focus();
+                if (prev.innerText.length > 0) {
+                    let sel = window.getSelection();
+                    let range = document.createRange();
+                    range.setStart(prev.firstChild, prev.innerHTML.length);
+                    sel.removeAllRanges();
+                    sel.addRange(range);
+                }
+                e.stopPropagation();
+                e.preventDefault();
+            }
         }
+    };
+
+    const checkDataList = (e) => {
+        if (dataList.length > 0) {
+            if (e.keyCode == 40) {
+                if (focused < dataList.length - 1)
+                    focused++;
+                e.preventDefault();
+            } else if (e.keyCode == 38) {
+                if (focused > 0)
+                    focused--;
+                e.preventDefault();
+            }
+        }
+    };
+
+    const clickDataList = (e, index) => {
+        console.log(index, e.target.innerText);
+        items[index].text = e.target.innerText;
+        focused = -1;
+        getApplicableItems(e, index);
+
     };
 
     const check = index => {
@@ -202,7 +245,6 @@
 
         let tmp = [];
         if (targetIndex < 0 || targetIndex == NaN) targetIndex = activeIndex;
-        console.log(targetIndex)
         for (let i = 0; i < items.length; i++) {
             if (targetIndex == i)
                 tmp.push(itm);
@@ -229,13 +271,24 @@
         targetIndex = parseInt(target.getAttribute("index"));
     };
 
-    const getApplicableItems = (target, index) => {
-        let input = target.value;
+    const getApplicableItems = (e, index) => {
+        if (e.keyCode) {
+            if (e.keyCode == 27) {
+                dataList = [];
+                return;
+            } else if (e.keyCode == 13) {
+                e.stopPropagation();
+                e.preventDefault();
+            }
+        }
+
+        let target = e.target;
+        let input = target.innerText;
+        // let input = target.value;
 
         fetch(gateway() + "/item-service/items/search?detailed=true&query=" + input)
             .then(res => res.json())
             .then(data => {
-                console.log(data);
                 let dList = [];
                 if (data.length >= 1) {
                     items[index].lowestDetails = data[0].lowestDetails;
@@ -243,7 +296,6 @@
                     items[index].lowestDetails = undefined;
                 }
                 data.forEach(dat => {
-                    console.log(dat);
                     dList.push(dat.text);
                 });
                 dataList = dList;
@@ -254,11 +306,13 @@
     };
 
     const del = (index) => {
-        items.splice(index, 1);
+        let itm = items.splice(index, 1);
         items = [...items];
         saveList();
     };
 
+    let active = -1, focused = -1;
+    let dList;
 </script>
 
 <div class="container" out:slide>
@@ -275,7 +329,9 @@
             {#key itmCount}<span style="display: block" in:fly={{y: -10}}>{itmCount}</span>{/key}
             &nbsp;complete)
         </div>
-        <div class="material-icons-round">filter</div>
+        <FilterBox on:apply={() => console.log("applying filter")}>
+            <p>Test</p>
+        </FilterBox>
     </div>
     <div bind:this={itemContainer} class="items"
          on:mouseleave={endDrag}
@@ -299,37 +355,60 @@
                  on:mousemove={dragOver}
                  transition:slide>
                 <Thumb canDrag="{!!itm.text}" on:dragstart={dragStart}/>
-                {#if itm.text}
-                    {#if itm.checked}
-                        <div class="material-icons-round check"
-                             on:click={() => check(i)}
-                             out:custom={{duration: 500}}
-                             in:scale={{duration: 750, easing: elasticInOut}}>
-                            check_box
-                        </div>
+                <div class="checkWrap">
+                    {#if itm.text}
+                        {#if itm.checked}
+                            <div class="material-icons-round check"
+                                 on:click={() => check(i)}
+                                 out:custom={{duration: 500}}
+                                 in:scale={{duration: 750, easing: elasticInOut}}>
+                                check_box
+                            </div>
+                        {:else}
+                            <div class="material-icons-round check"
+                                 on:click={() => check(i)}
+                                 out:custom={{duration: 500}}
+                                 in:scale={{duration: 750, easing: elasticInOut}}>
+                                check_box_outline_blank
+                            </div>
+                        {/if}
                     {:else}
-                        <div class="material-icons-round check"
-                             on:click={() => check(i)}
-                             out:custom={{duration: 500}}
-                             in:scale={{duration: 750, easing: elasticInOut}}>
-                            check_box_outline_blank
+                        <div class="material-icons-round add"
+                             in:scale={{duration: 750, easing: elasticInOut}}
+                             out:custom={{enabled: itm.text, duration: 500, easing: quintOut}}>add
                         </div>
                     {/if}
-                {:else}
-                    <div class="material-icons-round add"
-                         in:scale={{duration: 750, easing: elasticInOut}}
-                         out:custom={{enabled: itm.text, duration: 500, easing: quintOut}}>add
-                    </div>
-                {/if}
+                </div>
 
-                <span class="wrapper">
-                    <span class="placeholder">{itm.text}</span>
-                    <input id="input{i}" type="text" bind:value="{itm.text}" placeholder="New item..."
-                           list="data"
-                           on:focus={e => getApplicableItems(e.target, i)}
-                           on:keyup={e => getApplicableItems(e.target, i)}
-                           on:keypress={e => checkNext(e, i)}
-                           on:keydown={e => checkPrev(e, i)}/>
+                <div class="wrapper" class:checked={itm.checked}>
+                    <!--                    <span class="placeholder">{@html itm.text}</span>-->
+                    <!--                    <input type="text" bind:value="{itm.text}" placeholder="New item..."-->
+                    <!--                         style="opacity: 0; height: 0;"-->
+                    <!--                         on:focus={(e) => document.getElementById(`input${i}`).focus()}-->
+                    <div class="textarea" contenteditable="true" wrap="hard"
+                         bind:textContent={itm.text}
+                         id="input{i}"
+                         list="data"
+                         on:focus={e => active = i}
+                         on:blur={e => focused = active = -1}
+                         on:keyup={e => getApplicableItems(e, i)}
+                         on:keypress={e => checkNext(e, i)}
+                         on:keydown={e => {
+                             checkDataList(e);
+                             checkPrev(e, i);
+                         }}
+                    />
+                    {#if active == i && dataList.length > 0}
+                        <div class="dataListContainer">
+                            <div class="dataList" bind:this={dList}>
+                                {#each dataList as data, ind}
+                                    <div transition:slide
+                                         on:mousedown={e => clickDataList(e, i)}
+                                         class="dataItem" class:focus={focused == ind}>{data}</div>
+                                {/each}
+                            </div>
+                        </div>
+                    {/if}
                     {#if itm.lowestDetails}
                         <div class="details"
                              transition:slide>
@@ -341,7 +420,7 @@
                             </div>
                         </div>
                     {/if}
-                </span>
+                </div>
                 <div class="material-icons-round close"
                      on:click={e => del(i)}>close
                 </div>
@@ -362,18 +441,23 @@
 
 <style>
     .container {
+        min-width: 30%;
         position: relative;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
         /*width: 30%;*/
-        min-width: 200px;
         margin: 0 auto;
         flex-grow: 1;
+        max-width: 80%;
     }
 
-    .header {
+    .container > * {
+        max-width: 100%;
+    }
+
+    .items, .header {
         width: 100%;
     }
 
@@ -388,6 +472,7 @@
         display: flex;
         align-items: center;
         transition: border 1s linear, transform 0.2s ease-in-out;
+        max-width: 100%;
     }
 
     .row.active {
@@ -403,30 +488,40 @@
     }
 
     .add, .check {
-        margin-right: 0.5rem;
         user-select: none;
+    }
+
+    .checkWrap {
+        margin-right: 0.5rem;
+        display: flex;
     }
 
     .check:hover {
         cursor: pointer;
     }
 
-    input {
-        /*min-width: 100%;*/
-        flex-grow: 1;
+    input, .textarea {
+        /*flex: 1;*/
         border: none;
         padding: 0 0 0 0.5rem;
         background: transparent;
         margin: 0;
         font-size: 1rem;
         position: relative;
+        word-wrap: anywhere;
+        transition: color 0.5s;
+    }
+
+    .textarea {
+        /*display: block;*/
+        /*height: auto;*/
     }
 
     input::-webkit-calendar-picker-indicator {
         display: none !important;
     }
 
-    input:focus {
+    input:focus, .textarea:focus {
         outline: none;
     }
 
@@ -450,7 +545,7 @@
 
     .placeholder {
         padding-left: 0.5rem;
-        padding-right: 2rem;
+        /*padding-right: 2rem;*/
         white-space: nowrap;
         font-size: 1em;
         height: 0px;
@@ -458,10 +553,11 @@
     }
 
     .wrapper {
+        position: relative;
         display: flex;
         flex-direction: column;
-        flex: 1;
         border-left: 1px solid black;
+        flex: 1;
     }
 
     .button {
@@ -494,5 +590,36 @@
 
     .predicted-name {
         font-size: 0.6rem;
+    }
+
+    .dataListContainer {
+        height: 0;
+        position: relative;
+        padding: 0 10px;
+        font-size: 0.9rem;
+    }
+
+    .dataList {
+        position: absolute;
+        background: var(--bg-color);
+        border: 1px solid black;
+        z-index: 50;
+    }
+
+    .dataList > div {
+        padding: 0.3em;
+    }
+
+    .dataItem:hover {
+        background: var(--secondary-color);
+        cursor: pointer;
+    }
+
+    .focus {
+        background: red;
+    }
+
+    .checked {
+        color: var(--disabled-fg-color);
     }
 </style>

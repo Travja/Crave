@@ -9,7 +9,7 @@ import me.travja.crave.common.models.auth.CraveUser;
 import me.travja.crave.common.models.item.DetailedListItem;
 import me.travja.crave.common.models.item.ItemDetails;
 import me.travja.crave.common.models.item.ListItem;
-import me.travja.crave.common.repositories.ItemDetailsRepository;
+import me.travja.crave.common.repositories.ItemService;
 import me.travja.crave.jwt.jwt.*;
 import me.travja.crave.jwt.services.JWTDetailsService;
 import org.slf4j.Logger;
@@ -36,7 +36,7 @@ public class AuthController {
 
     private final AuthenticationManager authenticationManager;
     private final JWTDetailsService     jwtDetailsService;
-    private final ItemDetailsRepository itemRepo;
+    private final ItemService           itemService;
     private final PasswordEncoder       passwordEncoder;
     private final Logger                logger = LoggerFactory.getLogger(AuthController.class);
 
@@ -129,7 +129,7 @@ public class AuthController {
 
             if (detailed) {
                 user.getShoppingList().forEach((index, li) -> {
-                    Optional<ItemDetails> item = itemRepo.findFirstByItemNameLikeOrderBySalesNewPriceAscPriceAsc(li.getText());
+                    Optional<ItemDetails> item = itemService.getFirstCheapest(li.getText());
                     item.ifPresentOrElse(it -> list.put(index, new DetailedListItem(li.getId(), li.getText(),
                                     li.isChecked(), it.cleanSales())),
                             () -> list.put(index, li));

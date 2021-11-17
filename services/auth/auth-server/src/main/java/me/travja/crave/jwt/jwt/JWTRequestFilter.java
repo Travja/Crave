@@ -43,6 +43,7 @@ public class JWTRequestFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
         String authHeader = request.getHeader("Authorization");
+        logger.info("Checking authentication");
 
         String   username = null;
         JWTToken jwt      = null;
@@ -68,7 +69,9 @@ public class JWTRequestFilter extends OncePerRequestFilter {
                 userAuth.setFavorites(user.getFavorites().stream().map(itm -> itm.getStringUpc()).collect(Collectors.toList()));
                 userAuth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(userAuth);
-            }
+                logger.info("User authenticated.");
+            } else
+                logger.info("JWT is invalid.");
         }
         chain.doFilter(request, response);
     }

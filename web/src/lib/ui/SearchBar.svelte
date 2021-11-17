@@ -1,6 +1,7 @@
 <script>
     import {createEventDispatcher, onMount} from "svelte";
     import {variables} from "$lib/variables";
+    import FilterBox from "$lib/ui/FilterBox.svelte";
 
     export let storeFilter = "all";
     export let distanceFilter = -1;
@@ -74,32 +75,28 @@
 
 </script>
 
-<div class="filter-box">
-    <span class="material-icons-round filter-btn" on:click={activateFilters}>filter_alt</span>
-    <dialog bind:this={filterContainer} class="filter-container">
-        <h4>Stores</h4>
-        <hr/>
+<FilterBox on:apply={() => search()}>
+    <h4>Stores</h4>
+    <hr/>
+    <label>
+        <input bind:this={allStores} checked on:click={clickAll} type="checkbox" value="all"/>
+        All
+    </label>
+    {#each filterStores as validStore (validStore.name)}
         <label>
-            <input bind:this={allStores} on:click={clickAll} type="checkbox" value="all" checked/>
-            All
-        </label>
-        {#each filterStores as validStore (validStore.name)}
-            <label>
-                <input name="store" type="checkbox" bind:checked={validStore.checked} on:click={() =>
+            <input name="store" type="checkbox" bind:checked={validStore.checked} on:click={() =>
                 handleFilterClick(validStore)}
-                       value="{validStore.name}"/>
-                {validStore.name}
-            </label>
-        {/each}
-        <h4>Distance</h4>
-        <hr/>
-        <label for="dist">Distance (mi):
-            <input bind:value={distanceFilter} id="dist" max="2500" min="-1" name="dist" placeholder="10"
-                   type="number">
+                   value="{validStore.name}"/>
+            {validStore.name}
         </label>
-        <div class="button" on:click={() => search()}>Apply Filters</div>
-    </dialog>
-</div>
+    {/each}
+    <h4>Distance</h4>
+    <hr/>
+    <label for="dist">Distance (mi):
+        <input bind:value={distanceFilter} id="dist" max="2500" min="-1" name="dist" placeholder="10"
+               type="number">
+    </label>
+</FilterBox>
 <div class="search">
     <span class="material-icons-round">search</span>
     <input bind:this={searchBox} on:keyup={search} placeholder="Search..."/>
