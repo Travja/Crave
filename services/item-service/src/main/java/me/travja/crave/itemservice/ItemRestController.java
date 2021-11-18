@@ -11,7 +11,10 @@ import me.travja.crave.common.models.item.*;
 import me.travja.crave.common.models.store.Location;
 import me.travja.crave.common.repositories.ItemService;
 import me.travja.crave.common.repositories.UserRepo;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -39,12 +42,11 @@ public class ItemRestController {
                                @RequestParam(required = false, defaultValue = "0") int page,
                                @RequestParam(required = false, defaultValue = "50") int count,
                                Authentication auth) {
-        //TODO Actually adjust sorting so it works appropriately.
         Pageable pg = PageRequest.of(page, count,
-                Sort.by("lowestPrice").descending()
-                        .and(Sort.by("name")));
+                sortStrategy.getSort() //Get the sort strategy from the enum
+                        .and(SortStrategy.ALPHABETICAL.getSort()));
         Page<Item> items = itemService
-                .getAllItemsFromStoreSorted(query, store, sortStrategy, pg);
+                .getAllFromStore(query, store, pg);
 //        if (query == null)
 //            items = itemService.getAllItemsSorted(sortStrategy);
 //        else

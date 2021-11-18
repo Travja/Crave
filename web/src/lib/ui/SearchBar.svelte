@@ -20,7 +20,6 @@
     });
 
     const search = (e) => {
-        sortStrategy = sortSection.querySelector("input[type='radio']:checked").value;
         if (!e || e.keyCode == 13) {
             dispatch("search", {
                 search: searchBox.value,
@@ -71,7 +70,8 @@
 
             filterStores = [...filterStores];
             storeFilter = "all";
-        }
+        } else
+            e.target.checked = true;
     };
 
     const selectedSort = e => {
@@ -87,19 +87,19 @@
     <div bind:this={sortSection} class="filter-section">
         <h4>Sort</h4>
         <label>
-            <input checked name="sorting"
+            <input checked={sortStrategy == "alphabetical"} name="sorting"
                    on:click={selectedSort}
                    type=radio
                    value="alphabetical">A-Z
         </label>
         <label>
-            <input name="sorting"
+            <input checked={sortStrategy == "lowest_first"} name="sorting"
                    on:click={selectedSort}
                    type=radio
                    value="lowest_first">Price (Lowest First)
         </label>
         <label>
-            <input name="sorting"
+            <input checked={sortStrategy == "highest_first"} name="sorting"
                    on:click={selectedSort}
                    type=radio
                    value="highest_first">Price (Highest First)
@@ -108,7 +108,9 @@
     <div class="filter-section">
         <h4>Stores</h4>
         <label>
-            <input bind:this={allStores} checked on:click={clickAll} type="checkbox" value="all"/>
+            <input bind:this={allStores} checked={storeFilter == "" || storeFilter == "all"} on:click={clickAll}
+                   type="checkbox"
+                   value="all"/>
             All
         </label>
         {#each filterStores as validStore (validStore.name)}

@@ -316,13 +316,14 @@
         fetch(url)
             .then(res => res.json())
             .then(data => {
+                let list = data.content;
                 let dList = [];
-                if (data.length >= 1) {
-                    items[index].lowestDetails = data[0].lowestDetails;
+                if (list.length >= 1) {
+                    items[index].lowestDetails = list[0].lowestDetails;
                 } else {
                     items[index].lowestDetails = undefined;
                 }
-                data.forEach(dat => {
+                list.forEach(dat => {
                     dList.push(dat.text);
                 });
                 dataList = dList;

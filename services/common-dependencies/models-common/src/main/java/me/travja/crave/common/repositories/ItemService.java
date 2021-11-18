@@ -8,7 +8,6 @@ import me.travja.crave.common.models.store.Store;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,8 +21,6 @@ public class ItemService {
 
     private final ItemsRepository       itemsRepo;
     private final ItemDetailsRepository detailsRepo;
-
-    private final Sort alphabeticalSort = Sort.by("name").ascending();
 
     private <T extends Iterable<Item>> T clean(T list) {
         list.forEach(Item::cleanSales);
@@ -52,7 +49,7 @@ public class ItemService {
     }
 
 
-    public List<Item> getAllItems() {
+    public List<Item> getAllItemsUnsorted() {
         List<Item> items = itemsRepo.findAll();
         return clean(items);
     }
@@ -70,40 +67,57 @@ public class ItemService {
         return cleanDetails(items);
     }
 
-    public Page<Item> getAllItemsSorted() {
-        return getAllItemsSorted(SortStrategy.ALPHABETICAL);
+    public Page<Item> getAllItems() {
+        return getAllItems(SortStrategy.ALPHABETICAL);
     }
 
-    public Page<Item> getAllItemsSorted(SortStrategy sortStrategy) {
-        return getAllItemsSorted(sortStrategy, PageRequest.of(0, 50, alphabeticalSort));
+    public Page<Item> getAllItems(SortStrategy sortStrategy) {
+        return getAllItems(PageRequest.of(0, 50,
+                sortStrategy.getSort().and(SortStrategy.ALPHABETICAL.getSort())));
     }
 
-    public Page<Item> getAllItemsSorted(SortStrategy sortStrategy, Pageable pageable) {
-        return getAllItemsFromStoreSorted(null, -1, sortStrategy, pageable);
+    public Page<Item> getAllItems(Pageable pageable) {
+        return getAllFromStore(null, -1, pageable);
     }
 
-    public Page<Item> getAllItemsFromStoreSorted(String name, long storeId, SortStrategy sortStrategy,
-                                                 Pageable pageable) {
+    public Page<Item> getAllItems(String name, Pageable pageable) {
+        if (name == null) name = "";
+        name = "%" + name.trim() + "%";
+
+        return itemsRepo.findAllByNameLike(name, pageable);
+//        return getAllItemsFromStoreSorted(name, "", sortStrategy, pageable);
+//        return clean(switch (sortStrategy) {
+//            case LOWEST_FIRST -> itemsRepo.findDistinctItemAndDetailsByNameLikeAndDetailsNotEmptyOrderByDetailsPriceAsc(name, pageable);
+//            case HIGHEST_FIRST -> itemsRepo.findDistinctItemAndDetailsByNameLikeAndDetailsNotEmptyOrderByDetailsPriceDesc(name, pageable);
+//            default -> itemsRepo.findAllByDetailsNotEmptyOrderByNameAsc(pageable);
+//        });
+    }
+
+    public Page<Item> getAllByName(String name) {
+        return getAllByName(name, PageRequest.of(0, 4));
+    }
+
+    public Page<Item> getAllByName(String name, Pageable page) {
+        return clean(itemsRepo.findAllByNameLike("%" + name + "%", page));
+    }
+
+    public List<Item> getAllByQuery(String query) {
+        return clean(itemsRepo.findAllByQuery(query));
+    }
+
+    public Page<Item> getAllFromStore(String name, long storeId,
+                                      Pageable pageable) {
         if (name == null) name = "";
 
-        if (storeId == -1) return getAllItems(name, sortStrategy, pageable);
+        if (storeId == -1) return getAllItems(name, pageable);
         else {
             name = "%" + name.trim() + "%";
             return clean(itemsRepo.findAllByNameLikeAndDetailsStoreId(name, storeId, pageable));
-//            return clean(switch (sortStrategy) {
-//                case LOWEST_FIRST -> itemsRepo.findDistinctItemAndDetailsByNameLikeAndDetailsStoreIdAndDetailsNotEmptyOrderByDetailsPriceAsc(name,
-//                        storeId,
-//                        pageable);
-//                case HIGHEST_FIRST -> itemsRepo.findDistinctItemAndDetailsByNameLikeAndDetailsStoreIdAndDetailsNotEmptyOrderByDetailsPriceDesc(name,
-//                        storeId,
-//                        pageable);
-//                default -> itemsRepo.findAllByDetailsNotEmptyOrderByNameAsc(pageable);
-//            });
         }
     }
 
-    public Page<Item> getAllItemsFromStoreSorted(String name, String storeName, SortStrategy sortStrategy,
-                                                 Pageable pageable) {
+    public Page<Item> getAllFromStore(String name, String storeName,
+                                      Pageable pageable) {
         if (name == null) name = "";
         if (storeName == null) storeName = "";
 
@@ -119,35 +133,6 @@ public class ItemService {
 //                        pageable);
 //                default -> itemsRepo.findAllByDetailsNotEmptyOrderByNameAsc(pageable);
 //            });
-    }
-
-    public Page<Item> getAllItems(String name, SortStrategy sortStrategy, Pageable pageable) {
-        if (name == null) name = "";
-        name = "%" + name.trim() + "%";
-
-        return itemsRepo.findAllByNameLike(name, pageable);
-//        return getAllItemsFromStoreSorted(name, "", sortStrategy, pageable);
-//        return clean(switch (sortStrategy) {
-//            case LOWEST_FIRST -> itemsRepo.findDistinctItemAndDetailsByNameLikeAndDetailsNotEmptyOrderByDetailsPriceAsc(name, pageable);
-//            case HIGHEST_FIRST -> itemsRepo.findDistinctItemAndDetailsByNameLikeAndDetailsNotEmptyOrderByDetailsPriceDesc(name, pageable);
-//            default -> itemsRepo.findAllByDetailsNotEmptyOrderByNameAsc(pageable);
-//        });
-    }
-
-    public List<Item> getAllByQuery(String query) {
-        return clean(itemsRepo.findAllByQuery(query));
-    }
-
-    public Page<Item> getAllByName(String name) {
-        return getAllByName(name, PageRequest.of(0, 4));
-    }
-
-    public Page<Item> getAllByName(String name, Pageable page) {
-        return clean(itemsRepo.findAllByNameLike("%" + name + "%", page));
-    }
-
-    public Page<Item> getAllFromStore(String name, long storeId, Pageable pageable) {
-        return clean(itemsRepo.findAllByNameLikeAndDetailsStoreId("%" + name + "%", storeId, pageable));
     }
 
     public Optional<Item> getItem(String upc) {
