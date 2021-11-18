@@ -1,28 +1,31 @@
 package me.travja.crave.common.repositories;
 
+import lombok.RequiredArgsConstructor;
+import me.travja.crave.common.models.SortStrategy;
 import me.travja.crave.common.models.item.Item;
 import me.travja.crave.common.models.item.ItemDetails;
 import me.travja.crave.common.models.store.Store;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class ItemService {
+
+    //TODO Clean up this class a bunch :P
 
     private final ItemsRepository       itemsRepo;
     private final ItemDetailsRepository detailsRepo;
 
-    public ItemService(ItemsRepository itemsRepo, ItemDetailsRepository detailsRepo) {
-        this.itemsRepo = itemsRepo;
-        this.detailsRepo = detailsRepo;
-    }
+    private final Sort alphabeticalSort = Sort.by("name").ascending();
 
-
-    private List<Item> clean(List<Item> list) {
+    private <T extends Iterable<Item>> T clean(T list) {
         list.forEach(Item::cleanSales);
         return list;
     }
@@ -54,29 +57,96 @@ public class ItemService {
         return clean(items);
     }
 
+    public List<ItemDetails> getDetails(String storeName) {
+        return cleanDetails(detailsRepo.findAllByStoreNameLike(storeName));
+    }
+
+    public List<ItemDetails> getDetails(long storeId) {
+        return cleanDetails(detailsRepo.findAllByStoreId(storeId));
+    }
+
     public List<ItemDetails> getAllDetails() {
         List<ItemDetails> items = (List<ItemDetails>) detailsRepo.findAll();
         return cleanDetails(items);
     }
 
-    public List<Item> getAllItemsSorted() {
-        List<Item> items = itemsRepo.findAllByOrderByNameAsc();
-        return clean(items);
+    public Page<Item> getAllItemsSorted() {
+        return getAllItemsSorted(SortStrategy.ALPHABETICAL);
+    }
+
+    public Page<Item> getAllItemsSorted(SortStrategy sortStrategy) {
+        return getAllItemsSorted(sortStrategy, PageRequest.of(0, 50, alphabeticalSort));
+    }
+
+    public Page<Item> getAllItemsSorted(SortStrategy sortStrategy, Pageable pageable) {
+        return getAllItemsFromStoreSorted(null, -1, sortStrategy, pageable);
+    }
+
+    public Page<Item> getAllItemsFromStoreSorted(String name, long storeId, SortStrategy sortStrategy,
+                                                 Pageable pageable) {
+        if (name == null) name = "";
+
+        if (storeId == -1) return getAllItems(name, sortStrategy, pageable);
+        else {
+            name = "%" + name.trim() + "%";
+            return clean(itemsRepo.findAllByNameLikeAndDetailsStoreId(name, storeId, pageable));
+//            return clean(switch (sortStrategy) {
+//                case LOWEST_FIRST -> itemsRepo.findDistinctItemAndDetailsByNameLikeAndDetailsStoreIdAndDetailsNotEmptyOrderByDetailsPriceAsc(name,
+//                        storeId,
+//                        pageable);
+//                case HIGHEST_FIRST -> itemsRepo.findDistinctItemAndDetailsByNameLikeAndDetailsStoreIdAndDetailsNotEmptyOrderByDetailsPriceDesc(name,
+//                        storeId,
+//                        pageable);
+//                default -> itemsRepo.findAllByDetailsNotEmptyOrderByNameAsc(pageable);
+//            });
+        }
+    }
+
+    public Page<Item> getAllItemsFromStoreSorted(String name, String storeName, SortStrategy sortStrategy,
+                                                 Pageable pageable) {
+        if (name == null) name = "";
+        if (storeName == null) storeName = "";
+
+        name = "%" + name.trim() + "%";
+        storeName = "%" + storeName.trim() + "%";
+        return clean(itemsRepo.findAllByNameLikeAndDetailsStoreNameLike(name, storeName, pageable));
+//            return clean(switch (sortStrategy) {
+//                case LOWEST_FIRST -> itemsRepo.findDistinctItemAndDetailsByNameLikeAndDetailsStoreNameAndDetailsNotEmptyOrderByDetailsPriceAsc(name,
+//                        storeName,
+//                        pageable);
+//                case HIGHEST_FIRST -> itemsRepo.findDistinctItemAndDetailsByNameLikeAndDetailsStoreNameAndDetailsNotEmptyOrderByDetailsPriceDesc(name,
+//                        storeName,
+//                        pageable);
+//                default -> itemsRepo.findAllByDetailsNotEmptyOrderByNameAsc(pageable);
+//            });
+    }
+
+    public Page<Item> getAllItems(String name, SortStrategy sortStrategy, Pageable pageable) {
+        if (name == null) name = "";
+        name = "%" + name.trim() + "%";
+
+        return itemsRepo.findAllByNameLike(name, pageable);
+//        return getAllItemsFromStoreSorted(name, "", sortStrategy, pageable);
+//        return clean(switch (sortStrategy) {
+//            case LOWEST_FIRST -> itemsRepo.findDistinctItemAndDetailsByNameLikeAndDetailsNotEmptyOrderByDetailsPriceAsc(name, pageable);
+//            case HIGHEST_FIRST -> itemsRepo.findDistinctItemAndDetailsByNameLikeAndDetailsNotEmptyOrderByDetailsPriceDesc(name, pageable);
+//            default -> itemsRepo.findAllByDetailsNotEmptyOrderByNameAsc(pageable);
+//        });
     }
 
     public List<Item> getAllByQuery(String query) {
         return clean(itemsRepo.findAllByQuery(query));
     }
 
-    public List<Item> getAllByName(String name) {
+    public Page<Item> getAllByName(String name) {
         return getAllByName(name, PageRequest.of(0, 4));
     }
 
-    public List<Item> getAllByName(String name, Pageable page) {
+    public Page<Item> getAllByName(String name, Pageable page) {
         return clean(itemsRepo.findAllByNameLike("%" + name + "%", page));
     }
 
-    public List<Item> getAllFromStore(String name, long storeId, Pageable pageable) {
+    public Page<Item> getAllFromStore(String name, long storeId, Pageable pageable) {
         return clean(itemsRepo.findAllByNameLikeAndDetailsStoreId("%" + name + "%", storeId, pageable));
     }
 

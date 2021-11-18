@@ -5,6 +5,7 @@ import me.travja.crave.common.models.item.Item;
 
 import javax.persistence.GeneratedValue;
 import java.util.ArrayList;
+import java.util.HashSet;
 
 @Data
 public class RequestItem {
@@ -18,7 +19,7 @@ public class RequestItem {
             image;
 
     public Item toItem() {
-        Item item = new Item(getId(), getName(), getDescription(), null, getImage(), new ArrayList<>());
+        Item item = new Item(getId(), getName(), getDescription(), null, getImage(), new HashSet<>());
         item.setUpc(upc);
         return item;
     }

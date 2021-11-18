@@ -15,6 +15,9 @@
     let items, list = [], fullList = [], error;
     let inProgress = false;
 
+    let pages = 0;
+    let currentPage = 0;
+
     const getLocation = (callback) => {
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(pos => callback(pos));
@@ -36,7 +39,7 @@
             .catch(e => console.error(e));
     }
 
-    const getItems = async (query, storeFilter, distanceFilter) => {
+    const getItems = async (query, storeFilter, distanceFilter, sortStrategy) => {
         if (!gate)
             return;
 
@@ -58,8 +61,9 @@
             const res = await fetch(url);
             inProgress = false;
             if (res.ok) {
-                items = await res.json();
-                console.log("Items: ", items);
+                let data = await res.json();
+                items = data.content;
+                console.log("Items: ", data);
                 return;
             }
 
@@ -86,6 +90,11 @@
             queries.query = query;
         if (storeFilter)
             queries.store = storeFilter;
+        if (sortStrategy)
+            queries.sortStrategy = sortStrategy.toUpperCase();
+
+        queries.page = currentPage;
+
         if (distanceFilter && distanceFilter > 0) {
             queries.distance = distanceFilter;
             getLocation(pos => {
@@ -114,7 +123,8 @@
         let terms = e.detail.search;
         let storeFilter = e.detail.filters.stores;
         let distanceFilter = e.detail.filters.distance;
-        getItems(terms, storeFilter, distanceFilter);
+        let sortStrategy = e.detail.filters.sortStrategy;
+        getItems(terms, storeFilter, distanceFilter, sortStrategy);
     };
 
     const addToList = item => {

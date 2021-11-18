@@ -156,3 +156,16 @@ a:visited {
 hr {
     border-color: var(--fg-color);
 }
+
+.filter-section {
+    display: flex;
+    flex-direction: column;
+    border-left: 0.2em solid var(--accent-color);
+    padding-left: 0.5em;
+    margin: 0.5em 0;
+    padding-bottom: 0.5em;
+}
+
+.filter-section h4 {
+    margin: 0 0 0.5em;
+}

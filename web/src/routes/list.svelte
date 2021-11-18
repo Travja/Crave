@@ -365,7 +365,7 @@
             &nbsp;complete)
         </div>
         <FilterBox on:apply={applyFilters}>
-            <div bind:this={priceContainer} class="priceContainer">
+            <div bind:this={priceContainer} class="filter-section priceContainer">
                 <h4>Price Display</h4>
                 <label><input name="display" type="radio" value="single-price"/>Single Store Price</label>
                 <label><input checked name="display" type="radio" value="cheapest-price"/>Cheapest Price</label>
@@ -472,7 +472,6 @@
         {/each}
     </div>
 
-    <div>Cheapest Single-Store Cost: {formatter.format(lowestCost)} - {cheapestStore}</div>
     <div>Lowest Cost: {formatter.format(totalCost)}</div>
     <div>Number of Stores: {numStores}</div>
 
@@ -665,16 +664,5 @@
 
     input[type="radio"] {
         margin-right: 0.5em;
-    }
-
-    .priceContainer {
-        display: flex;
-        flex-direction: column;
-        border-left: 0.2em solid var(--accent-color);
-        padding-left: 0.5em;
-    }
-
-    .priceContainer h4 {
-        margin: 0 0 0.5em;
     }
 </style>

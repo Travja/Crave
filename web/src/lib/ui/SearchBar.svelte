@@ -5,9 +5,10 @@
 
     export let storeFilter = "all";
     export let distanceFilter = -1;
+    export let sortStrategy = "alphabetical";
 
     let dispatch = createEventDispatcher();
-    let searchBox, filterContainer;
+    let searchBox, filterContainer, sortSection;
     let displayFilters = false;
 
     let allStores;
@@ -19,17 +20,17 @@
     });
 
     const search = (e) => {
+        sortStrategy = sortSection.querySelector("input[type='radio']:checked").value;
         if (!e || e.keyCode == 13) {
-            dispatch("search", {search: searchBox.value, filters: {stores: storeFilter, distance: distanceFilter}});
+            dispatch("search", {
+                search: searchBox.value,
+                filters: {
+                    stores: storeFilter,
+                    distance: distanceFilter,
+                    sortStrategy
+                }
+            });
         }
-    };
-
-    const activateFilters = () => {
-        displayFilters = !displayFilters;
-        if (displayFilters)
-            filterContainer.show();
-        else
-            filterContainer.close();
     };
 
     $: if (filterContainer && displayFilters) {
@@ -73,29 +74,59 @@
         }
     };
 
+    const selectedSort = e => {
+        if (e.target.checked)
+            sortStrategy = e.target.value;
+        console.log(sortStrategy);
+    }
+
 </script>
 
 <FilterBox on:apply={() => search()}>
-    <h4>Stores</h4>
-    <hr/>
-    <label>
-        <input bind:this={allStores} checked on:click={clickAll} type="checkbox" value="all"/>
-        All
-    </label>
-    {#each filterStores as validStore (validStore.name)}
+    <!--  TODO Get sorting working  -->
+    <div bind:this={sortSection} class="filter-section">
+        <h4>Sort</h4>
         <label>
-            <input name="store" type="checkbox" bind:checked={validStore.checked} on:click={() =>
-                handleFilterClick(validStore)}
-                   value="{validStore.name}"/>
-            {validStore.name}
+            <input checked name="sorting"
+                   on:click={selectedSort}
+                   type=radio
+                   value="alphabetical">A-Z
         </label>
-    {/each}
-    <h4>Distance</h4>
-    <hr/>
-    <label for="dist">Distance (mi):
-        <input bind:value={distanceFilter} id="dist" max="2500" min="-1" name="dist" placeholder="10"
-               type="number">
-    </label>
+        <label>
+            <input name="sorting"
+                   on:click={selectedSort}
+                   type=radio
+                   value="lowest_first">Price (Lowest First)
+        </label>
+        <label>
+            <input name="sorting"
+                   on:click={selectedSort}
+                   type=radio
+                   value="highest_first">Price (Highest First)
+        </label>
+    </div>
+    <div class="filter-section">
+        <h4>Stores</h4>
+        <label>
+            <input bind:this={allStores} checked on:click={clickAll} type="checkbox" value="all"/>
+            All
+        </label>
+        {#each filterStores as validStore (validStore.name)}
+            <label>
+                <input name="store" type="checkbox" bind:checked={validStore.checked} on:click={() =>
+                handleFilterClick(validStore)}
+                       value="{validStore.name}"/>
+                {validStore.name}
+            </label>
+        {/each}
+    </div>
+    <div class="filter-section">
+        <h4>Distance</h4>
+        <label for="dist">Distance (mi):
+            <input bind:value={distanceFilter} id="dist" max="2500" min="-1" name="dist" placeholder="10"
+                   type="number">
+        </label>
+    </div>
 </FilterBox>
 <div class="search">
     <span class="material-icons-round">search</span>
@@ -124,28 +155,6 @@
         outline: none;
     }
 
-    .filter-btn {
-        cursor: pointer;
-        user-select: none;
-    }
-
-    .filter-box {
-        position: relative;
-    }
-
-    .filter-container {
-        position: absolute;
-        max-width: 300px;
-        width: 20em;
-        left: 100%;
-        transform: translateX(-50%);
-        background: #ddd;
-        z-index: 10;
-        padding: 1em;
-        box-shadow: 5px 5px 5px #666;
-        tab-index: 0;
-    }
-
     h4 {
         margin: 0;
     }
@@ -161,9 +170,5 @@
 
     input[type="checkbox"] {
         margin-right: 0.5em;
-    }
-
-    .button {
-        margin: 0.5em 0 0 0;
     }
 </style>

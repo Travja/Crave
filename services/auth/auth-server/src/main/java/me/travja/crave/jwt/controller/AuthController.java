@@ -17,6 +17,7 @@ import me.travja.crave.jwt.jwt.*;
 import me.travja.crave.jwt.services.JWTDetailsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -147,7 +148,7 @@ public class AuthController {
 
                     user.getShoppingList().forEach((index, li) -> {
                         Map<Store, ItemDetails> lowest = new HashMap<>();
-                        List<Item>              items  = itemService.getAllByName(li.getText());
+                        Page<Item>              items  = itemService.getAllByName(li.getText());
                         for (Item item : items) {
                             for (ItemDetails detail : item.getDetails()) {
                                 if (!lowest.containsKey(detail.getStore())) {

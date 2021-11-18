@@ -42,7 +42,7 @@ public class Item {
     @JsonView(ItemView.class)
     @OneToMany(mappedBy = "item", cascade = CascadeType.ALL)
     @ToString.Exclude
-    private List<ItemDetails> details = new ArrayList<>();
+    private Set<ItemDetails> details = new HashSet<>();
 
     @ElementCollection
     private List<String> tags    = new ArrayList();
@@ -52,7 +52,9 @@ public class Item {
     @Transient
     private boolean isFavorite = false;
 
-    public Item(long id, String name, String description, UPC upc, String image, List<ItemDetails> details) {
+    private double lowestPrice = 5;
+
+    public Item(long id, String name, String description, UPC upc, String image, Set<ItemDetails> details) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -73,6 +75,8 @@ public class Item {
 
         if (getImage() == DEF_IMAGE)
             setImage(prodInfo.getImage());
+
+        setLowestPrice(getLowestPrice());
     }
 
     @Transient
@@ -111,9 +115,19 @@ public class Item {
             return Optional.empty();
     }
 
+    public double getLowestPrice() {
+        double price = Double.MAX_VALUE;
+        for (ItemDetails det : details) {
+            if (det.getLowestPrice() < price)
+                price = det.getLowestPrice();
+        }
+        return price;
+    }
+
     @PostConstruct
     public void cleanSales() {
         details.forEach(dets -> dets.cleanSales());
+        setLowestPrice(getLowestPrice());
     }
 
     public void addTags(String... tags) {

@@ -37,7 +37,7 @@ public class ItemDetails {
     private Store  store;
     private double price;
 
-    @OneToMany(mappedBy = "item", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "item", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @JsonView({DetailsView.class, ItemView.class})
     private List<Sale> sales = new ArrayList<>();
 

@@ -4,13 +4,14 @@ import com.fasterxml.jackson.annotation.JsonView;
 import lombok.RequiredArgsConstructor;
 import me.travja.crave.common.annotations.CraveController;
 import me.travja.crave.common.models.ResponseObject;
+import me.travja.crave.common.models.SortStrategy;
 import me.travja.crave.common.models.auth.AuthToken;
 import me.travja.crave.common.models.auth.CraveUser;
 import me.travja.crave.common.models.item.*;
 import me.travja.crave.common.models.store.Location;
 import me.travja.crave.common.repositories.ItemService;
 import me.travja.crave.common.repositories.UserRepo;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,17 +30,25 @@ public class ItemRestController {
 
     @GetMapping
     @JsonView(ItemView.class)
-    public List<Item> getItems(@RequestParam(required = false) String query,
+    public Page<Item> getItems(@RequestParam(required = false) String query,
                                @RequestParam(required = false) String store,
                                @RequestParam(required = false) Double distance,
                                @RequestParam(required = false) Double lat,
                                @RequestParam(required = false) Double lon,
+                               @RequestParam(required = false, defaultValue = "ALPHABETICAL") SortStrategy sortStrategy,
+                               @RequestParam(required = false, defaultValue = "0") int page,
+                               @RequestParam(required = false, defaultValue = "50") int count,
                                Authentication auth) {
-        List<Item> items;
-        if (query == null)
-            items = itemService.getAllItemsSorted();
-        else
-            items = itemService.getAllByQuery(query);
+        //TODO Actually adjust sorting so it works appropriately.
+        Pageable pg = PageRequest.of(page, count,
+                Sort.by("lowestPrice").descending()
+                        .and(Sort.by("name")));
+        Page<Item> items = itemService
+                .getAllItemsFromStoreSorted(query, store, sortStrategy, pg);
+//        if (query == null)
+//            items = itemService.getAllItemsSorted(sortStrategy);
+//        else
+//            items = itemService.getAllByQuery(query);
 
         List<String> stores = new ArrayList<>();
         if (store != null && !store.isEmpty())
@@ -53,7 +62,7 @@ public class ItemRestController {
             for (Item item : items) {
                 Location     finalLocation = location;
                 List<String> finalStores   = stores;
-                List<ItemDetails> details = item.getDetails().stream().filter(dets -> {
+                Set<ItemDetails> details = item.getDetails().stream().filter(dets -> {
                     boolean good = true;
                     if (store != null && !finalStores.isEmpty() && !finalStores.contains(dets.getStore().getName().toLowerCase()))
                         good = false;
@@ -62,13 +71,11 @@ public class ItemRestController {
                         good = dets.getStore().getDistance(finalLocation) <= distance;
 
                     return good;
-                }).collect(Collectors.toList());
+                }).collect(Collectors.toSet());
 
                 item.setDetails(details);
             }
         }
-
-        items = items.stream().filter(item -> item.getDetails().size() > 0).collect(Collectors.toList());
 
         if (auth != null) {
             Optional<CraveUser> user = userRepo.findByUsernameIgnoreCase(auth.getName());
@@ -94,20 +101,21 @@ public class ItemRestController {
 
     @GetMapping("/search")
     @JsonView(DetailsView.class)
-    public List<ListItem> searchNames(@RequestParam(required = false) String query,
+    public Page<ListItem> searchNames(@RequestParam(required = false) String query,
                                       @RequestParam(required = false, defaultValue = "false") boolean detailed,
                                       @RequestParam(required = false, defaultValue = "-1") long storeId,
                                       @RequestParam(required = false, defaultValue = "0") int page,
                                       @RequestParam(required = false, defaultValue = "4") int count) {
-        if (query == null || query.isEmpty()) return Collections.emptyList();
+        if (query == null || query.isEmpty()) return Page.empty();
 
-        List<Item> items;
+        Pageable   pg = PageRequest.of(page, count);
+        Page<Item> items;
         if (storeId != -1)
-            items = itemService.getAllFromStore(query, storeId, PageRequest.of(page, count));
+            items = itemService.getAllFromStore(query, storeId, pg);
         else
-            items = itemService.getAllByName(query, PageRequest.of(page, count));
+            items = itemService.getAllByName(query, pg);
 
-        return items.stream().map(item -> {
+        return new PageImpl<>(items.stream().map(item -> {
             if (detailed) {
                 ItemDetails details = null;
                 for (ItemDetails dets : item.getDetails()) {
@@ -126,7 +134,7 @@ public class ItemRestController {
                 return new DetailedListItem(item.getId(), item.getName(), false, details);
             } else
                 return new ListItem(item.getId(), item.getName(), false);
-        }).collect(Collectors.toList());
+        }).collect(Collectors.toList()), pg, items.getSize());
     }
 
     @GetMapping("/{upc}")

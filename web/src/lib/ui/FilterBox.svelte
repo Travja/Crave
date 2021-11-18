@@ -21,7 +21,7 @@
         const handleClick = (event) => {
             if (displayFilters && !filterContainer.contains(event.target)) {
                 displayFilters = false;
-                event.stopImmediatePropagation();
+                // event.stopImmediatePropagation();
             }
         };
 
