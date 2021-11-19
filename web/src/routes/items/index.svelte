@@ -4,8 +4,8 @@
 <script>
     import {gateway, title, variables} from "$lib/variables";
     import {onDestroy, onMount} from "svelte";
+    import {fly} from "svelte/transition";
     import PageItem from "$lib/PageItem.svelte";
-    import {fly} from 'svelte/transition';
     import SearchBar from "$lib/ui/SearchBar.svelte";
 
     title.set("Items");
@@ -17,6 +17,11 @@
 
     let pages = 0;
     let currentPage = 0;
+
+    let terms;
+    let storeFilter;
+    let distanceFilter;
+    let sortStrategy;
 
     const getLocation = (callback) => {
         if (navigator.geolocation) {
@@ -39,7 +44,12 @@
             .catch(e => console.error(e));
     }
 
-    const getItems = async (query, storeFilter, distanceFilter, sortStrategy) => {
+    const navigatePage = i => {
+        currentPage = i;
+        getItems();
+    };
+
+    const getItems = async () => {
         if (!gate)
             return;
 
@@ -63,6 +73,8 @@
             if (res.ok) {
                 let data = await res.json();
                 items = data.content;
+                pages = data.totalPages;
+                currentPage = data.pageable.pageNumber;
                 console.log("Items: ", data);
                 return;
             }
@@ -86,14 +98,15 @@
         };
 
         let queries = {};
-        if (query)
-            queries.query = query;
+        if (terms)
+            queries.query = terms;
         if (storeFilter)
             queries.store = storeFilter;
         if (sortStrategy)
             queries.sortStrategy = sortStrategy.toUpperCase();
 
         queries.page = currentPage;
+        queries.count = 50;
 
         if (distanceFilter && distanceFilter > 0) {
             queries.distance = distanceFilter;
@@ -120,11 +133,11 @@
     onDestroy(unsubscribe);
 
     const search = (e) => {
-        let terms = e.detail.search;
-        let storeFilter = e.detail.filters.stores;
-        let distanceFilter = e.detail.filters.distance;
-        let sortStrategy = e.detail.filters.sortStrategy;
-        getItems(terms, storeFilter, distanceFilter, sortStrategy);
+        terms = e.detail.search;
+        storeFilter = e.detail.filters.stores;
+        distanceFilter = e.detail.filters.distance;
+        sortStrategy = e.detail.filters.sortStrategy;
+        getItems();
     };
 
     const addToList = item => {
@@ -187,6 +200,26 @@
     {:else}
         <p class="no-items">No items available.</p>
     {/if}
+    <div class="pageSelection">
+        {#if pages > 1}
+            {#if currentPage > 0}
+                <div class="material-icons-round blank-button"
+                     on:click={() => navigatePage(currentPage - 1)}>navigate_before
+                </div>
+            {/if}
+            {#each [...Array(5).keys()] as p}
+                {#if p + currentPage - 2 >= 0 && p + currentPage - 2 < pages}
+                    <div class="pageNum blank-button" class:active={p + currentPage - 2 == currentPage}
+                         on:click={() => navigatePage(p + currentPage - 2)}>{p + currentPage - 1}</div>
+                {/if}
+            {/each}
+            {#if pages - 1 > currentPage}
+                <div class="material-icons-round blank-button"
+                     on:click={() => navigatePage(currentPage + 1)}>navigate_next
+                </div>
+            {/if}
+        {/if}
+    </div>
 </section>
 {#if tip}
     <div id="tip"
@@ -268,5 +301,20 @@
 
     hr {
         display: inline-block;
+    }
+
+    .pageSelection {
+        margin: 1em auto 0 auto;
+        display: flex;
+        flex-direction: row;
+    }
+
+    .pageSelection .pageNum {
+        margin: 0 0.5em;
+    }
+
+    .pageNum.active {
+        text-decoration: underline;
+        font-weight: bold;
     }
 </style>

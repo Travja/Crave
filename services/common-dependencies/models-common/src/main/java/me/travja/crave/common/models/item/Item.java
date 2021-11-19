@@ -40,7 +40,7 @@ public class Item {
     private String image = DEF_IMAGE;
 
     @JsonView(ItemView.class)
-    @OneToMany(mappedBy = "item", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "item", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @ToString.Exclude
     private Set<ItemDetails> details = new HashSet<>();
 
@@ -52,7 +52,7 @@ public class Item {
     @Transient
     private boolean isFavorite = false;
 
-    private double lowestPrice = 5;
+    private double lowestPrice = 0;
 
     public Item(long id, String name, String description, UPC upc, String image, Set<ItemDetails> details) {
         this.id = id;

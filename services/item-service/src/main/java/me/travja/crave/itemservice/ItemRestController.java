@@ -46,7 +46,7 @@ public class ItemRestController {
                 sortStrategy.getSort() //Get the sort strategy from the enum
                         .and(SortStrategy.ALPHABETICAL.getSort()));
         Page<Item> items = itemService
-                .getAllFromStore(query, store, pg);
+                .getAllFromStore(query, store, sortStrategy, pg);
 //        if (query == null)
 //            items = itemService.getAllItemsSorted(sortStrategy);
 //        else
@@ -106,6 +106,7 @@ public class ItemRestController {
     public Page<ListItem> searchNames(@RequestParam(required = false) String query,
                                       @RequestParam(required = false, defaultValue = "false") boolean detailed,
                                       @RequestParam(required = false, defaultValue = "-1") long storeId,
+                                      @RequestParam(required = false, defaultValue = "ALPHABETICAL") SortStrategy sortStrategy,
                                       @RequestParam(required = false, defaultValue = "0") int page,
                                       @RequestParam(required = false, defaultValue = "4") int count) {
         if (query == null || query.isEmpty()) return Page.empty();
@@ -113,7 +114,7 @@ public class ItemRestController {
         Pageable   pg = PageRequest.of(page, count);
         Page<Item> items;
         if (storeId != -1)
-            items = itemService.getAllFromStore(query, storeId, pg);
+            items = itemService.getAllFromStore(query, storeId, sortStrategy, pg);
         else
             items = itemService.getAllByName(query, pg);
 

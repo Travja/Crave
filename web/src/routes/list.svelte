@@ -183,6 +183,7 @@
                 if (next) next.focus();
                 e.preventDefault();
             }
+            saveList();
         }
     };
 
@@ -201,6 +202,7 @@
                 e.stopPropagation();
                 e.preventDefault();
             }
+            saveList();
         }
     };
 
@@ -222,7 +224,6 @@
         items[index].text = e.target.innerText;
         focused = -1;
         getApplicableItems(e, index);
-
     };
 
     const check = index => {
@@ -306,6 +307,7 @@
 
         if (input.length == 0) {
             dataList = [];
+            items[index].lowestDetails = undefined;
             return;
         }
 
@@ -318,14 +320,14 @@
             .then(data => {
                 let list = data.content;
                 let dList = [];
-                if (list.length >= 1) {
+                if (list && list.length >= 1) {
                     items[index].lowestDetails = list[0].lowestDetails;
+                    list.forEach(dat => {
+                        dList.push(dat.text);
+                    });
                 } else {
                     items[index].lowestDetails = undefined;
                 }
-                list.forEach(dat => {
-                    dList.push(dat.text);
-                });
                 dataList = dList;
             })
             .catch(e => {
