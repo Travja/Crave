@@ -118,6 +118,8 @@ public class Item {
     public double getLowestPrice() {
         double price = Double.MAX_VALUE;
         for (ItemDetails det : details) {
+            if (det instanceof PendingDetails) continue;
+            
             if (det.getLowestPrice() < price)
                 price = det.getLowestPrice();
         }

@@ -2,6 +2,8 @@
 <!--    export const prerender = true;-->
 <!--</script>-->
 <script>
+    //TODO use request params to set current page
+    import {page} from "$app/stores";
     import {gateway, title, variables} from "$lib/variables";
     import {onDestroy, onMount} from "svelte";
     import {fly} from "svelte/transition";
@@ -24,11 +26,10 @@
     let sortStrategy;
 
     const getLocation = (callback) => {
-        if (navigator.geolocation) {
+        if (navigator.geolocation)
             navigator.geolocation.getCurrentPosition(pos => callback(pos));
-        } else {
+        else
             alert("Geolocation is not supported by this browser.");
-        }
     };
 
     const loadShoppingList = async () => {
@@ -124,6 +125,7 @@
     onMount(async () => {
         // gateway = variables.gateway ? variables.gateway : window.location.origin;
         gate = gateway();
+        currentPage = $page.query.get("page") ? $page.query.get("page") : 0;
 
         await loadShoppingList();
         await getItems();

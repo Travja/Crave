@@ -50,6 +50,8 @@ public class ItemReceiptRestController {
             List<PendingDetails>     pending       = new ArrayList<>();
 
             for (ProductInformation prod : data.getProductData()) {
+                if(prod.getPrice() <= 0) continue;
+                
                 Item item = itemService.getItem(prod.getUpc()).orElse(new Item());
                 Optional<Store> store = storeRepo.findStoreByStreetAddressAndCityAndState(data.getStreetAddress(),
                         data.getCity(), data.getState());

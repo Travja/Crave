@@ -1,6 +1,5 @@
 package me.travja.crave.common.repositories;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.travja.crave.common.models.SortStrategy;
 import me.travja.crave.common.models.item.Item;
@@ -20,13 +19,10 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
-public class ItemService {
+public record ItemService(ItemsRepository itemsRepo,
+                          ItemDetailsRepository detailsRepo) {
 
     //TODO Clean up this class a bunch :P
-
-    private final ItemsRepository       itemsRepo;
-    private final ItemDetailsRepository detailsRepo;
 
     private <T extends Iterable<Item>> T clean(T list) {
         list.forEach(itm -> {
@@ -129,61 +125,95 @@ public class ItemService {
         return clean(itemsRepo.findAllByQuery(query));
     }
 
-    public Page<Item> getAllFromStore(String name, long storeId, SortStrategy sortStrategy,
+    public Page<Item> getAllFromStore(String name, Object store, SortStrategy sortStrategy,
                                       Pageable pageable) {
         if (name == null) name = "";
-
-        if (storeId == -1) return getAllItems(name, pageable);
-        else {
-            name = "%" + name.trim() + "%";
-            List<Long> itemIds = switch (sortStrategy) {
-                case ALPHABETICAL -> itemsRepo.findIds(name, storeId, pageable.getPageSize(), pageable.getOffset());
-                case LOWEST_FIRST -> itemsRepo.findIdsLowestFirst(name, storeId, pageable.getPageSize(), pageable.getOffset());
-                case HIGHEST_FIRST -> itemsRepo.findIdsHighestFirst(name, storeId, pageable.getPageSize(), pageable.getOffset());
-            };
-
-            long       count = itemsRepo.countDistinctIdByNameLikeAndDetailsStoreId(name, storeId);
-            List<Item> items = itemsRepo.findAllByIdIn(itemIds.stream().collect(Collectors.toList()));
-            Page       p     = new PageImpl(items, pageable, count);
-            return clean(p);
-        }
-    }
-
-    public Page<Item> getAllFromStore(String name, String storeName, SortStrategy sortStrategy,
-                                      Pageable pageable) {
-        if (name == null) name = "";
-        if (storeName == null) storeName = "";
-
         name = "%" + name.trim() + "%";
-        storeName = "%" + storeName.trim() + "%";
+
+        if (store instanceof String || store == null) {
+            if (store == null) store = ".*";
+            else store = "(" + String.join("|", ((String) store).trim().split(",")) + ")";
+        }
 
         log.info("*********************");
         log.info("Page size: " + pageable.getPageSize() + " --- Offset: " + pageable.getOffset());
-        List<Long> itemIds = switch (sortStrategy) {
-            case ALPHABETICAL -> itemsRepo.findIds(name, storeName, pageable.getPageSize(), pageable.getOffset());
-            case LOWEST_FIRST -> itemsRepo.findIdsLowestFirst(name, storeName, pageable.getPageSize(), pageable.getOffset());
-            case HIGHEST_FIRST -> itemsRepo.findIdsHighestFirst(name, storeName, pageable.getPageSize(), pageable.getOffset());
-        };
+        List<Long> itemIds = getIds(name, store, sortStrategy, pageable);
 
         log.info("Found " + itemIds + " items.");
         log.info(String.join(", ", itemIds.stream().map(i -> String.valueOf(i)).collect(Collectors.toList())));
 
-        long count = itemsRepo.countDistinctIdByNameLikeAndDetailsStoreNameLike(name, storeName);
-        log.info("Querying db for items with the appropriate ids.");
-        List<Item> items = itemsRepo.findAllByIdIn(itemIds.stream().collect(Collectors.toList()));
-        log.info("Found " + items.size() + " items.");
+        long count = store instanceof String ?
+                itemsRepo.countByNameAndStore(name, (String) store) :
+                itemsRepo.countDistinctIdByNameLikeAndDetailsStoreId(name, (Long) store);
+        return clean(new PageImpl(getItems(itemIds, pageable).getContent(), pageable, count));
+    }
+
+    private List<Long> getIds(String name, Object store, SortStrategy sortStrategy, Pageable pageable) {
+        if (store instanceof String) {
+            if (store == null) store = ".*";
+            else store = "(" + String.join("|", ((String) store).trim().split(",")) + ")";
+        }
+
+        return switch (sortStrategy) {
+            case ALPHABETICAL -> {
+                if (store instanceof String)
+                    yield itemsRepo.findIds(name, (String) store, pageable.getPageSize(), pageable.getOffset());
+                else
+                    yield itemsRepo.findIds(name, (Long) store, pageable.getPageSize(), pageable.getOffset());
+            }
+            case LOWEST_FIRST -> {
+                if (store instanceof String)
+                    yield itemsRepo.findIdsLowestFirst(name, (String) store, pageable.getPageSize(), pageable.getOffset());
+                else
+                    yield itemsRepo.findIdsLowestFirst(name, (Long) store, pageable.getPageSize(), pageable.getOffset());
+            }
+            case HIGHEST_FIRST -> {
+                if (store instanceof String)
+                    yield itemsRepo.findIdsHighestFirst(name, (String) store, pageable.getPageSize(), pageable.getOffset());
+                else
+                    yield itemsRepo.findIdsHighestFirst(name, (Long) store, pageable.getPageSize(), pageable.getOffset());
+            }
+        };
+    }
+
+    public Page<Item> getAllFromStore(String name, String store, double lat, double lon,
+                                      double distance, SortStrategy sortStrategy, Pageable pageable) {
+        if (name == null) name = "";
+        name = "%" + name.trim() + "%";
+
+        if (store == null) store = ".*";
+        else store = "(" + String.join("|", store.trim().split(",")) + ")";
+
         log.info("*********************");
-        Page p = new PageImpl(items, pageable, count);
-        return clean(p);
-//            return clean(switch (sortStrategy) {
-//                case LOWEST_FIRST -> itemsRepo.findDistinctItemAndDetailsByNameLikeAndDetailsStoreNameAndDetailsNotEmptyOrderByDetailsPriceAsc(name,
-//                        storeName,
-//                        pageable);
-//                case HIGHEST_FIRST -> itemsRepo.findDistinctItemAndDetailsByNameLikeAndDetailsStoreNameAndDetailsNotEmptyOrderByDetailsPriceDesc(name,
-//                        storeName,
-//                        pageable);
-//                default -> itemsRepo.findAllByDetailsNotEmptyOrderByNameAsc(pageable);
-//            });
+        log.info("Page size: " + pageable.getPageSize() + " --- Offset: " + pageable.getOffset());
+        List<Long> itemIds = getIds(name, store, lat, lon, distance, sortStrategy, pageable);
+
+        log.info("Found " + itemIds + " items.");
+        log.info(String.join(", ", itemIds.stream().map(i -> String.valueOf(i)).collect(Collectors.toList())));
+
+        long count = itemsRepo.countByNameAndStoreWithDistance(name, store, lat, lon, distance);
+        return clean(new PageImpl(getItems(itemIds, pageable).getContent(), pageable, count));
+    }
+
+    private List<Long> getIds(String name, String store, double lat, double lon,
+                              double distance, SortStrategy sortStrategy, Pageable pageable) {
+        if (store == null) store = ".*";
+        else if (!store.startsWith(".") && !store.startsWith("("))
+            store = "(" + String.join("|", store.trim().split(",")) + ")";
+
+        return switch (sortStrategy) {
+            case ALPHABETICAL -> itemsRepo.findIds(name, store, lat, lon, distance, pageable.getPageSize(), pageable.getOffset());
+            case LOWEST_FIRST -> itemsRepo.findIdsLowestFirst(name, store, lat, lon, distance, pageable.getPageSize(), pageable.getOffset());
+            case HIGHEST_FIRST -> itemsRepo.findIdsHighestFirst(name, store, lat, lon, distance, pageable.getPageSize(), pageable.getOffset());
+        };
+    }
+
+    public Page<Item> getItems(List<Long> ids, Pageable pageable) {
+        log.info("Querying db for items with the appropriate ids.");
+        Page<Item> items = itemsRepo.findAllByIdIn(ids.stream().collect(Collectors.toList()), pageable);
+        log.info("Found " + items.getNumberOfElements() + " items.");
+        log.info("*********************");
+        return items;
     }
 
     public Optional<Item> getItem(String upc) {

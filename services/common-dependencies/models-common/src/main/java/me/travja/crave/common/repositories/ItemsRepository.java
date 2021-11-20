@@ -1,6 +1,7 @@
 package me.travja.crave.common.repositories;
 
 import me.travja.crave.common.models.item.Item;
+import me.travja.crave.common.util.Queries;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -14,7 +15,10 @@ import java.util.Optional;
 public interface ItemsRepository extends JpaRepository<Item, Long> {
 
     long countDistinctIdByNameLikeAndDetailsStoreId(String name, long storeId);
-    long countDistinctIdByNameLikeAndDetailsStoreNameLike(String name, String storeName);
+    @Query(value = Queries.Count.byNameStore, nativeQuery = true)
+    long countByNameAndStore(String name, String storeName);
+    @Query(value = Queries.Count.byNameStoreDistance, nativeQuery = true)
+    long countByNameAndStoreWithDistance(String name, String storeName, double lat, double lon, double distance);
 
     Optional<Item> findByUpcUpc(String upc);
 
@@ -25,123 +29,30 @@ public interface ItemsRepository extends JpaRepository<Item, Long> {
     Page<Item> findAll(Pageable pageable);
     Page<Item> findAllByNameLike(String name, Pageable pageable);
 
-    @Query(value =
-            "select distinct id from (" +
-                    "  select i.id, min(i.name) as name" +
-                    "  from item i" +
-                    "    left outer join item_details d" +
-                    "      on d.item_id = i.id" +
-                    "    left outer join store s" +
-                    "      on s.id = d.store_id" +
-                    "  where i.name like :name" +
-                    "    and s.name like :storeName" +
-                    "  group by i.id" +
-                    "  order by name asc" +
-                    "  limit :limit" +
-                    "  offset :offset" +
-                    ") r",
-            nativeQuery = true)
+    @Query(value = Queries.Ids.ByName.byNameStore, nativeQuery = true)
     List<Long> findIds(String name, String storeName, int limit, long offset);
-    @Query(value =
-            "select distinct id from (" +
-                    "  select i.id, min(i.name)" +
-                    "  from item i" +
-                    "    left outer join item_details d" +
-                    "      on d.item_id = i.id" +
-                    "    left outer join store s" +
-                    "      on s.id = d.store_id" +
-                    "  where i.name like :name" +
-                    "    and s.id like :storeId" +
-                    "  group by i.id" +
-                    "  order by name asc" +
-                    "  limit :limit" +
-                    "  offset :offset" +
-                    ") r",
-            nativeQuery = true)
+    @Query(value = Queries.Ids.ByName.byNameStoreId, nativeQuery = true)
     List<Long> findIds(String name, long storeId, int limit, long offset);
+    @Query(value = Queries.Ids.ByName.byNameStoreDistance, nativeQuery = true)
+    List<Long> findIds(String name, String storeName, double lat, double lon, double distance, int limit, long offset);
 
-    @Query(value =
-            "select distinct id from (" +
-                    "  select i.id, min(i.name) as name, min(s2.new_price) as sale, min(d.price) as min" +
-                    "  from item i" +
-                    "    left outer join item_details d" +
-                    "      on d.item_id = i.id" +
-                    "    left outer join store s" +
-                    "      on s.id = d.store_id" +
-                    "    left outer join sale s2" +
-                    "      on d.id = s2.item_id" +
-                    "  where i.name like :name" +
-                    "    and s.name like :storeName" +
-                    "    and (s2.new_price is null or s2.end_date > CURRENT_DATE)" +
-                    "  group by i.id" +
-                    "  order by sale asc, min asc, name asc" +
-                    "  limit :limit" +
-                    "  offset :offset" +
-                    ") r",
-            nativeQuery = true)
+    @Query(value = Queries.Ids.ByLowest.byNameAndStore, nativeQuery = true)
     List<Long> findIdsLowestFirst(String name, String storeName, int limit, long offset);
-    @Query(value =
-            "select distinct id from (" +
-                    "  select i.id, min(i.name) as name, min(s2.new_price) as sale, min(d.price) as min" +
-                    "  from item i" +
-                    "    left outer join item_details d" +
-                    "      on d.item_id = i.id" +
-                    "    left outer join store s" +
-                    "      on s.id = d.store_id" +
-                    "    left outer join sale s2" +
-                    "      on d.id = s2.item_id" +
-                    "  where i.name like :name" +
-                    "    and s.name like :storeName" +
-                    "    and (s2.new_price is null or s2.end_date > CURRENT_DATE)" +
-                    "  group by i.id" +
-                    "  order by sale desc, min desc, name asc" +
-                    "  limit :limit" +
-                    "  offset :offset" +
-                    ") r",
-            nativeQuery = true)
+    @Query(value = Queries.Ids.ByHighest.byNameandStore, nativeQuery = true)
     List<Long> findIdsHighestFirst(String name, String storeName, int limit, long offset);
 
-    @Query(value =
-            "select distinct id from (" +
-                    "  select i.id, min(i.name) as name, min(s2.new_price) as sale, min(d.price) as min" +
-                    "  from item i" +
-                    "    left outer join item_details d" +
-                    "      on d.item_id = i.id" +
-                    "    left outer join store s" +
-                    "      on s.id = d.store_id" +
-                    "    left outer join sale s2" +
-                    "      on d.id = s2.item_id" +
-                    "  where i.name like :name" +
-                    "    and s.id like :storeId" +
-                    "    and (s2.new_price is null or s2.end_date > CURRENT_DATE)" +
-                    "  group by i.id" +
-                    "  order by sale asc, min asc, name asc" +
-                    "  limit :limit" +
-                    "  offset :offset" +
-                    ") r",
-            nativeQuery = true)
+    @Query(value = Queries.Ids.ByLowest.byNameAndStoreId, nativeQuery = true)
     List<Long> findIdsLowestFirst(String name, long storeId, int limit, long offset);
-    @Query(value =
-            "select distinct id from (" +
-                    "  select i.id as id, min(i.name) as name, min(s2.new_price) as sale, min(d.price) as min" +
-                    "  from item i" +
-                    "    left outer join item_details d" +
-                    "      on d.item_id = i.id" +
-                    "    left outer join store s" +
-                    "      on s.id = d.store_id" +
-                    "    left outer join sale s2" +
-                    "      on d.id = s2.item_id" +
-                    "  where i.name like :name" +
-                    "    and s.id = :storeId" +
-                    "    and (s2.new_price is null or s2.end_date > CURRENT_DATE)" +
-                    "  group by i.id" +
-                    "  order by sale desc, min desc, name asc" +
-                    "  limit :limit" +
-                    "  offset :offset" +
-                    ") r",
-            nativeQuery = true)
+    @Query(value = Queries.Ids.ByHighest.byNameAndStoreId, nativeQuery = true)
     List<Long> findIdsHighestFirst(String name, long storeId, int limit, long offset);
 
-    List<Item> findAllByIdIn(List<Long> ids);
+    @Query(value = Queries.Ids.ByLowest.byNameStoreDistance, nativeQuery = true)
+    List<Long> findIdsLowestFirst(String name, String storeName, double lat, double lon, double distance,
+                                  int limit, long offset);
+    @Query(value = Queries.Ids.ByHighest.byNameStoreDistance, nativeQuery = true)
+    List<Long> findIdsHighestFirst(String name, String storeName, double lat, double lon, double distance,
+                                   int limit, long offset);
+
+    Page<Item> findAllByIdIn(List<Long> ids, Pageable pageable);
 
 }

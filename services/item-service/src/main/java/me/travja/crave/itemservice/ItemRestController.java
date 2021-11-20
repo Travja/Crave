@@ -35,9 +35,9 @@ public class ItemRestController {
     @JsonView(ItemView.class)
     public Page<Item> getItems(@RequestParam(required = false) String query,
                                @RequestParam(required = false) String store,
-                               @RequestParam(required = false) Double distance,
-                               @RequestParam(required = false) Double lat,
-                               @RequestParam(required = false) Double lon,
+                               @RequestParam(required = false, defaultValue = "0") Double distance,
+                               @RequestParam(required = false, defaultValue = "0") Double lat,
+                               @RequestParam(required = false, defaultValue = "0") Double lon,
                                @RequestParam(required = false, defaultValue = "ALPHABETICAL") SortStrategy sortStrategy,
                                @RequestParam(required = false, defaultValue = "0") int page,
                                @RequestParam(required = false, defaultValue = "50") int count,
@@ -45,12 +45,11 @@ public class ItemRestController {
         Pageable pg = PageRequest.of(page, count,
                 sortStrategy.getSort() //Get the sort strategy from the enum
                         .and(SortStrategy.ALPHABETICAL.getSort()));
-        Page<Item> items = itemService
-                .getAllFromStore(query, store, sortStrategy, pg);
-//        if (query == null)
-//            items = itemService.getAllItemsSorted(sortStrategy);
-//        else
-//            items = itemService.getAllByQuery(query);
+        Page<Item> items;
+        if (distance > 0)
+            items = itemService.getAllFromStore(query, store, lat, lon, distance, sortStrategy, pg);
+        else
+            items = itemService.getAllFromStore(query, store, sortStrategy, pg);
 
         List<String> stores = new ArrayList<>();
         if (store != null && !store.isEmpty())
@@ -106,7 +105,8 @@ public class ItemRestController {
     public Page<ListItem> searchNames(@RequestParam(required = false) String query,
                                       @RequestParam(required = false, defaultValue = "false") boolean detailed,
                                       @RequestParam(required = false, defaultValue = "-1") long storeId,
-                                      @RequestParam(required = false, defaultValue = "ALPHABETICAL") SortStrategy sortStrategy,
+                                      @RequestParam(required = false, defaultValue = "ALPHABETICAL")
+                                              SortStrategy sortStrategy,
                                       @RequestParam(required = false, defaultValue = "0") int page,
                                       @RequestParam(required = false, defaultValue = "4") int count) {
         if (query == null || query.isEmpty()) return Page.empty();
