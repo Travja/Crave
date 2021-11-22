@@ -10,7 +10,6 @@ import org.springframework.web.client.RestTemplate;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.Transient;
 import java.util.Objects;
 
 @Getter
@@ -20,18 +19,6 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Location {
-
-    @Transient
-    @Setter(AccessLevel.PRIVATE)
-    private static RestTemplate restTemplate;
-    @Transient
-    @Setter(AccessLevel.PRIVATE)
-    private static Variables    variables;
-
-    static {
-        restTemplate = AppContext.getBean(RestTemplate.class);
-        variables = AppContext.getBean(Variables.class);
-    }
 
     @Id
     @GeneratedValue
@@ -68,6 +55,8 @@ public class Location {
     }
 
     public static Location fromAddress(String address) {
+        RestTemplate restTemplate = AppContext.getBean(RestTemplate.class);
+        Variables    variables    = AppContext.getBean(Variables.class);
         String url = "https://atlas.microsoft.com/search/fuzzy/json" +
                 "?api-version=1.0" +
                 "&query=" + address +
