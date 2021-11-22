@@ -145,7 +145,7 @@ public record ItemService(ItemsRepository itemsRepo,
         long count = store instanceof String ?
                 itemsRepo.countByNameAndStore(name, (String) store) :
                 itemsRepo.countDistinctIdByNameLikeAndDetailsStoreId(name, (Long) store);
-        return clean(new PageImpl(getItems(itemIds, pageable).getContent(), pageable, count));
+        return new PageImpl(getItems(itemIds, pageable).getContent(), pageable, count);
     }
 
     private List<Long> getIds(String name, Object store, SortStrategy sortStrategy, Pageable pageable) {
@@ -192,7 +192,7 @@ public record ItemService(ItemsRepository itemsRepo,
         log.info(String.join(", ", itemIds.stream().map(i -> String.valueOf(i)).collect(Collectors.toList())));
 
         long count = itemsRepo.countByNameAndStoreWithDistance(name, store, lat, lon, distance);
-        return clean(new PageImpl(getItems(itemIds, pageable).getContent(), pageable, count));
+        return new PageImpl(getItems(itemIds, pageable).getContent(), pageable, count);
     }
 
     private List<Long> getIds(String name, String store, double lat, double lon,
@@ -213,7 +213,7 @@ public record ItemService(ItemsRepository itemsRepo,
         Page<Item> items = itemsRepo.findAllByIdIn(ids.stream().collect(Collectors.toList()), pageable);
         log.info("Found " + items.getNumberOfElements() + " items.");
         log.info("*********************");
-        return items;
+        return clean(items);
     }
 
     public Optional<Item> getItem(String upc) {

@@ -41,6 +41,8 @@ public class ItemDetails {
     @JsonView({DetailsView.class, ItemView.class})
     private List<Sale> sales = new ArrayList<>();
 
+    private boolean inStock, carried;
+
     public ItemDetails(Item item, Store store, double price) {
         setItem(item);
         setStore(store);

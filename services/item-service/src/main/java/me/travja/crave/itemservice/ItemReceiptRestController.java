@@ -15,8 +15,6 @@ import me.travja.crave.common.repositories.StoreRepository;
 import me.travja.crave.common.util.Formatter;
 import me.travja.crave.common.views.CraveViews.DetailsView;
 import org.apache.commons.lang.WordUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.MultiValueMap;
@@ -50,8 +48,8 @@ public class ItemReceiptRestController {
             List<PendingDetails>     pending       = new ArrayList<>();
 
             for (ProductInformation prod : data.getProductData()) {
-                if(prod.getPrice() <= 0) continue;
-                
+                if (prod.getPrice() <= 0) continue;
+
                 Item item = itemService.getItem(prod.getUpc()).orElse(new Item());
                 Optional<Store> store = storeRepo.findStoreByStreetAddressAndCityAndState(data.getStreetAddress(),
                         data.getCity(), data.getState());
@@ -75,17 +73,23 @@ public class ItemReceiptRestController {
                                         pricesUpdated.put(dets, priceChange);
                                     itemService.save(dets);
                                 }
+
+                                if(stor.getLat() == 0 && stor.getLon() == 0)
+                                    stor.setLocation(Location.fromAddress(data.getStreetAddress() + " " + data.getCity() + " " + data.getState()));
                             },
                             () -> item.getDetails().add(new ItemDetails(item, stor, prod.getPrice())));
                 }, () -> { //Otherwise, if store is null
                     Store stor = new Store();
 
+                    Location loc =
+                            Location.fromAddress(data.getStreetAddress() + " " + data.getCity() + " " + data.getState());
+
                     stor.setName(storeName);
+                    //TODO Standardize addresses. Maybe link to Azure results.
                     stor.setStreetAddress(data.getStreetAddress());
                     stor.setCity(data.getCity());
                     stor.setState(data.getState());
-                    //TODO Get the actual Lat/Lon for the store and save that too
-                    stor.setLocation(new Location());//new Location(lat, lon));
+                    stor.setLocation(loc);
                     storeRepo.save(stor);
 
                     ItemDetails details = new ItemDetails(item, stor, prod.getPrice());

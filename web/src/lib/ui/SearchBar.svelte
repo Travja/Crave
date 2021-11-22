@@ -83,7 +83,6 @@
 </script>
 
 <FilterBox on:apply={() => search()}>
-    <!--  TODO Get sorting working  -->
     <div bind:this={sortSection} class="filter-section">
         <h4>Sort</h4>
         <label>

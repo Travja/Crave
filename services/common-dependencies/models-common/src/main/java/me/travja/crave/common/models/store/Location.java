@@ -1,11 +1,16 @@
 package me.travja.crave.common.models.store;
 
 import lombok.*;
+import me.travja.crave.common.conf.AppContext;
+import me.travja.crave.common.conf.Variables;
+import me.travja.crave.common.models.AzureResponse;
 import org.hibernate.Hibernate;
+import org.springframework.web.client.RestTemplate;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Transient;
 import java.util.Objects;
 
 @Getter
@@ -15,6 +20,19 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Location {
+
+    @Transient
+    @Setter(AccessLevel.PRIVATE)
+    private static RestTemplate restTemplate;
+    @Transient
+    @Setter(AccessLevel.PRIVATE)
+    private static Variables    variables;
+
+    static {
+        restTemplate = AppContext.getBean(RestTemplate.class);
+        variables = AppContext.getBean(Variables.class);
+    }
+
     @Id
     @GeneratedValue
     private long id;
@@ -47,6 +65,22 @@ public class Location {
 
     public double distance(Location loc) {
         return distance(this, loc);
+    }
+
+    public static Location fromAddress(String address) {
+        String url = "https://atlas.microsoft.com/search/fuzzy/json" +
+                "?api-version=1.0" +
+                "&query=" + address +
+                "&subscription-key=" + variables.AZURE_KEY +
+                "&lat=41" +
+                "&lon=-111";
+
+        AzureResponse res = restTemplate.getForObject(url, AzureResponse.class);
+
+        if (res.getResults().isEmpty())
+            return new Location(0, 0);
+        else
+            return res.getResults().get(0).getPosition();
     }
 
     @Override
