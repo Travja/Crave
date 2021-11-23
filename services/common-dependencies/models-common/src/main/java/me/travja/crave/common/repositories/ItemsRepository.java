@@ -53,6 +53,13 @@ public interface ItemsRepository extends JpaRepository<Item, Long> {
     List<Long> findIdsHighestFirst(String name, String storeName, double lat, double lon, double distance,
                                    int limit, long offset);
 
+    /**
+     * Get the items by a list of ids. The {@link Pageable} passed in should be unpaged and used for Sorting only.
+     * @param ids - The list of ids to fetch.
+     * @param pageable - Please use Unpaged or just a pageable at page 0 to get appropriate results. This should be
+     *                 used for sorting only.
+     * @return the {@link Page} representing the response.
+     */
     Page<Item> findAllByIdIn(List<Long> ids, Pageable pageable);
 
 }

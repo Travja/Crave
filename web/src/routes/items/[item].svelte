@@ -18,7 +18,11 @@
             console.log(json);
             items = json;
             item = findCheapest(items);
+            if (!item.item.description)
+                item.item.description = "No description";
+            item.item.description = item.item.description.replaceAll("\n", "<br/>");
             console.log(item);
+            title.set(item.item.name);
             return item, items;
         }
 
@@ -28,9 +32,33 @@
 
 <script>
     import FullItemPage from "$lib/layouts/FullItemPage.svelte";
+    import {onDestroy, onMount} from "svelte";
+    import {parseJWT} from "$lib/util";
+    import {variables} from "$lib/variables";
+
+    let userIsAdmin = false;
+    let unsubscribe = () => {
+    };
+    onMount(() => {
+        unsubscribe = variables.jwt.subscribe(val => {
+            let jwt = parseJWT();
+            console.log(jwt);
+            if (jwt)
+                userIsAdmin = jwt.authorities.includes("ADMIN");
+        });
+    });
+
+    onDestroy(unsubscribe);
 </script>
 
-<FullItemPage {item} {items} {src}>
-    <div>{@html item.item.description ? item.item.description?.replaceAll("\n", "<br/>") :
-        "No description"}</div>
-</FullItemPage>
+<FullItemPage {item} {items} {src}/>
+{#if userIsAdmin}
+    <a class="button" href={`/items/edit/${item.item.upc}`}>Edit</a>
+{/if}
+
+<style>
+    .button {
+        display: inline-block;
+        margin: 0 auto;
+    }
+</style>

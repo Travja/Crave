@@ -14,11 +14,15 @@
         const res = await fetch(url);
 
         if (res.ok) {
-            let json = await res.json()
+            let json = await res.json();
             console.log(json);
             items = json;
             item = findCheapest(items);
+            if (!item.item.description)
+                item.item.description = "No description";
+            item.item.description = item.item.description.replaceAll("\n", "<br/>");
             console.log(item);
+            title.set(item.item.name);
             return item, items;
         }
 
@@ -28,7 +32,15 @@
 
 <script>
     import FullItemPage from "$lib/layouts/FullItemPage.svelte";
+    import {onMount} from "svelte";
+    import {parseJWT} from "$lib/util";
+    import {goto} from "$app/navigation";
 
+    onMount(() => {
+        let jwt = parseJWT();
+        if (!jwt || !jwt.authorities.includes("ADMIN"))
+            goto("/items/" + item.item.upc, {replaceState: true});
+    });
     // let imgUpload;
     //
     // const changeImg = e => {
@@ -36,7 +48,4 @@
     // };
 </script>
 
-<FullItemPage {item} {items} {src}>
-    <div>{@html item.item.description ? item.item.description?.replaceAll("\n", "<br/>") :
-        "No description"}</div>
-</FullItemPage>
+<FullItemPage editable="true" {item} {items} {src}/>

@@ -210,7 +210,8 @@ public record ItemService(ItemsRepository itemsRepo,
 
     public Page<Item> getItems(List<Long> ids, Pageable pageable) {
         log.info("Querying db for items with the appropriate ids.");
-        Page<Item> items = itemsRepo.findAllByIdIn(ids.stream().collect(Collectors.toList()), pageable);
+        Page<Item> items = itemsRepo.findAllByIdIn(ids.stream().collect(Collectors.toList()), PageRequest.of(0,
+                pageable.getPageSize(), pageable.getSort()));
         log.info("Found " + items.getNumberOfElements() + " items.");
         log.info("*********************");
         return clean(items);
