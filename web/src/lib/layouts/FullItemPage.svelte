@@ -1,5 +1,7 @@
 <script>
     import {formatter} from "$lib/util";
+    import {gateway} from "$lib/variables";
+    import {goto} from "$app/navigation";
 
     export let items, item, src;
     export let editable = false;
@@ -29,9 +31,16 @@
             itm.price = parseFloat(itm.price);
         }
 
-        console.log(items);
+        fetch(`${gateway()}/item-service/item-details/multiple`,
+            {
+                method: 'PATCH',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(items)
+            }
+        ).then(res => {
+            goto("/items/" + item.item.upc, {replaceState: true});
+        });
 
-        // goto("/items/" + item.item.upc, {replaceState: true});
     };
 
     const numberValidate = e => {
@@ -59,7 +68,7 @@
             <img alt="{item.item.name}" on:click={() => {
                 if(editable) imgUpload.click();
             }} src={item.item?.image ? item.item.image :
-            src}/>
+            src} class:uploadPhoto={editable}/>
             <input accept="image/*" bind:this={imgUpload} id="image" name="image" on:change={changeImg}
                    type="file"/>
             {#if editable}
@@ -257,5 +266,9 @@
         padding: 0.3em;
         border-radius: 50%;
         border: 1px solid var(--fg-color);
+    }
+
+    .addPhoto:hover, .uploadPhoto:hover {
+        cursor: pointer;
     }
 </style>

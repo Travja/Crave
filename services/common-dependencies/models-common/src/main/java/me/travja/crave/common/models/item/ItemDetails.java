@@ -67,7 +67,7 @@ public class ItemDetails {
      * @param prodInfo {@link ProductInformation}
      * @return the change in price.
      */
-    public double update(ProductInformation prodInfo) {
+    public double update(ProductInformation prodInfo, List<String> authorities) {
         double priceChange = 0;
         if (prodInfo.getPrice() > 0) {
             double prePrice  = price;
@@ -76,9 +76,8 @@ public class ItemDetails {
 
             if (Math.abs(prePrice - postPrice) > 0.0001)
                 priceChange = postPrice - prePrice;
-
         }
-        item.update(prodInfo);
+        item.update(prodInfo, authorities);
         return priceChange;
     }
 

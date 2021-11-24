@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
+import lombok.extern.slf4j.Slf4j;
 import me.travja.crave.common.conf.AppContext;
 import me.travja.crave.common.models.store.Store;
 import me.travja.crave.common.repositories.UPCRepository;
@@ -16,6 +17,7 @@ import java.util.stream.Collectors;
 
 import static me.travja.crave.common.views.CraveViews.*;
 
+@Slf4j
 @Getter
 @Setter
 @Entity
@@ -63,18 +65,26 @@ public class Item {
         this.details = details;
     }
 
-    public void update(ProductInformation prodInfo) {
-        if (getName() == null)
+    public void update(ProductInformation prodInfo, List<String> authorities) {
+        boolean isAdmin = authorities.contains("ADMIN");
+        log.info("Admin? " + isAdmin);
+        if (prodInfo.getName() != null && (getName() == null || isAdmin)) {
             setName(prodInfo.getName());
+            log.info("Set name to " + prodInfo.getName());
+        }
 
-        if (getUpc() == null)
+        if (prodInfo.getUpc() != null && (getUpc() == null || isAdmin))
             setUpc(prodInfo.getUpc());
 
-        if (getDescription() == null)
+        if (prodInfo.getDescription() != null && (getDescription() == null || isAdmin)) {
             setDescription(prodInfo.getDescription());
+            log.info("Set description");
+        }
 
-        if (getImage() == DEF_IMAGE)
+        if (prodInfo.getImage() != null && prodInfo.getImage().equals(DEF_IMAGE) && (getImage().equals(DEF_IMAGE) || isAdmin)) {
             setImage(prodInfo.getImage());
+            log.info("Set image");
+        }
 
         setLowestPrice(getLowestPrice());
     }

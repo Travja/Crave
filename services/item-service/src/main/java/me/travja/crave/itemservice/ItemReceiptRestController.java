@@ -16,6 +16,7 @@ import me.travja.crave.common.util.Formatter;
 import me.travja.crave.common.views.CraveViews.DetailsView;
 import org.apache.commons.lang.WordUtils;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.Authentication;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @CraveController("/receipt")
@@ -37,7 +39,10 @@ public class ItemReceiptRestController {
     @PostMapping
     @Transactional
     @JsonView(DetailsView.class)
-    public ResponseObject postReceipt(@RequestBody SimpleReceiptData data) {
+    public ResponseObject postReceipt(@RequestBody SimpleReceiptData data, Authentication auth) {
+        List<String> authorities = auth != null
+                ? auth.getAuthorities().stream().map(at -> at.getAuthority()).collect(Collectors.toList())
+                : new ArrayList<>();
         try {
             System.out.println(data);
             ReceiptType type      = data.getReceiptType();
@@ -59,7 +64,7 @@ public class ItemReceiptRestController {
                     details.ifPresentOrElse((dets) -> {
                                 double originalPrice = dets.getPrice();
 
-                                double priceChange = dets.update(prod);
+                                double priceChange = dets.update(prod, authorities);
 
                                 //Check for big changes...
                                 if (priceChange > originalPrice * 0.10) {
@@ -74,7 +79,7 @@ public class ItemReceiptRestController {
                                     itemService.save(dets);
                                 }
 
-                                if(stor.getLat() == 0 && stor.getLon() == 0)
+                                if (stor.getLat() == 0 && stor.getLon() == 0)
                                     stor.setLocation(Location.fromAddress(data.getStreetAddress() + " " + data.getCity() + " " + data.getState()));
                             },
                             () -> item.getDetails().add(new ItemDetails(item, stor, prod.getPrice())));
@@ -97,7 +102,7 @@ public class ItemReceiptRestController {
                     item.getDetails().add(details);
                 });
 
-                item.update(prod);
+                item.update(prod, authorities);
                 itemService.save(item);
                 updated++;
             }
@@ -118,14 +123,14 @@ public class ItemReceiptRestController {
             MediaType.APPLICATION_FORM_URLENCODED_VALUE,
             MediaType.MULTIPART_FORM_DATA_VALUE
     })
-    public ResponseObject postItems(@RequestParam MultiValueMap<String, String> data) {
-        return postReceipt(new ItemizedReceiptData(data));
+    public ResponseObject postItems(@RequestParam MultiValueMap<String, String> data, Authentication auth) {
+        return postReceipt(new ItemizedReceiptData(data), auth);
     }
 
     @Transactional
     @PostMapping("/items")
-    public ResponseObject postItemsJson(@RequestBody ItemizedReceiptData data) {
-        return postReceipt(data);
+    public ResponseObject postItemsJson(@RequestBody ItemizedReceiptData data, Authentication auth) {
+        return postReceipt(data, auth);
     }
 
 }

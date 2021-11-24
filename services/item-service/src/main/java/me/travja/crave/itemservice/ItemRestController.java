@@ -169,13 +169,7 @@ public class ItemRestController {
 
             //Update item
             Item itm = it.get();
-            itm.setUpc(upc);
-            if (item.getDescription() != null)
-                itm.setDescription(item.getDescription());
-            if (item.getImage() != null && (itm.getImage() == null || authorities.contains("ADMIN")))
-                itm.setImage(item.getImage());
-            if (item.getName() != null && (itm.getName() == null || authorities.contains("ADMIN")))
-                itm.setName(item.getName());
+            itm.update(new ProductInformation(itm.getName(), itm.getStringUpc(), itm.getImage(), itm.getDescription(), 0), authorities);
             return itemService.save(itm);
         } else {
             return itemService.save(item.toItem());

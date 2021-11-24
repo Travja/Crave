@@ -12,6 +12,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -57,6 +58,7 @@ public record ItemService(ItemsRepository itemsRepo,
     }
 
     public ItemDetails save(ItemDetails details) {
+        details.setLastUpdated(new Date());
         return detailsRepo.save(details);
     }
 
@@ -231,6 +233,10 @@ public record ItemService(ItemsRepository itemsRepo,
     public List<ItemDetails> getItemDetails(String upc) {
         List<ItemDetails> dets = detailsRepo.findAllByItemUpcUpc(upc);
         return cleanDetails(dets);
+    }
+
+    public Optional<ItemDetails> getItemDetails(long detailsId) {
+        return detailsRepo.findById(detailsId);
     }
 
     public Optional<ItemDetails> getItemDetails(String upc, long storeId) {
