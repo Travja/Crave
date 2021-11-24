@@ -11,6 +11,7 @@ import java.util.Optional;
 @Repository
 public interface PendingDetailsRepository extends CrudRepository<PendingDetails, Long> {
 
+    List<PendingDetails> findAll();
     List<PendingDetails> findAllByItemUpcUpc(String upc);
     Optional<PendingDetails> findByItemUpcUpcAndStoreId(String upc, long storeId);
     Optional<PendingDetails> findFirstByItemNameLike(String name);

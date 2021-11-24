@@ -21,7 +21,8 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 public record ItemService(ItemsRepository itemsRepo,
-                          ItemDetailsRepository detailsRepo) {
+                          ItemDetailsRepository detailsRepo,
+                          PendingDetailsRepository pendingRepo) {
 
     //TODO Clean up this class a bunch :P
 
@@ -35,21 +36,21 @@ public record ItemService(ItemsRepository itemsRepo,
 
     private Set<ItemDetails> cleanDetails(Set<ItemDetails> list) {
         list.forEach(ItemDetails::cleanSales);
-        list.removeAll(
-                list.stream()
-                        .filter(det -> det instanceof PendingDetails)
-                        .collect(Collectors.toList())
-        );
+//        list.removeAll(
+//                list.stream()
+//                        .filter(det -> det instanceof PendingDetails)
+//                        .collect(Collectors.toList())
+//        );
         return list;
     }
 
     private List<ItemDetails> cleanDetails(List<ItemDetails> list) {
         list.forEach(ItemDetails::cleanSales);
-        list.removeAll(
-                list.stream()
-                        .filter(det -> det instanceof PendingDetails)
-                        .collect(Collectors.toList())
-        );
+//        list.removeAll(
+//                list.stream()
+//                        .filter(det -> det instanceof PendingDetails)
+//                        .collect(Collectors.toList())
+//        );
         return list;
     }
 
@@ -239,6 +240,14 @@ public record ItemService(ItemsRepository itemsRepo,
         return detailsRepo.findById(detailsId);
     }
 
+    public Optional<ItemDetails> getItemDetails(long itemId, long storeId) {
+        log.info(itemId + " " + storeId);
+        Optional<ItemDetails> items = detailsRepo.findByItemIdAndStoreId(itemId, storeId);
+        log.info(items.toString());
+
+        return items;
+    }
+
     public Optional<ItemDetails> getItemDetails(String upc, long storeId) {
         Optional<ItemDetails> dets = detailsRepo.findByItemUpcUpcAndStoreId(upc, storeId);
         dets.ifPresent(det -> det.getClass());
@@ -247,15 +256,28 @@ public record ItemService(ItemsRepository itemsRepo,
     }
 
     public Optional<ItemDetails> getCheapestAtStore(String name, Store store) {
-        return detailsRepo.findFirstByItemNameLikeAndStoreOrderBySalesNewPriceAscPriceAsc("%" + name + "%", store);
+        return detailsRepo.findFirstByItemNameLikeAndStoreIdOrderBySalesNewPriceAscPriceAsc("%" + name + "%",
+                store.getId());
     }
 
     public Optional<ItemDetails> getFirstCheapest(String name) {
         return detailsRepo.findFirstByItemNameLikeOrderBySalesNewPriceAscPriceAsc("%" + name + "%");
     }
 
-    public void filter() {
+    public List<PendingDetails> getAllPending() {
+        return pendingRepo.findAll();
+    }
 
+    public PendingDetails getPending(long id) {
+        return pendingRepo.findById(id).orElse(null);
+    }
+
+    public void delete(ItemDetails details) {
+        detailsRepo.deleteById(details.getId());
+    }
+
+    public void delete(PendingDetails details) {
+        pendingRepo.deleteById(details.getId());
     }
 
 }

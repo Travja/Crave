@@ -138,7 +138,7 @@ public class AuthController {
                     user.getShoppingList().forEach((index, li) -> {
                         Optional<ItemDetails> item = itemService.getFirstCheapest(li.getText());
                         item.ifPresentOrElse(it -> list.put(index, new DetailedListItem(li.getId(), li.getText(),
-                                        li.isChecked(), it.cleanSales())),
+                                        li.isChecked(), (ItemDetails) it.cleanSales())),
                                 () -> list.put(index, li));
                     });
                 } else if (priceStrategy == PriceStrategy.SINGLE_PRICE) {
