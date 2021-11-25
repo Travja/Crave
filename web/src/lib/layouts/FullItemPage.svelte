@@ -38,7 +38,10 @@
                 body: JSON.stringify(items)
             }
         ).then(res => {
-            goto("/items/" + item.item.upc, {replaceState: true});
+            console.log(res.status);
+            if (res.status == 200 || res.status == 204) {
+                goto("/items/" + item.item.upc, {replaceState: true});
+            } else alert("Something went wrong. The item was not updated.");
         });
 
     };
@@ -93,7 +96,11 @@
                              on:blur={() => focused = undefined}
                              on:focus={e => focused = e.target.parentElement}></div>
                     {:else}
-                        <div bind:this={leadPrice}>{item.price}</div>
+                        <div class:strike={item.onSale}>{item.price.toFixed(2)}</div>
+                        {#if item.onSale}
+                            $
+                            <div class:sale={item.onSale}>{item.salePrice.toFixed(2)}</div>
+                        {/if}
                     {/if}
                 </div>
                 {#if editable}
@@ -270,5 +277,14 @@
 
     .addPhoto:hover, .uploadPhoto:hover {
         cursor: pointer;
+    }
+
+    .strike {
+        text-decoration: line-through;
+        margin-right: 0.5em;
+    }
+
+    .sale {
+        text-decoration: underline;
     }
 </style>

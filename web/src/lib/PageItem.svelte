@@ -44,9 +44,11 @@
         <div class="price">Lowest price:&nbsp;
             {#if lowestDetails.onSale}
                 <span class="sale">SALE</span>
-                <strong class="oldPrice">{formatter.format(lowestDetails?.originalPrice)}</strong>
+                <strong class="oldPrice">{formatter.format(lowestDetails?.price)}</strong>
+                <strong class:costSale={lowestDetails.onSale}>{formatter.format(lowestDetails?.salePrice)}</strong>
+            {:else}
+                <strong class:costSale={lowestDetails.onSale}>{formatter.format(lowestDetails?.price)}</strong>
             {/if}
-            <strong class:costSale={lowestDetails.onSale}>{formatter.format(lowestDetails?.price)}</strong>
         </div>
     </a>
     <div class="footer">
@@ -86,10 +88,17 @@
     }
 
     .section {
+        flex-basis: 100%;
         padding: 20px;
         border: 1px solid rgba(0, 0, 0, 0.25);
         align-items: stretch;
         transition: background-color 0.3s;
+    }
+
+    @media only screen and (min-width: 768px) {
+        .section {
+            flex-basis: 15%;
+        }
     }
 
     .section:hover {

@@ -12,6 +12,7 @@ import me.travja.crave.common.models.item.Sale;
 import me.travja.crave.common.models.store.Location;
 import me.travja.crave.common.models.store.Store;
 import me.travja.crave.common.repositories.ItemDetailsRepository;
+import me.travja.crave.common.repositories.SaleRepository;
 import me.travja.crave.common.repositories.StoreRepository;
 import me.travja.crave.common.util.Formatter;
 
@@ -34,10 +35,17 @@ public class SaleDeserializer extends StdDeserializer<Sale> {
     public Sale deserialize(JsonParser jp, DeserializationContext context) throws IOException {
         ItemDetailsRepository itemRepo  = AppContext.getBean(ItemDetailsRepository.class);
         StoreRepository       storeRepo = AppContext.getBean(StoreRepository.class);
+        SaleRepository        saleRepo  = AppContext.getBean(SaleRepository.class);
 
         JsonNode node = jp.getCodec().readTree(jp);
-        Sale     sale = new Sale();
-        long     storeId;
+
+        if (node.has("id")) {
+            Optional<Sale> sale = saleRepo.findById(node.get("id").asLong());
+            return sale.orElse(null);
+        }
+
+        Sale sale = new Sale();
+        long storeId;
 
 
         if (node.has("store")) {
@@ -77,7 +85,9 @@ public class SaleDeserializer extends StdDeserializer<Sale> {
             storeId = store.getId();
 
         } else {
-            storeId = node.get("storeId").asLong();
+            JsonNode sNode = node.get("storeId");
+            if (sNode == null) sNode = node.get("sid");
+            storeId = sNode.asLong();
             Optional<Store> oStore       = storeRepo.findById(storeId);
             long            finalStoreId = storeId;
             oStore.ifPresentOrElse(store -> sale.setStore(store),

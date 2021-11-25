@@ -101,14 +101,12 @@ export const findCheapest = details => {
                 if (!lowestDetails) {
                     lowestDetails = {...det};
                     lowestDetails.onSale = true;
-                    lowestDetails.price = sale.newPrice;
-                    lowestDetails.originalPrice = det.price;
+                    lowestDetails.salePrice = sale.newPrice;
                 } else {
                     if (lowestDetails.price > sale.newPrice) {
                         lowestDetails = {...det};
                         lowestDetails.onSale = true;
-                        lowestDetails.price = sale.newPrice;
-                        lowestDetails.originalPrice = det.price;
+                        lowestDetails.salePrice = sale.newPrice;
                     }
                 }
             })

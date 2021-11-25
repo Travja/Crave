@@ -2,10 +2,7 @@ package me.travja.crave.common.models.item;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import me.travja.crave.common.models.store.Store;
 import me.travja.crave.common.serialization.SaleDeserializer;
 import org.hibernate.Hibernate;
@@ -35,6 +32,14 @@ public class Sale {
     private ItemDetails item;
     private double      newPrice;
     private Date        startDate, endDate;
+
+    @Transient
+    @Setter(AccessLevel.NONE)
+    private long sid; //Store id, just for Json purposes.
+
+    public long getSid() {
+        return store.getId();
+    }
 
     @Override
     public boolean equals(Object o) {
