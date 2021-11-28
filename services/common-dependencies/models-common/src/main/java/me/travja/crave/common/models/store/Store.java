@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import me.travja.crave.common.models.item.ItemDetails;
-import me.travja.crave.common.models.item.Sale;
+import me.travja.crave.common.models.sale.Sale;
 import org.hibernate.Hibernate;
 
 import javax.persistence.*;

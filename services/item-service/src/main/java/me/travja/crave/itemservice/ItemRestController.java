@@ -8,6 +8,7 @@ import me.travja.crave.common.models.SortStrategy;
 import me.travja.crave.common.models.auth.AuthToken;
 import me.travja.crave.common.models.auth.CraveUser;
 import me.travja.crave.common.models.item.*;
+import me.travja.crave.common.models.sale.Sale;
 import me.travja.crave.common.models.store.Location;
 import me.travja.crave.common.repositories.ItemService;
 import me.travja.crave.common.repositories.UserRepo;

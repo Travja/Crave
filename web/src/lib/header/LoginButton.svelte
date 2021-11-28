@@ -37,8 +37,12 @@
         height: 100%;
         display: flex;
         height: 100%;
+        width: 100%;
+        box-sizing: border-box;
+        text-align: center;
         align-items: center;
-        padding: 0 1em;
+        justify-content: center;
+        padding: 0.5em;
         color: var(--heading-color);
         font-weight: 700;
         font-size: 0.8rem;

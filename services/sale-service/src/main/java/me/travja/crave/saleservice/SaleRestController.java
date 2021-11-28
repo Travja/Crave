@@ -4,7 +4,8 @@ import com.fasterxml.jackson.annotation.JsonView;
 import lombok.RequiredArgsConstructor;
 import me.travja.crave.common.annotations.CraveController;
 import me.travja.crave.common.models.ResponseObject;
-import me.travja.crave.common.models.item.Sale;
+import me.travja.crave.common.models.sale.BatchSale;
+import me.travja.crave.common.models.sale.Sale;
 import me.travja.crave.common.models.store.Store;
 import me.travja.crave.common.repositories.SaleRepository;
 import me.travja.crave.common.repositories.StoreRepository;
@@ -12,6 +13,7 @@ import me.travja.crave.common.repositories.UserRepo;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -64,11 +66,14 @@ public class SaleRestController {
 
     @PostMapping
     @JsonView(SaleView.class)
-    public ResponseObject createItem(@RequestBody Sale sale) {
+    public ResponseObject createItem(@RequestBody BatchSale batch) {
         //TODO validate that the sale information is actually valid and not a duplicate.
         // Also notify any users that have favorited any items on this sale.
-        Sale s = repo.save(sale);
-        return ResponseObject.successConditional(s != null, "sale", s);
+        List<Sale> created = new ArrayList<>();
+        for (Sale sale : batch.getSales()) {
+            created.add(repo.save(sale));
+        }
+        return ResponseObject.successConditional(!created.isEmpty(), "sales", created);
     }
 
     //TODO Create update (PATCH) method

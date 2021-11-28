@@ -24,6 +24,7 @@
     let storeFilter;
     let distanceFilter;
     let sortStrategy;
+    let divider;
 
     const getLocation = (callback) => {
         if (navigator.geolocation)
@@ -45,9 +46,13 @@
             .catch(e => console.error(e));
     }
 
-    const navigatePage = i => {
+    const navigatePage = async i => {
         currentPage = i;
-        getItems();
+        await getItems();
+        divider.scrollIntoView({
+            block: 'center',
+            behavior: 'smooth'
+        });
     };
 
     const getItems = async () => {
@@ -175,7 +180,7 @@
     <div id="intro">
         <p>Finding the lowest prices has never been so easy!</p>
     </div>
-    <div class="divider">
+    <div bind:this={divider} class="divider">
         <hr>
         <div class="sp"/>
         <SearchBar on:search={search}/>

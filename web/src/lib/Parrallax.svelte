@@ -37,15 +37,13 @@
     .main {
         position: sticky;
         top: 0;
-        bottom: 0;
-        background-color: white;
-        max-width: 100%;
-        max-height: var(--height);
-        /*overflow: hidden;*/
-
+        left: 0;
         display: flex;
         align-items: center;
         justify-content: center;
+        background-color: white;
+        max-width: 100%;
+        max-height: var(--height);
     }
 
     .bg {

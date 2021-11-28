@@ -53,29 +53,41 @@
 
 <style>
     main {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        padding: 0;
-        width: 80%;
         background: var(--bg-color);
-        margin: 0 auto;
-        box-sizing: border-box;
-        box-shadow: 5px 0px 10px #666, -5px 0px 10px #666;
-        transform-style: inherit;
-        perspective: inherit;
-        perspective-origin: inherit;
     }
 
     .content {
+        padding: 0.7rem;
         position: relative;
-        padding: 1rem;
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        width: 100%;
-        margin: 0 auto;
-        box-sizing: border-box;
-        background: inherit;
+        z-index: 1;
+        background: var(--bg-color);
+    }
+
+    @media only screen and (min-width: 768px) {
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 0;
+            width: 80%;
+            margin: 0 auto;
+            box-sizing: border-box;
+            box-shadow: 5px 0px 10px #666, -5px 0px 10px #666;
+            transform-style: inherit;
+            perspective: inherit;
+            perspective-origin: inherit;
+        }
+
+        .content {
+            position: relative;
+            padding: 1rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            margin: 0 auto;
+            box-sizing: border-box;
+            background: inherit;
+        }
     }
 </style>

@@ -10,7 +10,7 @@ import java.util.Locale;
 public class Formatter {
 
 
-    private static DateFormat   dateFormat     = new SimpleDateFormat("MM-dd-yyyy");
+    private static DateFormat   dateFormat     = new SimpleDateFormat("yyyy-MM-dd");
     private static NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(Locale.US);
 
     public static String formatCurrency(double num) {

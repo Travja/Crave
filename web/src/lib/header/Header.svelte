@@ -6,7 +6,7 @@
     import {loadJWT, verifyJWT} from "$lib/util";
     import LoginModal from "$lib/LoginModal.svelte";
     import {onMount} from "svelte";
-    import {login, loginState, logout, variables} from "$lib/variables";
+    import {login, loginState, logout, title} from "$lib/variables";
 
     //Define nav bar routes here and which pages should be authenticated.
     let pages = [
@@ -72,6 +72,11 @@
     const closeLoginModal = () => {
         prompt = showLoginModal = requireLogin = false;
     };
+
+    let showNav = false;
+    const showNavigation = e => {
+        showNav = !showNav;
+    };
 </script>
 
 <header>
@@ -82,10 +87,11 @@
     </div>
 
     <nav>
+        <div class="show" on:click={showNavigation}>{$title}</div>
         <svg aria-hidden="true" viewBox="0 0 2 3">
             <path d="M0,0 L1,2 C1.5,3 1.5,3 2,3 L2,0 Z"/>
         </svg>
-        <ul>
+        <ul class:open={showNav} on:click={showNavigation}>
             {#each pages as pg}
                 {#if !pg.hidden}
                     {#if pg.auth && $loggedIn || !pg.auth}
@@ -149,17 +155,21 @@
         object-fit: contain;
     }
 
-    nav {
+    nav, .show {
         display: flex;
         justify-content: center;
+        flex: 1;
         --background: #ccc;
-        z-index: 5000;
+        z-index: 100;
+    }
+
+    nav {
+        flex-direction: column;
+        align-items: center;
     }
 
     svg {
-        width: 2em;
-        height: 3em;
-        display: block;
+        display: none;
     }
 
     path {
@@ -167,28 +177,43 @@
     }
 
     ul {
-        position: relative;
+        transition: max-height .5s ease-in-out;
+        max-height: 0px;
+        overflow: hidden;
+
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
         padding: 0;
         margin: 0;
-        height: 3em;
-        display: flex;
         justify-content: center;
         align-items: center;
         list-style: none;
         background: var(--background);
         background-size: contain;
+        width: 80%;
     }
 
-    a.active::before {
-        --size: 6px;
-        content: '';
-        width: 0;
-        height: 0;
-        position: absolute;
-        top: 0;
-        left: calc(50% - var(--size));
-        border: var(--size) solid transparent;
-        border-top: var(--size) solid var(--accent-color);
+    ul.open {
+        max-height: 20rem;
+    }
+
+    .show {
+        width: 80%;
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: var(--background);
+        color: var(--heading-color);
+        font-weight: 700;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        text-decoration: none;
+        box-sizing: border-box;
+        padding: 1em;
+        border-bottom: 2px solid var(--fg-color);
     }
 
     nav a {
@@ -206,6 +231,18 @@
         text-decoration: none;
     }
 
+    a.active::before {
+        --size: 6px;
+        content: '';
+        width: 0;
+        height: 0;
+        position: absolute;
+        top: calc(50% - var(--size));
+        left: 0;
+        border: var(--size) solid transparent;
+        border-left: var(--size) solid var(--accent-color);
+    }
+
     .transitions-enabled nav a {
         transition: color 0.2s linear;
     }
@@ -213,10 +250,65 @@
     a {
         color: var(--heading-color);
         text-decoration: none;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    li {
+        box-sizing: border-box;
+        padding: 0.5em;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-grow: 1;
+        text-align: center;
+        align-items: center;
+        justify-content: center;
+        position: relative;
     }
 
     a:hover, nav li:hover {
         cursor: pointer;
         color: var(--accent-color);
+    }
+
+    @media only screen and (min-width: 768px) {
+        .show {
+            display: none;
+        }
+
+        nav {
+            flex-direction: row;
+        }
+
+        svg {
+            width: 2em;
+            height: 3em;
+            display: block;
+        }
+
+        ul {
+            max-height: 3em;
+            display: flex;
+            flex-direction: row;
+            position: relative;
+            height: 3em;
+        }
+
+        a.active::before {
+            --size: 6px;
+            content: '';
+            width: 0;
+            height: 0;
+            position: absolute;
+            top: 0;
+            left: calc(50% - var(--size));
+            border: var(--size) solid transparent;
+            border-top: var(--size) solid var(--accent-color);
+        }
+
+        li {
+            margin: 0;
+        }
     }
 </style>

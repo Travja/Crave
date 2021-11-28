@@ -1,6 +1,7 @@
 package me.travja.crave.common.repositories;
 
-import me.travja.crave.common.models.item.Sale;
+import me.travja.crave.common.models.item.ItemDetails;
+import me.travja.crave.common.models.sale.Sale;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -19,5 +20,7 @@ public interface SaleRepository extends JpaRepository<Sale, Long> {
     @Query("from Sale s where s.item.item.name like %:query% or s.store.name like %:query% " +
             "or s.item.item.upc.upc like %:query%")
     List<Sale> findAllByQuery(String query, Pageable pageable);
+
+    List<Sale> findAllByItem(ItemDetails item);
 
 }

@@ -4,11 +4,12 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import lombok.extern.slf4j.Slf4j;
 import me.travja.crave.common.conf.AppContext;
 import me.travja.crave.common.exceptions.ItemNotFoundException;
 import me.travja.crave.common.exceptions.StoreNotFoundException;
 import me.travja.crave.common.models.item.ItemDetails;
-import me.travja.crave.common.models.item.Sale;
+import me.travja.crave.common.models.sale.Sale;
 import me.travja.crave.common.models.store.Location;
 import me.travja.crave.common.models.store.Store;
 import me.travja.crave.common.repositories.ItemDetailsRepository;
@@ -21,6 +22,7 @@ import java.text.ParseException;
 import java.util.Date;
 import java.util.Optional;
 
+@Slf4j
 public class SaleDeserializer extends StdDeserializer<Sale> {
 
     public SaleDeserializer() {
@@ -70,6 +72,7 @@ public class SaleDeserializer extends StdDeserializer<Sale> {
 
             Optional<Store> oStore = storeRepo.findStoreByStreetAddressAndCityAndState(streetAddress, city, state);
 
+            log.info("Store present? " + oStore.isPresent());
             Store store;
             if (oStore.isPresent()) {
                 store = oStore.get();
@@ -82,6 +85,8 @@ public class SaleDeserializer extends StdDeserializer<Sale> {
                 store.setLocation(new Location(lat, lon));
                 store = storeRepo.save(store);
             }
+
+            sale.setStore(store);
             storeId = store.getId();
 
         } else {
@@ -94,13 +99,13 @@ public class SaleDeserializer extends StdDeserializer<Sale> {
                     () -> {throw new StoreNotFoundException("Could not find store by id " + finalStoreId);});
         }
 
-        String                upc   = node.get("item").asText();
+        String                upc   = node.get("upc").asText();
         Optional<ItemDetails> oItem = itemRepo.findByItemUpcUpcAndStoreId(upc, storeId);
         oItem.ifPresentOrElse(item -> sale.setItem(item),
                 () -> {throw new ItemNotFoundException("Could not find item by UPC " + upc);});
 
 
-        double newPrice = node.get("newPrice").asDouble();
+        double newPrice = node.get("price").asDouble();
         sale.setNewPrice(newPrice);
 
         try {

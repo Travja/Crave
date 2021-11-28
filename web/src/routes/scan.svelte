@@ -12,11 +12,11 @@
     let rows = 2;
     let gate;
 
-    let numRegex = /^[0-9]*?\.?[0-9]{0,2}$/
+    let numRegex = /^[0-9]*?\.?[0-9]{0,2}$/;
 
     onMount(() => gate = gateway());
 
-    let testInput = e => {
+    const testInput = e => {
         if (!numRegex.test(e.target.value + e.key))
             e.preventDefault();
     };
@@ -66,7 +66,7 @@
         <div class="button submit" on:click={submit}>Submit</div>
         <div class="button" on:click={() => rows++}>Add Row
         </div>
-        <div class="button" on:click={() => {if(rows > 0) rows--;}}>Remove Row
+        <div class="button" on:click={() => {if(rows > 1) rows--;}}>Remove Row
         </div>
     </section>
 </section>

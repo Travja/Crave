@@ -1,8 +1,9 @@
-package me.travja.crave.common.models.item;
+package me.travja.crave.common.models.sale;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.*;
+import me.travja.crave.common.models.item.ItemDetails;
 import me.travja.crave.common.models.store.Store;
 import me.travja.crave.common.serialization.SaleDeserializer;
 import org.hibernate.Hibernate;
@@ -38,6 +39,8 @@ public class Sale {
     private long sid; //Store id, just for Json purposes.
 
     public long getSid() {
+        if (store == null) return -1;
+
         return store.getId();
     }
 

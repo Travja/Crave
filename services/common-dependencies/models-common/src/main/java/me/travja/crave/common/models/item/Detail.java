@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import me.travja.crave.common.models.sale.Sale;
 import me.travja.crave.common.models.store.Store;
 import org.hibernate.Hibernate;
 

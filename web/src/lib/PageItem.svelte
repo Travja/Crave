@@ -50,6 +50,7 @@
                 <strong class:costSale={lowestDetails.onSale}>{formatter.format(lowestDetails?.price)}</strong>
             {/if}
         </div>
+        <div class="clear"/>
     </a>
     <div class="footer">
         <div class="store">{lowestDetails?.store?.name}</div>
@@ -76,15 +77,16 @@
     .section, .section > a {
         color: var(--fg-color);
         position: relative;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        flex: 1;
+        display: block;
     }
 
     a.blank-button {
         color: var(--fg-color);
+    }
+
+    .section > a {
+        margin-bottom: 0.5rem;
+        display: block;
     }
 
     .section {
@@ -96,8 +98,29 @@
     }
 
     @media only screen and (min-width: 768px) {
+        .section, .section > a {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            align-items: center;
+            justify-content: center;
+        }
+
         .section {
             flex-basis: 15%;
+        }
+
+        a {
+            margin-bottom: 0;
+        }
+
+        .name {
+            text-align: center;
+        }
+
+        .icons {
+            opacity: 0;
+            transition: opacity 0.3s;
         }
     }
 
@@ -115,12 +138,9 @@
     }
 
     img {
+        float: left;
         min-width: 200px;
         max-width: 200px;
-    }
-
-    .name {
-        text-align: center;
     }
 
     .price {
@@ -149,8 +169,6 @@
     .icons {
         display: flex;
         flex-direction: row;
-        opacity: 0;
-        transition: opacity 0.3s;
     }
 
     .section:hover .icons {
