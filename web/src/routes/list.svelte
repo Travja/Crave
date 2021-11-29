@@ -373,8 +373,11 @@
         <FilterBox on:apply={applyFilters}>
             <div bind:this={priceContainer} class="filter-section priceContainer">
                 <h4>Price Display</h4>
-                <label><input name="display" type="radio" value="single-price"/>Single Store Price</label>
-                <label><input checked name="display" type="radio" value="cheapest-price"/>Cheapest Price</label>
+                <label><input checked="{priceStrategy == 'single-price'}" name="display" type="radio"
+                              value="single-price"/>Single Store Price</label>
+                <label><input checked="{priceStrategy == 'cheapest-price'}" name="display" type="radio"
+                              value="cheapest-price"/>Cheapest
+                    Price</label>
             </div>
         </FilterBox>
     </div>
