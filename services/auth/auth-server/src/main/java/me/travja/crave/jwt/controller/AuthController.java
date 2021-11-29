@@ -26,6 +26,7 @@ import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -125,6 +126,7 @@ public class AuthController {
 
     @GetMapping("/list")
     @JsonView(DetailsView.class)
+    @Transactional
     public Map<Integer, ListItem> getList(@RequestParam(required = false, defaultValue = "false") boolean detailed,
                                           @RequestParam(required = false, defaultValue = "CHEAPEST_PRICE")
                                                   PriceStrategy priceStrategy,

@@ -267,7 +267,8 @@
         flex: auto;
         background: transparent;
         padding: 0px 21px;
-        flex: 1;
+        flex-grow: 1;
+        flex-basis: 15%;
     }
 
     .fix::after {

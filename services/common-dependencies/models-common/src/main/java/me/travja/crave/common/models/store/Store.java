@@ -24,7 +24,7 @@ public class Store {
 
     @Id
     @GeneratedValue
-    @JsonView(SaleView.class)
+    @JsonView({SaleView.class, StoreView.class, ItemView.class, StoreSaleView.class, DetailsView.class})
     private long   id;
     private String name;
     private String streetAddress;

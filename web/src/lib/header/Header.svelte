@@ -293,6 +293,7 @@
             flex-direction: row;
             position: relative;
             height: 3em;
+            width: auto;
         }
 
         a.active::before {

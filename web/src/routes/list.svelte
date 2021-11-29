@@ -113,6 +113,7 @@
             `${priceStrategy.toUpperCase().replace("-", "_")}`)
             .then(res => res.json())
             .then(data => {
+                console.log(data);
                 if (!data.status || data.status == 200) {
                     let list = [];
 
@@ -125,6 +126,7 @@
                         itm.uid = {};
                         itm.id = undefined;
 
+                        console.log(itm.lowestDetails);
                         if (itm.lowestDetails)
                             lowestStore = itm.lowestDetails.store.id;
 
@@ -318,6 +320,7 @@
         fetch(url)
             .then(res => res.json())
             .then(data => {
+                console.log(data);
                 let list = data.content;
                 let dList = [];
                 if (list && list.length >= 1) {
