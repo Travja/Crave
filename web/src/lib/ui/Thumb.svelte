@@ -2,7 +2,8 @@
     export let canDrag = false;
 </script>
 <div class:draggable={canDrag} draggable="{canDrag}"
-     on:dragstart>
+     on:dragstart
+     on:touchstart>
     <svg class="dragHandle"
          viewBox="0 0 10 10">
         {#if canDrag}

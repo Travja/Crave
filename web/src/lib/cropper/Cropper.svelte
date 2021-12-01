@@ -89,14 +89,19 @@
         let svgDx = offsetLeft + margin.left;
         let svgDy = offsetTop + margin.top;
 
-        updating.x = e.clientX - svgDx;
-        updating.y = e.clientY - svgDy;
+        let x = e.touches && e.touches.length > 0 ? e.touches[0].clientX : e.clientX;
+        let y = e.touches && e.touches.length > 0 ? e.touches[0].clientY : e.clientY;
+
+        updating.x = x - svgDx;
+        updating.y = y - svgDy;
 
         let target = targetPoints[updating.index];
         target[0] = updating.x;
         target[1] = updating.y;
 
         circles = [...circles];
+
+        e.preventDefault();
     };
 
     let round = (num, digits) => {
@@ -327,6 +332,7 @@
             <div class="wrapper" on:click={upload} style="{`--hover: ${!url ? 'pointer' : ''}`}">
                 <svg bind:this={svg} height="{myHeight}" id="svg"
                      on:mousemove={updateCircles} on:mouseup={stopCircles}
+                     on:touchend={stopCircles} on:touchmove={updateCircles}
                      style="{cursor ? `cursor: ${cursor}` : ``}"
                      width="{myWidth}">
                     <g bind:this={g} id="window_g"
@@ -337,7 +343,8 @@
                         {#each circles as circle, i (circle.id)}
                             <circle cx="{circle.x}" cy="{circle.y}" r="{$sizes[i]}"
                                     class="handle" style="{cursor ? `cursor: ${cursor}` : ``}"
-                                    on:mousedown={e => downCircle(e, circle)}/>
+                                    on:mousedown={e => downCircle(e, circle)}
+                                    on:touchstart={e => downCircle(e, circle)}/>
                         {/each}
                     </g>
                 </svg>
@@ -481,6 +488,7 @@
         max-height: 70vh;
         overflow: hidden;
         user-select: none;
+        justify-content: center;
     }
 
     .buttonContainer {
@@ -490,18 +498,26 @@
         justify-content: center;
     }
 
-    .container .o_image {
-        width: 50%;
-        border-right: 1px solid;
+    .o_image, .p_image {
+        flex: 1;
     }
 
-    .container .p_image {
-        width: 50%;
+    .p_image {
         border-left: 1px solid;
         text-align: center;
-        display: flex;
         justify-content: center;
         align-items: center;
+        display: none;
+    }
+
+    @media only screen and (min-width: 768px) {
+        .p_image {
+            display: flex;
+        }
+
+        .container .o_image {
+            border-right: 1px solid;
+        }
     }
 
     #file-upload {

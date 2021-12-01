@@ -136,10 +136,10 @@
         display: flex;
         justify-content: space-between;
         background: var(--bg-color);
-        padding-bottom: 0.5em;
         z-index: 100;
         width: 100%;
-        margin: 0 auto;
+        margin: 0 auto 0.5em;
+        box-shadow: 0 0 10px #333;
     }
 
     .corner {

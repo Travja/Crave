@@ -58,8 +58,9 @@
 
     .content {
         padding: 0.7rem;
+        margin-top: -0.6rem;
         position: relative;
-        z-index: 1;
+        z-index: 3;
         background: var(--bg-color);
     }
 

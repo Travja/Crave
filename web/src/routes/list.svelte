@@ -245,17 +245,47 @@
 
     const dragStart = e => {
         e.preventDefault();
-        tracking = e.target.parentNode;
+        tracking = e.target;
+        while (!tracking.classList.contains("row"))
+            tracking = tracking.parentNode;
         targetIndex = activeIndex = parseInt(tracking.getAttribute("index"));
-        pos1 = e.clientY + tracking.getBoundingClientRect().height;
+        if (e.touches && e.touches.length > 0)
+            pos1 = e.touches[0].clientY + tracking.getBoundingClientRect().height / 3;
+        else
+            pos1 = e.clientY + tracking.getBoundingClientRect().height;
     };
 
     const dragging = e => {
         if (!tracking) return;
+        // console.log("dragging", e);
         e.preventDefault();
-        pos2 = pos1 - e.clientY;
-        pos1 = e.clientY;
-        tracking.style.top = (tracking.offsetTop - pos2) + "px";
+        let x, y;
+        if (e.touches && e.touches.length > 0) {
+            pos2 = pos1 - e.touches[0].clientY;
+            pos1 = e.touches[0].clientY;
+
+            x = e.touches[0].clientX;
+            y = e.touches[0].clientY;
+        } else {
+            pos2 = pos1 - e.clientY;
+            pos1 = e.clientY;
+
+            x = e.clientX;
+            y = e.clientY;
+        }
+
+        let parentRect = tracking.parentNode.getBoundingClientRect();
+        tracking.style.top = (y - parentRect.top) + "px";
+
+        if (e.touches && e.touches.length > 0) {
+            let targets = document.elementsFromPoint(x, y);
+            targets = targets.filter(e => e.classList.contains("row") && !e.classList.contains("filler"));
+            if (targets.length > 0) {
+                let target = targets[0];
+                targetIndex = parseInt(target.getAttribute("index"));
+            }
+        }
+
     };
 
     const endDrag = e => {
@@ -384,7 +414,9 @@
     <div bind:this={itemContainer} class="items"
          on:mouseleave={endDrag}
          on:mousemove={dragging}
-         on:mouseup={endDrag}>
+         on:mouseup={endDrag}
+         on:touchend={endDrag}
+         on:touchmove={dragging}>
         {#each items as itm, i (itm.uid)}
             {#if targetIndex == i}
                 <div class="filler row"><span class="material-icons-round drag">keyboard_double_arrow_right</span>
@@ -402,7 +434,7 @@
                  index="{i}"
                  on:mousemove={dragOver}
                  transition:slide>
-                <Thumb canDrag="{!!itm.text}" on:dragstart={dragStart}/>
+                <Thumb canDrag="{!!itm.text}" on:dragstart={dragStart} on:touchstart={dragStart}/>
                 <div class="checkWrap">
                     {#if itm.text}
                         {#if itm.checked}
@@ -498,7 +530,12 @@
         /*width: 30%;*/
         margin: 0 auto;
         flex-grow: 1;
-        max-width: 80%;
+    }
+
+    @media only screen and (min-width: 768px) {
+        .container {
+            max-width: 80%;
+        }
     }
 
     .container > * {

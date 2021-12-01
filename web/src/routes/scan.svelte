@@ -90,14 +90,21 @@
     }
 
     #man-form {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-direction: column;
+        overflow-x: auto;
+    }
+
+    @media only screen and (min-width: 768px) {
+        #man-form {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
     }
 
     #table {
         border: 1px solid var(--fg-color);
+        display: inline-block;
     }
 
     .row {

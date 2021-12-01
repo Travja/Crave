@@ -291,6 +291,7 @@
         position: fixed;
         bottom: 1em;
         right: 1em;
+        left: 1em;
         background: #ddd;
         border-radius: 1em;
         padding: 1em;
@@ -324,5 +325,11 @@
     .pageNum.active {
         text-decoration: underline;
         font-weight: bold;
+    }
+
+    @media only screen and (min-width: 768px) {
+        #tip {
+            left: unset;
+        }
     }
 </style>
