@@ -1,5 +1,4 @@
-[![Build](https://github.com/Travja/Crave/actions/workflows/build.yml/badge.svg?branch=master)](https://github.
-com/Travja/Crave/actions/workflows/build.yml/badge.svg)
+[![Build Artifacts](https://github.com/Travja/Crave/actions/workflows/bulid.yml/badge.svg)](https://github.com/Travja/Crave/actions/workflows/bulid.yml)
 
 # Crave
 
