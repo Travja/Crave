@@ -36,7 +36,7 @@
 
     <h4>There is limited store support!</h4>
     <p>
-        Unfortunately, many stores do now offer public APIs, nor do their receipts supply appropriate
+        Unfortunately, many stores do not offer public APIs, nor do their receipts supply appropriate
         information for us to automatically parse and read. We plan to continue to expand our supported
         stores, but as of right now, Walmart and Target are the only stores whose receipts you can scan
         automatically. Other stores, when added, are available to be used through the manual entry at
