@@ -55,7 +55,7 @@ public class JWTRequestFilter extends OncePerRequestFilter {
                 userAuth.setFavorites(auth.getFavorites());
                 userAuth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(userAuth);
-                logger.info("User authenticated.");
+                logger.info("User authenticated. \tRoles: " + String.join(", ", auth.getRoles()));
             }
         }
 

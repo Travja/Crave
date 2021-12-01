@@ -10,17 +10,19 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface SaleRepository extends JpaRepository<Sale, Long> {
+public interface
+SaleRepository extends JpaRepository<Sale, Long> {
 
-    List<Sale> findAll();
-    List<Sale> findAllByStoreId(long id);
-    List<Sale> findAllByStoreName(String name);
-    List<Sale> findAllByItemItemUpcUpc(String upc);
+    List<Sale> findAllByApprovedFalse();
+    List<Sale> findAllByApprovedTrue();
+    List<Sale> findAllByStoreIdAndApprovedTrue(long id);
+    List<Sale> findAllByStoreNameAndApprovedTrue(String name);
+    List<Sale> findAllByItemItemUpcUpcAndApprovedTrue(String upc);
 
-    @Query("from Sale s where s.item.item.name like %:query% or s.store.name like %:query% " +
-            "or s.item.item.upc.upc like %:query%")
+    @Query("from Sale s where (s.item.item.name like %:query% or s.store.name like %:query% " +
+            "or s.item.item.upc.upc like %:query%) and s.approved = true")
     List<Sale> findAllByQuery(String query, Pageable pageable);
 
-    List<Sale> findAllByItem(ItemDetails item);
+    List<Sale> findAllByItemAndApprovedTrue(ItemDetails item);
 
 }

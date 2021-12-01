@@ -8,7 +8,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @SpringBootApplication
-@ComponentScan(basePackages = {Packages.SERVICES, "me.travja.crave.jwt"})
+@ComponentScan(basePackages = {Packages.SERVICES, "me.travja.crave.jwt", "me.travja.crave.common.rabbit"})
 @EntityScan(basePackages = Packages.ENTITIES)
 @EnableJpaRepositories(basePackages = Packages.REPOSITORIES)
 public class AuthServerApplication {

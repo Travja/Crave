@@ -17,6 +17,7 @@
     --link-color: rgb(0, 100, 200);
     --link-visited: rgb(1, 82, 164);
     --bg-color: white;
+    --bg-color-secondary: #ccc;
     --fg-color: #333;
     --disabled-fg-color: #666;
     --button-bg-color: #f4f4f4;
@@ -65,6 +66,7 @@ body {
         background-repeat: repeat;
         z-index: -10;
     }
+
     #svelte {
         height: 100%;
         min-height: 100vh;

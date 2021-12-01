@@ -148,7 +148,7 @@ public record ItemService(ItemsRepository itemsRepo,
         long count = store instanceof String ?
                 itemsRepo.countByNameAndStore(name, (String) store) :
                 itemsRepo.countDistinctIdByNameLikeAndDetailsStoreId(name, (Long) store);
-        return new PageImpl(getItems(itemIds, pageable).getContent(), pageable, count);
+        return clean(new PageImpl(getItems(itemIds, pageable).getContent(), pageable, count));
     }
 
     private List<Long> getIds(String name, Object store, SortStrategy sortStrategy, Pageable pageable) {
@@ -195,7 +195,7 @@ public record ItemService(ItemsRepository itemsRepo,
         log.info(String.join(", ", itemIds.stream().map(i -> String.valueOf(i)).collect(Collectors.toList())));
 
         long count = itemsRepo.countByNameAndStoreWithDistance(name, store, lat, lon, distance);
-        return new PageImpl(getItems(itemIds, pageable).getContent(), pageable, count);
+        return clean(new PageImpl(getItems(itemIds, pageable).getContent(), pageable, count));
     }
 
     private List<Long> getIds(String name, String store, double lat, double lon,
@@ -270,6 +270,13 @@ public record ItemService(ItemsRepository itemsRepo,
 
     public PendingDetails getPending(long id) {
         return pendingRepo.findById(id).orElse(null);
+    }
+
+    public PendingDetails savePendingIfNotExists(PendingDetails pendingDetails) {
+        boolean exists = pendingRepo.existsByItemIdAndPrice(pendingDetails.getItem().getId(),
+                pendingDetails.getPrice());
+
+        return !exists ? pendingRepo.save(pendingDetails) : null;
     }
 
     public void delete(ItemDetails details) {

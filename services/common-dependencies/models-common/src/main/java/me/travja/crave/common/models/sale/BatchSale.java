@@ -4,6 +4,8 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import me.travja.crave.common.AsyncCaller;
+import me.travja.crave.common.conf.AppContext;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -25,5 +27,15 @@ public class BatchSale {
 
     @Column(columnDefinition = "TEXT")
     private String imageData;
+
+    private boolean approved = false;
+
+    public void approve() {
+        approved = true;
+        sales.forEach(sale -> sale.approve(false));
+
+        AsyncCaller async = AppContext.getBean(AsyncCaller.class);
+        async.handleSaleApproved(sales);
+    }
 
 }

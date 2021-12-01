@@ -31,7 +31,7 @@ public class Detail {
     @GeneratedValue
     private long   id;
     @ManyToOne
-    @JsonView(DetailsView.class)
+    @JsonView({DetailsView.class, SaleView.class})
     private Item   item;
     @ManyToOne
     @JsonView({ItemView.class, DetailsView.class})
@@ -55,7 +55,7 @@ public class Detail {
     @PostConstruct
     public Detail cleanSales() {
         sales.removeAll(sales.stream()
-                .filter(sale -> sale.getEndDate().before(new Date()))
+                .filter(sale -> sale.getEndDate().before(new Date()) || !sale.isApproved())
                 .collect(Collectors.toList()));
         return this;
     }

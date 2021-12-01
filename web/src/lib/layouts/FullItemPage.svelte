@@ -26,10 +26,17 @@
     let description, priceObj, focused, leadPrice;
 
     const save = () => {
+        console.log(item);
         for (let itm of items) {
             itm.item.description = item.item.description;
-            itm.price = parseFloat(itm.price);
+            console.log(itm.price);
+            if (itm.id == item.id)
+                itm.price = parseFloat(item.price);
+            else
+                itm.price = parseFloat(itm.price);
+            console.log(itm);
         }
+        console.log(items);
 
         fetch(`${gateway()}/item-service/item-details/multiple`,
             {
@@ -61,6 +68,8 @@
             e.preventDefault();
         }
     };
+
+    $: console.log(item.price);
 </script>
 
 <div class="parent full">
@@ -87,22 +96,30 @@
                 <h1 contenteditable="false">{item.item.name}</h1>
             {/if}
             <div class="line">
-                <div class="price" bind:this={priceObj} class:editable={editable} class:focused={focused == priceObj}
-                     on:click={() => {leadPrice.focus()}}>$
-                    {#if editable}
+                {#if editable}
+                    <div class="price editable" bind:this={priceObj}
+                         class:focused={focused == priceObj}
+                         on:click={() => {leadPrice.focus()}}>$
                         <div class="cost" contenteditable="true" bind:textContent={item.price}
                              bind:this={leadPrice}
                              on:keypress={numberValidate}
                              on:blur={() => focused = undefined}
                              on:focus={e => focused = e.target.parentElement}></div>
-                    {:else}
-                        <div class:strike={item.onSale}>{item.price.toFixed(2)}</div>
+                    </div>
+                {:else}
+                    <div class="priceWrap">
+                        <div class="price" class:strike={item.onSale} bind:this={priceObj}>
+                            ${item.price.toFixed(2)}
+                        </div>
                         {#if item.onSale}
-                            $
-                            <div class:sale={item.onSale}>{item.salePrice.toFixed(2)}</div>
+                            <div class="material-icons-round">east</div>
+                            <div class="price sale" bind:this={priceObj}>
+                                ${item.salePrice.toFixed(2)}
+                            </div>
                         {/if}
-                    {/if}
-                </div>
+                    </div>
+                {/if}
+
                 {#if editable}
                     <div class="stock button edit" class:inStock={item.inStock} class:outOfStock={!item.inStock}
                          on:click={() => item.inStock = !item.inStock}>
@@ -209,6 +226,11 @@
         display: none;
     }
 
+    .priceWrap {
+        display: inline-flex;
+        align-items: center;
+    }
+
     .price, .inStock, .outOfStock {
         font-size: 1.1em;
         font-weight: bold;
@@ -281,10 +303,11 @@
 
     .strike {
         text-decoration: line-through;
-        margin-right: 0.5em;
+        /*margin-right: 0.5em;*/
     }
 
     .sale {
         text-decoration: underline;
+        background: #f44;
     }
 </style>

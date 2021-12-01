@@ -19,4 +19,6 @@ public interface PendingDetailsRepository extends CrudRepository<PendingDetails,
     Optional<PendingDetails> findFirstByItemNameLikeAndStoreOrderBySalesNewPriceAscPriceAsc(String name, Store store);
     List<PendingDetails> findAllByItemNameLike(String name);
 
+    boolean existsByItemIdAndPrice(long itemId, double price);
+
 }

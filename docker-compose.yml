@@ -66,6 +66,9 @@ services:
 
   eureka-server:
     container_name: eureka-server
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
     build:
       context: ./services/eureka-server
     ports:
@@ -126,8 +129,6 @@ services:
     depends_on:
       crave-mysql:
         condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
       eureka-server:
         condition: service_healthy
     restart: always
@@ -149,8 +150,6 @@ services:
     depends_on:
       crave-mysql:
         condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
       eureka-server:
         condition: service_healthy
     restart: always
@@ -170,8 +169,6 @@ services:
       context: ./services/receipt-service
     depends_on:
       crave-mysql:
-        condition: service_healthy
-      rabbitmq:
         condition: service_healthy
       eureka-server:
         condition: service_healthy

@@ -9,6 +9,7 @@ import me.travja.crave.common.models.item.*;
 import me.travja.crave.common.models.item.SimpleReceiptData.ReceiptType;
 import me.travja.crave.common.models.store.Location;
 import me.travja.crave.common.models.store.Store;
+import me.travja.crave.common.AsyncCaller;
 import me.travja.crave.common.repositories.ItemService;
 import me.travja.crave.common.repositories.PendingDetailsRepository;
 import me.travja.crave.common.repositories.StoreRepository;
@@ -33,8 +34,8 @@ public class ItemReceiptRestController {
 
     private final ItemService              itemService;
     private final PendingDetailsRepository pendingRepo;
-    private final StoreRepository          storeRepo;
-    private final AsyncCaller              async;
+    private final StoreRepository storeRepo;
+    private final AsyncCaller     async;
 
     @PostMapping
     @Transactional
@@ -66,14 +67,21 @@ public class ItemReceiptRestController {
 
                                 double priceChange = dets.update(prod, authorities);
 
+                                // EMAIL STUFF
                                 //Check for big changes...
+                                //If the price has increased by more than 10%, we need approval.
                                 if (priceChange > originalPrice * 0.10) {
-                                    pending.add(pendingRepo.save(new PendingDetails(dets.getItem(), dets.getStore(),
-                                            dets.getPrice())));
+                                    PendingDetails pDetails = itemService.savePendingIfNotExists(
+                                            new PendingDetails(dets.getItem(), dets.getStore(), dets.getPrice()));
+
+                                    if (pDetails != null)
+                                        pending.add(pDetails);
                                     dets.setPrice(originalPrice);
                                     log.info(dets.getItem().getName() + " changed by " + Formatter.formatCurrency(priceChange) +
                                             "! This will need some attention!");
                                 } else { //This is a safe range.
+                                    //Otherwise, if the price increased less than 10% or decreased in price, just put
+                                    // it through and update appropriate users.
                                     if (Math.abs(priceChange) > 0.0001)
                                         pricesUpdated.put(dets, priceChange);
                                     itemService.save(dets);
@@ -111,6 +119,7 @@ public class ItemReceiptRestController {
             log.info("There are " + pricesUpdated.size() + " items with new prices. And " + pending.size() +
                     " pending price updates.");
             async.handlePriceUpdates(pricesUpdated);
+            async.handleApprovalNeeded(pending);
             return res;
         } catch (Exception e) {
             e.printStackTrace();

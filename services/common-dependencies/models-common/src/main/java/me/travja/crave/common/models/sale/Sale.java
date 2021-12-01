@@ -3,6 +3,8 @@ package me.travja.crave.common.models.sale;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.*;
+import me.travja.crave.common.AsyncCaller;
+import me.travja.crave.common.conf.AppContext;
 import me.travja.crave.common.models.item.ItemDetails;
 import me.travja.crave.common.models.store.Store;
 import me.travja.crave.common.serialization.SaleDeserializer;
@@ -10,6 +12,7 @@ import org.hibernate.Hibernate;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
 
 import static me.travja.crave.common.views.CraveViews.*;
 
@@ -34,6 +37,8 @@ public class Sale {
     private double      newPrice;
     private Date        startDate, endDate;
 
+    private boolean approved = false;
+
     @Transient
     @Setter(AccessLevel.NONE)
     private long sid; //Store id, just for Json purposes.
@@ -42,6 +47,14 @@ public class Sale {
         if (store == null) return -1;
 
         return store.getId();
+    }
+
+    public void approve(boolean email) {
+        setApproved(true);
+        if (email) {
+            AsyncCaller async = AppContext.getBean(AsyncCaller.class);
+            async.handleSaleApproved(List.of(this));
+        }
     }
 
     @Override
