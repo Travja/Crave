@@ -57,6 +57,7 @@
     }
 
     .content {
+        position: relative;
         padding: 0.7rem;
         margin-top: -0.6rem;
         position: relative;
