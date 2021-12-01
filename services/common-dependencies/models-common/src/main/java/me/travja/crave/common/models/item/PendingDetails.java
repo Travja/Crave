@@ -11,6 +11,7 @@ import me.travja.crave.common.models.store.Store;
 import me.travja.crave.common.repositories.ItemService;
 import org.hibernate.annotations.Polymorphism;
 import org.hibernate.annotations.PolymorphismType;
+import org.springframework.data.annotation.Transient;
 
 import javax.persistence.Entity;
 import java.util.Map;
@@ -25,8 +26,6 @@ import static me.travja.crave.common.views.CraveViews.*;
 @Polymorphism(type = PolymorphismType.EXPLICIT)
 @JsonView({ItemView.class, StoreView.class, DetailsView.class, SaleView.class})
 public class PendingDetails extends Detail {
-    public double originalPrice;
-
     public PendingDetails(Item item, Store store, double price) {
         super(item, store, price);
     }
@@ -45,6 +44,7 @@ public class PendingDetails extends Detail {
         return details;
     }
 
+    @Transient
     public double getOriginalPrice() {
         ItemService itemService = AppContext.getBean(ItemService.class);
         ItemDetails oDets       = itemService.getItemDetails(getItem().getStringUpc(), getStore().getId()).orElse(null);

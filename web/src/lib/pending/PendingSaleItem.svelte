@@ -93,6 +93,10 @@
         margin-bottom: 1rem;
     }
 
+    .item:hover {
+        background: #eee;
+    }
+
     .item:nth-child(2n-1) {
         background: var(--bg-color-secondary);
     }
