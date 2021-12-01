@@ -31,6 +31,12 @@
             path: "/list",
             title: "Shopping List",
             auth: true
+        },
+        {
+            path: "/admin/approval",
+            title: "Approval",
+            auth: true,
+            hidden: true
         }
     ];
 
