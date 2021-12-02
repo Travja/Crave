@@ -63,7 +63,7 @@
         position: relative;
         z-index: 3;
         background: var(--bg-color);
-        transform: translate3d(0, 0, 0);
+        transform: translate3d(0, 0.000001px, 0);
     }
 
     @media only screen and (min-width: 768px) {
