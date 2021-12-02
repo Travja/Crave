@@ -36,6 +36,7 @@
 <style>
     .main {
         position: sticky;
+        position: -webkit-sticky;
         top: 0;
         left: 0;
         display: flex;
@@ -62,6 +63,7 @@
 
     .content {
         position: sticky;
+        position: -webkit-sticky;
         top: 0;
         left: 0;
         color: white;
