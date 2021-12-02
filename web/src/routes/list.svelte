@@ -250,9 +250,12 @@
             tracking = tracking.parentNode;
         targetIndex = activeIndex = parseInt(tracking.getAttribute("index"));
         if (e.touches && e.touches.length > 0)
-            pos1 = e.touches[0].clientY + tracking.getBoundingClientRect().height / 3;
+            pos1 = e.touches[0].clientY - tracking.getBoundingClientRect().height / 2;
         else
-            pos1 = e.clientY + tracking.getBoundingClientRect().height;
+            pos1 = e.clientY - tracking.getBoundingClientRect().height / 2;
+
+        let parentRect = tracking.parentNode.getBoundingClientRect();
+        tracking.style.top = (pos1 - parentRect.top) + "px";
     };
 
     const dragging = e => {
@@ -275,7 +278,7 @@
         }
 
         let parentRect = tracking.parentNode.getBoundingClientRect();
-        tracking.style.top = (y - parentRect.top) + "px";
+        tracking.style.top = (y - parentRect.top - tracking.getBoundingClientRect().height / 2) + "px";
 
         if (e.touches && e.touches.length > 0) {
             let targets = document.elementsFromPoint(x, y);
@@ -522,20 +525,16 @@
 <style>
     .container {
         min-width: 30%;
+        max-width: 100%;
         position: relative;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
+        overflow-x: hidden;
         /*width: 30%;*/
         margin: 0 auto;
         flex-grow: 1;
-    }
-
-    @media only screen and (min-width: 768px) {
-        .container {
-            max-width: 80%;
-        }
     }
 
     .container > * {
@@ -543,6 +542,7 @@
     }
 
     .items, .header {
+        position: relative;
         width: 100%;
     }
 
@@ -650,13 +650,23 @@
         min-width: 200px;
     }
 
-    .row .close {
-        opacity: 0;
-        transition: opacity 0.2s ease-in-out;
+    .row:last-child .close {
+        display: none;
     }
 
-    .row:hover .close {
-        opacity: 1;
+    @media only screen and (min-width: 768px) {
+        .row .close {
+            opacity: 0;
+            transition: opacity 0.2s ease-in-out;
+        }
+
+        .container {
+            max-width: 80%;
+        }
+
+        .row:hover .close {
+            opacity: 1;
+        }
     }
 
     .close {
