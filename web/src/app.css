@@ -177,5 +177,5 @@ hr {
 }
 
 .fix-index {
-    transform: translate3d(0.000001px, 0.0000001px, 0.000001px);
+    transform: translate3d(0.00001px, 0.000001px, 0.00001px);
 }
