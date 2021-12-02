@@ -68,6 +68,7 @@
     @media only screen and (min-width: 768px) {
         main {
             flex: 1;
+            display: -webkit-flex;
             display: flex;
             flex-direction: column;
             padding: 0;
@@ -84,10 +85,11 @@
             position: relative;
             padding: 1rem;
             flex: 1;
+            display: -webkit-flex;
             display: flex;
             flex-direction: column;
             width: 100%;
-            margin: 0 auto;
+            margin: -0.6rem auto 0;
             box-sizing: border-box;
             background: inherit;
         }

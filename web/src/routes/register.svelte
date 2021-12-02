@@ -1,5 +1,5 @@
 <script>
-    import {login, title, variables, gateway} from "$lib/variables";
+    import {gateway, login, title} from "$lib/variables";
     import {formSubmit} from "$lib/util";
 
     title.set("Register");
@@ -169,6 +169,7 @@
 
 <style>
     form {
+        display: -webkit-flex;
         display: flex;
         flex-direction: column;
         width: 50%;
@@ -176,6 +177,7 @@
     }
 
     .inputContainer {
+        display: -webkit-flex;
         display: flex;
         flex-direction: row;
     }

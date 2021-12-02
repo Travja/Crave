@@ -20,9 +20,9 @@
     });
 </script>
 
-<div class="theme-switch-wrapper" on:change={switchTheme} floating='{float ? float : "none"}'>
+<div class="theme-switch-wrapper" floating='{float ? float : "none"}' on:change={switchTheme}>
     <label class="theme-switch" for="checkbox">
-        <input bind:this={toggleSwitch} type="checkbox" id="checkbox"/>
+        <input bind:this={toggleSwitch} id="checkbox" type="checkbox"/>
         <div class="slider round"></div>
     </label>
     <em>{toggleVal} Dark Mode!</em>
@@ -31,6 +31,7 @@
 <style>
     /*Simple css to style it like a toggle switch*/
     .theme-switch-wrapper {
+        display: -webkit-flex;
         display: flex;
         align-items: center;
     }

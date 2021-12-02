@@ -5,7 +5,7 @@
 </script>
 
 <a class="button" href="https://discord.gg/VwrK3jj" style="--font-size:{fontSize}em;--img-size:{fontSize*1.2}em">
-    <img src={logo} class="discord" alt="Discord"/>&nbsp;Join my&nbsp;<span
+    <img alt="Discord" class="discord" src={logo}/>&nbsp;Join my&nbsp;<span
         class="highlight">Discord</span>
 </a>
 
@@ -13,11 +13,12 @@
     a {
         margin: 10px;
         padding: 10px;
+        display: -webkit-flex;
         display: flex;
         align-items: center;
-    /*    font-size: var(--font-size);*/
-    /*    border-radius: 6px;*/
-    /*    background-color: rgba(0, 0, 0, .3);*/
+        /*    font-size: var(--font-size);*/
+        /*    border-radius: 6px;*/
+        /*    background-color: rgba(0, 0, 0, .3);*/
     }
 
     .discord {

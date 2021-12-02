@@ -13,7 +13,7 @@
         doing our best to ensure that contribute to our wonderful experience are able to do so with ease.</p>
 
     <div class="imgWrapper">
-        <img src="/me.jpg" alt="Me!"/>
+        <img alt="Me!" src="/me.jpg"/>
     </div>
     <p>My name is Travis Eggett. I am a Senior at Neumont College of Computer Science, studying Software
         Engineering. Crave was born of humble beginnings. My mom has always tried to save money where she could when
@@ -38,6 +38,7 @@
 </section>
 <style>
     section {
+        display: -webkit-flex;
         display: flex;
         flex-direction: column;
         /*justify-content: center;*/

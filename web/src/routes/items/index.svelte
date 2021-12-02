@@ -238,6 +238,7 @@
 {/if}
 <style>
     section {
+        display: -webkit-flex;
         display: flex;
         flex-direction: column;
         /*justify-content: center;*/
@@ -251,18 +252,21 @@
     }
 
     #intro {
+        display: -webkit-flex;
         display: flex;
         align-items: center;
     }
 
     #items {
         position: relative;
+        display: -webkit-flex;
         display: flex;
         flex-wrap: wrap;
         background: var(--bg-color);
     }
 
     .fix {
+        display: -webkit-flex;
         display: flex;
         flex: auto;
         background: transparent;
@@ -295,6 +299,7 @@
         background: #ddd;
         border-radius: 1em;
         padding: 1em;
+        display: -webkit-flex;
         display: flex;
         flex-direction: column;
         align-items: flex-end;
@@ -303,6 +308,7 @@
     }
 
     .divider {
+        display: -webkit-flex;
         display: flex;
         align-items: center;
         margin: 5px 0;
@@ -314,6 +320,7 @@
 
     .pageSelection {
         margin: 1em auto 0 auto;
+        display: -webkit-flex;
         display: flex;
         flex-direction: row;
     }

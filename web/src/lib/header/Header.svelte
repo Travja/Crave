@@ -137,6 +137,7 @@
         position: -ms-sticky;
         position: sticky;
         top: 0;
+        display: -webkit-flex;
         display: flex;
         justify-content: space-between;
         background: var(--bg-color);
@@ -152,6 +153,7 @@
     }
 
     .corner a {
+        display: -webkit-flex;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -166,6 +168,7 @@
     }
 
     nav, .show {
+        display: -webkit-flex;
         display: flex;
         justify-content: center;
         flex: 1;
@@ -192,6 +195,7 @@
         overflow: hidden;
 
         box-sizing: border-box;
+        display: -webkit-flex;
         display: flex;
         flex-direction: column;
         padding: 0;
@@ -211,6 +215,7 @@
     .show {
         width: 80%;
         position: relative;
+        display: -webkit-flex;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -228,6 +233,7 @@
 
     nav a {
         position: relative;
+        display: -webkit-flex;
         display: flex;
         height: 100%;
         align-items: center;
@@ -269,6 +275,7 @@
         padding: 0.5em;
         width: 100%;
         height: 100%;
+        display: -webkit-flex;
         display: flex;
         flex-grow: 1;
         text-align: center;
@@ -299,6 +306,7 @@
 
         ul {
             max-height: 3em;
+            display: -webkit-flex;
             display: flex;
             flex-direction: row;
             position: relative;

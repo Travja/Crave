@@ -393,6 +393,7 @@
         width: 100vw;
         height: 100vh;
         box-sizing: border-box;
+        display: -webkit-flex;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -402,6 +403,7 @@
         width: 40vh;
         height: 40vh;
         border-radius: 50%;
+        display: -webkit-flex;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -421,6 +423,7 @@
         height: 70vh;
         max-height: 70vh;
         position: relative;
+        display: -webkit-flex;
         display: flex;
         align-items: center;
     }
@@ -471,6 +474,7 @@
         background-repeat: no-repeat;
         background-size: contain;
         height: 100%;
+        display: -webkit-flex;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -483,6 +487,7 @@
 
     .container {
         position: relative;
+        display: -webkit-flex;
         display: flex;
         margin-bottom: 10px;
         max-height: 70vh;
@@ -493,6 +498,7 @@
 
     .buttonContainer {
         margin: 10px auto;
+        display: -webkit-flex;
         display: flex;
         flex-direction: row;
         justify-content: center;
@@ -512,6 +518,7 @@
 
     @media only screen and (min-width: 768px) {
         .p_image {
+            display: -webkit-flex;
             display: flex;
         }
 

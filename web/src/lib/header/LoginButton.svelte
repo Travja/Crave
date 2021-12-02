@@ -35,6 +35,7 @@
     li {
         position: relative;
         height: 100%;
+        display: -webkit-flex;
         display: flex;
         height: 100%;
         width: 100%;

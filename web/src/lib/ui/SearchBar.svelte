@@ -137,6 +137,7 @@
 
 <style>
     .search {
+        display: -webkit-flex;
         display: flex;
         align-items: stretch;
         border: 2px solid #ccc;
@@ -161,6 +162,7 @@
     }
 
     label {
+        display: -webkit-flex;
         display: flex;
         align-items: center;
     }

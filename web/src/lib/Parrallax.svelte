@@ -35,13 +35,11 @@
 
 <style>
     .main {
-        position: -webkit-sticky;
-        position: -moz-sticky;
-        position: -o-sticky;
-        position: -ms-sticky;
         position: sticky;
+        position: -webkit-sticky;
         top: 0;
         left: 0;
+        display: -webkit-flex;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -65,11 +63,9 @@
     }
 
     .content {
-        position: -webkit-sticky;
-        position: -moz-sticky;
-        position: -o-sticky;
-        position: -ms-sticky;
-        position: sticky;
+        position: relative;
+        /*position: sticky;*/
+        /*position: -webkit-sticky;*/
         top: 0;
         left: 0;
         color: white;
@@ -77,6 +73,7 @@
         height: var(--height);
         width: 100%;
         z-index: 2;
+        display: -webkit-flex;
         display: flex;
         align-items: center;
         justify-content: center;

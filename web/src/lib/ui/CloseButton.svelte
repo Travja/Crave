@@ -13,7 +13,7 @@
         top: 0;
         right: 0;
         margin: 10px;
-
+        display: -webkit-flex;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -38,6 +38,7 @@
         position: relative;
         width: 100%;
         height: 60%;
+        display: -webkit-flex;
         display: flex;
         align-items: center;
         justify-content: center;

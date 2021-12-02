@@ -2,7 +2,7 @@
     import {fly} from 'svelte/transition';
     import {afterUpdate, createEventDispatcher} from 'svelte';
     import CloseButton from "$lib/ui/CloseButton.svelte";
-    import {gateway, login, variables} from "$lib/variables";
+    import {gateway, login} from "$lib/variables";
     import {setupButtons} from "$lib/util";
 
     const dispatch = createEventDispatcher();
@@ -136,6 +136,7 @@
     }
 
     .flex-center {
+        display: -webkit-flex;
         display: flex;
         justify-content: center;
         flex-direction: column;
@@ -147,6 +148,7 @@
     }
 
     #form div {
+        display: -webkit-flex;
         display: flex;
         width: 100%;
         align-items: center;

@@ -523,6 +523,7 @@
     .container {
         min-width: 30%;
         position: relative;
+        display: -webkit-flex;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -554,6 +555,7 @@
         border-image-source: linear-gradient(to right, rgba(0, 0, 0, 0), var(--disabled-fg-color),
         rgba(0, 0, 0, 0), rgba(0, 0, 0, 0));
         border-image-slice: 1;
+        display: -webkit-flex;
         display: flex;
         align-items: center;
         transition: border 1s linear, transform 0.2s ease-in-out;
@@ -578,6 +580,7 @@
 
     .checkWrap {
         margin-right: 0.5rem;
+        display: -webkit-flex;
         display: flex;
     }
 
@@ -611,6 +614,7 @@
     }
 
     .complete, .header {
+        display: -webkit-flex;
         display: flex;
     }
 
@@ -639,6 +643,7 @@
 
     .wrapper {
         position: relative;
+        display: -webkit-flex;
         display: flex;
         flex-direction: column;
         border-left: 1px solid black;

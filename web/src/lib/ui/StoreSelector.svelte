@@ -162,12 +162,13 @@
     .hidden {
         display: none;
     }
-    
+
     label {
         user-select: none;
     }
 
     .stores {
+        display: -webkit-flex;
         display: flex;
         flex-direction: column;
         align-items: flex-start;

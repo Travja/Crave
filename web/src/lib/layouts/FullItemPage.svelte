@@ -185,7 +185,8 @@
     }
 
     .itemBody {
-        /*display: flex;*/
+        /*display: inline-flex;
+display: flex;*/
         flex-direction: column;
     }
 
@@ -274,6 +275,7 @@
     }
 
     .save {
+        display: -webkit-flex;
         display: flex;
         justify-content: center;
     }

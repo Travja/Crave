@@ -93,6 +93,7 @@
 
 <style>
     .line-one {
+        display: -webkit-flex;
         display: flex;
         align-items: center;
         margin-bottom: 0.5rem;
@@ -140,6 +141,7 @@
     }
 
     .priceWrap {
+        display: -webkit-flex;
         display: flex;
         align-items: center;
     }

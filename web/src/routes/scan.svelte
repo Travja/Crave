@@ -95,6 +95,7 @@
 
     @media only screen and (min-width: 768px) {
         #man-form {
+            display: -webkit-flex;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -117,6 +118,7 @@
     }
 
     .row, .row * {
+        display: -webkit-flex;
         display: flex;
         flex-grow: 1;
         padding: 0;

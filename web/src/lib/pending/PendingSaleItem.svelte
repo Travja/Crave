@@ -80,6 +80,7 @@
 
 <style>
     .line-one {
+        display: -webkit-flex;
         display: flex;
         align-items: center;
     }

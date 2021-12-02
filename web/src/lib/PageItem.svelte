@@ -99,6 +99,7 @@
 
     @media only screen and (min-width: 768px) {
         .section, .section > a {
+            display: -webkit-flex;
             display: flex;
             flex-direction: column;
             flex: 1;
@@ -144,12 +145,14 @@
     }
 
     .price {
+        display: -webkit-flex;
         display: flex;
         color: #666;
         margin-top: 10px;
     }
 
     .footer {
+        display: -webkit-flex;
         display: flex;
         width: 100%;
         align-items: flex-end;
@@ -167,6 +170,7 @@
     }
 
     .icons {
+        display: -webkit-flex;
         display: flex;
         flex-direction: row;
     }
@@ -178,6 +182,7 @@
     .icons > * {
         margin: 0 0.3em;
         align-items: center;
+        display: -webkit-flex;
         display: flex;
     }
 
@@ -201,6 +206,7 @@
     }
 
     .oldPrice {
+        display: -webkit-flex;
         display: flex;
         align-items: center;
         font-size: 0.7em;

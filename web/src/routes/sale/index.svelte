@@ -197,6 +197,7 @@
 <style>
 
     .buttons {
+        display: -webkit-flex;
         display: flex;
         flex-direction: row;
     }
@@ -204,6 +205,7 @@
     .buttons .button {
         margin: 0.5em 0.25em;
         flex: 1;
+        display: -webkit-flex;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -211,6 +213,7 @@
 
     .parent {
         margin: 10px;
+        display: -webkit-flex;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -222,6 +225,7 @@
     }
 
     .wrapper {
+        display: -webkit-flex;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -237,12 +241,14 @@
     }
 
     .dates {
+        display: -webkit-flex;
         display: flex;
         flex-direction: row;
         margin-bottom: 1rem;
     }
 
     .dates label {
+        display: -webkit-flex;
         display: flex;
         flex-direction: column;
         margin: 0 1rem;
@@ -266,6 +272,7 @@
     }
 
     .row, .row * {
+        display: -webkit-flex;
         display: flex;
         flex-grow: 1;
         padding: 0;
