@@ -3,10 +3,11 @@
     import Header from "$lib/header/Header.svelte";
     import Footer from "$lib/Footer.svelte";
     // noinspection ES6UnusedImports
-    import {title} from "$lib/variables.js";
+    import {title, variables} from "$lib/variables.js";
     import {initScroll, overrideFetch, overrideXMLSend, scrollDistance, setupButtons} from "$lib/util";
     import {afterUpdate, beforeUpdate, onDestroy, onMount} from "svelte";
     import Parrallax from "$lib/Parrallax.svelte";
+    import {fly} from "svelte/transition";
 
     let unsubscribe, unscroll;
     let firstRun = true;
@@ -44,53 +45,77 @@
 <main>
     <Parrallax height="10em"><h1>{$title}</h1></Parrallax>
     <Header/>
-    <section class="content">
+    <section class="content fix-index">
         <slot/>
     </section>
     <Footer/>
+    {#if variables.tip}
+        <div id="tip"
+             on:click={(e) => variables.tip = false}
+             out:fly="{{ x: 200, duration: variables.tip == false ? 250 : 0}}">
+            <div>Can't find what you're looking for? Make sure to add it!</div>
+            <a alt="Scan a Receipt!" class="button" href="/scan" id="scan">Scan a Receipt!</a>
+        </div>
+    {/if}
 </main>
 <!--<div style="height: 15000px"/>-->
 
 <style>
     main {
         background: var(--bg-color);
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
     }
 
     .content {
-        position: relative;
+        /*position: relative;*/
         padding: 0.7rem;
         margin-top: -0.6rem;
-        position: relative;
         z-index: 3;
         background: var(--bg-color);
-        transform: translate3d(0.0001px, 0.000001px, 0.00001px);
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+    }
+
+    #tip {
+        position: fixed;
+        bottom: 1em;
+        right: 1em;
+        left: 1em;
+        background: #ddd;
+        border-radius: 1em;
+        padding: 1em;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        box-shadow: 0 0 15px #333;
+        z-index: 1000;
     }
 
     @media only screen and (min-width: 768px) {
         main {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
             padding: 0;
             width: 80%;
             margin: 0 auto;
             box-sizing: border-box;
             box-shadow: 5px 0px 10px #666, -5px 0px 10px #666;
-            transform-style: inherit;
-            perspective: inherit;
-            perspective-origin: inherit;
+            /*transform-style: inherit;*/
+            /*perspective: inherit;*/
+            /*perspective-origin: inherit;*/
         }
 
         .content {
-            position: relative;
             padding: 1rem;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
             width: 100%;
             margin: 0 auto;
             box-sizing: border-box;
             background: inherit;
+        }
+
+        #tip {
+            left: unset;
         }
     }
 </style>

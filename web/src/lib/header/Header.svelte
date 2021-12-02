@@ -85,7 +85,7 @@
     };
 </script>
 
-<header>
+<header class="fix-index">
     <div class="corner">
         <a href="/">
             <img alt="Crave" src={logo}/>

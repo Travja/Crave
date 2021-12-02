@@ -23,7 +23,8 @@ export const variables = {
     gateway: import.meta.env.VITE_GATEWAY,
     subKey: import.meta.env.VITE_AZURE_KEY,
     jwt: createJWT(),
-    validStores: ["Walmart", "Target"]
+    validStores: ["Walmart", "Target"],
+    tip: false
 };
 
 export const gateway = () => variables.gateway ? variables.gateway : window?.location.origin

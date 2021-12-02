@@ -6,13 +6,12 @@
     import {page} from "$app/stores";
     import {gateway, title, variables} from "$lib/variables";
     import {onDestroy, onMount} from "svelte";
-    import {fly} from "svelte/transition";
     import PageItem from "$lib/PageItem.svelte";
     import SearchBar from "$lib/ui/SearchBar.svelte";
 
     title.set("Items");
 
-    let tip = true;
+    variables.tip = true;
     let gate;
     let items, list = [], fullList = [], error;
     let inProgress = false;
@@ -137,7 +136,10 @@
     });
 
     let unsubscribe = variables.jwt.subscribe(() => getItems());
-    onDestroy(unsubscribe);
+    onDestroy(() => {
+        variables.tip = false;
+        unsubscribe();
+    });
 
     const search = (e) => {
         terms = e.detail.search;
@@ -228,14 +230,6 @@
         {/if}
     </div>
 </section>
-{#if tip}
-    <div id="tip"
-         on:click={(e) => tip = false}
-         out:fly="{{ x: 200, duration: tip == false ? 250 : 0}}">
-        <div>Can't find what you're looking for? Make sure to add it!</div>
-        <a alt="Scan a Receipt!" class="button" href="/scan" id="scan">Scan a Receipt!</a>
-    </div>
-{/if}
 <style>
     section {
         display: flex;
@@ -287,21 +281,6 @@
         margin: 0.5em 0;
     }
 
-    #tip {
-        position: fixed;
-        bottom: 1em;
-        right: 1em;
-        left: 1em;
-        background: #ddd;
-        border-radius: 1em;
-        padding: 1em;
-        display: flex;
-        flex-direction: column;
-        align-items: flex-end;
-        box-shadow: 0 0 15px #333;
-        z-index: 1000;
-    }
-
     .divider {
         display: flex;
         align-items: center;
@@ -327,9 +306,4 @@
         font-weight: bold;
     }
 
-    @media only screen and (min-width: 768px) {
-        #tip {
-            left: unset;
-        }
-    }
 </style>
