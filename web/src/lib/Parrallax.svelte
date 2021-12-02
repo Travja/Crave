@@ -7,7 +7,6 @@
     import {onDestroy, onMount} from "svelte";
     import {scrollDistance} from "$lib/util";
 
-    export let height = "30vh";
     export let src = "/groceries.jpg";
 
     let unsubscribe;
@@ -26,7 +25,7 @@
     });
 </script>
 
-<div class="main" style="--height: {height}; --src: url({src})">
+<div class="main" style="--src: url({src})">
     <div bind:this={content} class="content">
         <slot/>
     </div>
@@ -35,21 +34,27 @@
 
 <style>
     .main {
+        display: none;
         position: relative;
-        display: flex;
         align-items: center;
         justify-content: center;
         background-color: white;
         max-width: 100%;
-        max-height: var(--height);
+        max-height: 10em;
     }
 
     @media only screen and (min-width: 768px) {
-        main {
+        .main {
+            display: flex;
             position: sticky;
             position: -webkit-sticky;
             top: 0;
             left: 0;
+            max-height: 10em;
+        }
+
+        .content {
+            height: 10em;
         }
     }
 
@@ -70,7 +75,6 @@
     .content {
         color: white;
         text-shadow: 2px 2px 4px #333;
-        height: var(--height);
         width: 100%;
         z-index: 2;
         display: flex;

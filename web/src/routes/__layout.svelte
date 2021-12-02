@@ -43,7 +43,7 @@
 </svelte:head>
 
 <main>
-    <Parrallax height="10em"><h1>{$title}</h1></Parrallax>
+    <Parrallax><h1>{$title}</h1></Parrallax>
     <Header/>
     <section class="content">
         <slot/>
@@ -111,7 +111,7 @@
         .content {
             padding: 1rem;
             width: 100%;
-            margin: 0 auto;
+            margin: -0.6rem auto 0;
             box-sizing: border-box;
             background: inherit;
         }
