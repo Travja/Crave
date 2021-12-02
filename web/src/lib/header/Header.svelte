@@ -131,8 +131,11 @@
 
 <style>
     header {
-        position: sticky;
         position: -webkit-sticky;
+        position: -moz-sticky;
+        position: -o-sticky;
+        position: -ms-sticky;
+        position: sticky;
         top: 0;
         display: flex;
         justify-content: space-between;

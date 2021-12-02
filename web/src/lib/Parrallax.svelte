@@ -35,8 +35,11 @@
 
 <style>
     .main {
-        position: sticky;
         position: -webkit-sticky;
+        position: -moz-sticky;
+        position: -o-sticky;
+        position: -ms-sticky;
+        position: sticky;
         top: 0;
         left: 0;
         display: flex;
@@ -62,8 +65,11 @@
     }
 
     .content {
-        position: sticky;
         position: -webkit-sticky;
+        position: -moz-sticky;
+        position: -o-sticky;
+        position: -ms-sticky;
+        position: sticky;
         top: 0;
         left: 0;
         color: white;
