@@ -45,7 +45,7 @@
 <main>
     <Parrallax height="10em"><h1>{$title}</h1></Parrallax>
     <Header/>
-    <section class="content fix-index">
+    <section class="content">
         <slot/>
     </section>
     <Footer/>
@@ -77,6 +77,7 @@
         display: flex;
         flex: 1;
         flex-direction: column;
+        transform: translate3d(0.00001px, 0.000001px, 0.00001px);
     }
 
     #tip {
