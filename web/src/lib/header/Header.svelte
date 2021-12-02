@@ -141,7 +141,7 @@
         width: 100%;
         margin: 0 auto 0.5em;
         box-shadow: 0 0 10px #333;
-        transform: translate3d(0.00001px, 0.000001px, 0.00001px);
+        /*transform: translate3d(0.00001px, 0.000001px, 0.00001px);*/
     }
 
     .corner {

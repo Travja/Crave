@@ -35,16 +35,22 @@
 
 <style>
     .main {
-        position: sticky;
-        position: -webkit-sticky;
-        top: 0;
-        left: 0;
+        position: relative;
         display: flex;
         align-items: center;
         justify-content: center;
         background-color: white;
         max-width: 100%;
         max-height: var(--height);
+    }
+
+    @media only screen and (min-width: 768px) {
+        main {
+            position: sticky;
+            position: -webkit-sticky;
+            top: 0;
+            left: 0;
+        }
     }
 
     .bg {
@@ -57,15 +63,11 @@
         background-image: var(--src);
         width: 100%;
         height: 100%;
-        z-index: -1;
+        z-index: 0;
         box-shadow: inset 0 0 10px 3px #333;
     }
 
     .content {
-        position: sticky;
-        position: -webkit-sticky;
-        top: 0;
-        left: 0;
         color: white;
         text-shadow: 2px 2px 4px #333;
         height: var(--height);

@@ -77,7 +77,7 @@
         display: flex;
         flex: 1;
         flex-direction: column;
-        transform: translate3d(0.00001px, 0.000001px, 0.00001px);
+        /*transform: translate3d(0.00001px, 0.000001px, 0.00001px);*/
     }
 
     #tip {
@@ -93,7 +93,7 @@
         align-items: flex-end;
         box-shadow: 0 0 15px #333;
         z-index: 1000;
-        transform: translate3d(0.00001px, 0.000001px, 0.00001px);
+        /*transform: translate3d(0.00001px, 0.000001px, 0.00001px);*/
     }
 
     @media only screen and (min-width: 768px) {
