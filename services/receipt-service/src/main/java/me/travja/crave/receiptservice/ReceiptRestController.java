@@ -89,7 +89,7 @@ public class ReceiptRestController {
         } catch (IOException e) {
             log.info("Could not parse image.");
             e.printStackTrace();
-            throw new ReceiptParseException("There was a problem parseing the receipt: " + e.getMessage());
+            throw new ReceiptParseException("There was a problem parsing the receipt: " + e.getMessage());
         }
     }
 

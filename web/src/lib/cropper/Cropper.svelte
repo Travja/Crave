@@ -81,7 +81,7 @@
         if (!updating) return;
 
         let newSizes = [...$sizes];
-        newSizes[updating.index] = 7;
+        newSizes[updating.index] = circleRadius;
         sizes.set(newSizes);
 
         updating = cursor = undefined;
@@ -391,7 +391,6 @@
             </div>
         </div>
     {/if}
-    <script async src="/cropper/opencv.js" type="text/javascript"></script>
 </section>
 
 <style>
@@ -565,7 +564,4 @@
         fill-opacity: 0.3;
     }
 
-    .hidden {
-        display: none;
-    }
 </style>
