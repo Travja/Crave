@@ -391,7 +391,7 @@
             </div>
         </div>
     {/if}
-    <!--    <script async src="/cropper/opencv.js"></script>-->
+    <script async src="/cropper/opencv.js" type="text/javascript"></script>
 </section>
 
 <style>
@@ -403,6 +403,7 @@
         height: 100vh;
         box-sizing: border-box;
         display: flex;
+        display: -webkit-flex;
         align-items: center;
         justify-content: center;
     }
@@ -412,6 +413,7 @@
         height: 40vh;
         border-radius: 50%;
         display: flex;
+        display: -webkit-flex;
         align-items: center;
         justify-content: center;
         overflow: hidden;
@@ -431,6 +433,7 @@
         max-height: 70vh;
         position: relative;
         display: flex;
+        display: -webkit-flex;
         align-items: center;
     }
 
@@ -481,6 +484,7 @@
         background-size: contain;
         height: 100%;
         display: flex;
+        display: -webkit-flex;
         align-items: center;
         justify-content: center;
         background: rgba(0, 0, 0, 0.3);
@@ -493,6 +497,7 @@
     .container {
         position: relative;
         display: flex;
+        display: -webkit-flex;
         margin-bottom: 10px;
         max-height: 70vh;
         overflow: hidden;
@@ -503,6 +508,7 @@
     .buttonContainer {
         margin: 10px auto;
         display: flex;
+        display: -webkit-flex;
         flex-direction: row;
         justify-content: center;
     }
@@ -526,6 +532,7 @@
     @media only screen and (min-width: 768px) {
         .p_image {
             display: flex;
+            display: -webkit-flex;
         }
 
         .container .o_image {

@@ -36,6 +36,8 @@
     afterUpdate(() => {
         setupButtons();
     });
+
+    const test = () => alert("opencv loaded.");
 </script>
 
 <svelte:head>
@@ -58,6 +60,7 @@
         </div>
     {/if}
 </main>
+
 <!--<div style="height: 15000px"/>-->
 
 <style>
