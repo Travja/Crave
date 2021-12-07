@@ -53,10 +53,6 @@
 
     let isMobile = false;
 
-    $: if (img && url) {
-        img.src = url;
-    }
-
     let points = "";
 
     $: if (circles && circles.length > 0) {
@@ -138,9 +134,10 @@
     };
 
     const setupCropBox = () => {
-        // console.log('image loaded : ', imgWidth, ' ', imgHeight)
         let width = wrap.clientWidth - margin.left - margin.right,
             height = wrap.clientHeight - margin.top - margin.bottom;
+        // let width = imgWidth - margin.left - margin.right,
+        //     height = imgHeight - margin.top - margin.bottom;
 
         sourcePoints = [[0, 0], [width, 0], [width, height], [0, height]],
             targetPoints = [[0, 0], [width, 0], [width, height], [0, height]];
@@ -192,7 +189,6 @@
             / scaleFactor;
         finalHeight = Math.max(Math.abs(pointsArray[1] - pointsArray[7]), Math.abs(pointsArray[3] - pointsArray[5]))
             / scaleFactor;
-        // console.log("Final Height:", finalHeight, "Final Width:", finalWidth);
         adjustPoints(pointsArray);
         pointsArray = scalePoints(pointsArray);
 
@@ -240,7 +236,10 @@
         // downloadLink.click();
     };
 
-    const newFile = e => url = URL.createObjectURL(e.target.files[0]);
+    const newFile = e => {
+        image.src = URL.createObjectURL(e.target.files[0]);
+        url = URL.createObjectURL(e.target.files[0]);
+    }
 
     const checkResize = () => {
         if (!svg) return;
@@ -291,11 +290,14 @@
     });
 
     const setup = () => {
-        if(img) {
-            imgWidth = img.width;
-            imgHeight = img.height;
-            utils.loadImageToCanvas(url, "imageInit");
-            setTimeout(setupCropBox, 500);
+        if(img && image) {
+            img.src = image.src;
+            img.onload = () => {
+                imgWidth = img.width;
+                imgHeight = img.height;
+                utils.loadImageToCanvas(image.src, "imageInit")
+                setTimeout(() => setupCropBox(), 500);
+            };
         }
     };
 
@@ -317,7 +319,7 @@
 
     let fileUpload;
     const upload = () => {
-        if (!image && fileUpload) {
+        if (!image.src && fileUpload) {
             fileUpload.click();
         }
     };
@@ -331,15 +333,12 @@
         <div bind:clientWidth={backgroundWidth} bind:this={background}
              class="o_image"
              id="background">
-            <!--            <img id="sample" src="/cropper/bill.png" alt="bill"/>-->
+<!--                        <img id="sample" src="/cropper/bill.png" alt="bill"/>-->
             <div bind:clientHeight={myHeight} bind:clientWidth={myWidth}
                  bind:this={wrap} class="imgWrapper">
-                {#if url}
-                    <img alt="Upload a Receipt" bind:this={image} src="{url}"
-                    on:load={setup}/>
-                {:else}
-                    <div>Upload a Receipt</div>
-                {/if}
+                <img class:hide={!image?.src} alt="Upload a Receipt" bind:this={image}
+                      src="{url}" on:load={setup}/>
+                <div class:hide={image?.src}>Upload a Receipt</div>
             </div>
             <div class="wrapper" on:click={upload} style="{`--hover: ${!url ? 'pointer' : ''}`}">
                 <svg bind:this={svg} height="{myHeight}" id="svg"
@@ -414,8 +413,8 @@
         width: 40vh;
         height: 40vh;
         border-radius: 50%;
-        display: flex;
-        display: -webkit-flex;
+        /*display: flex;*/
+        /*display: -webkit-flex;*/
         align-items: center;
         justify-content: center;
         overflow: hidden;
@@ -432,16 +431,21 @@
 
     .imgWrapper {
         height: 70vh;
+        min-height: 70vh;
         max-height: 70vh;
         position: relative;
-        display: flex;
-        display: -webkit-flex;
+        /*display: -webkit-flex;*/
+        /*display: flex;*/
+        display: grid;
         align-items: center;
+        /*justify-content: center;*/
     }
 
     .imgWrapper img {
-        max-height: 100%;
+        position: relative;
+        height: 70vh;
         max-width: 100%;
+        /*width: 100%;*/
     }
 
     .wrapper {
@@ -472,6 +476,7 @@
     #imageInit {
         display: none;
         width: 80%;
+        /*background: red;*/
     }
 
     #imageResult {
@@ -485,8 +490,9 @@
         background-repeat: no-repeat;
         background-size: contain;
         height: 100%;
-        display: flex;
-        display: -webkit-flex;
+        /*display: flex;*/
+        /*display: -webkit-flex;*/
+        display: grid;
         align-items: center;
         justify-content: center;
         background: rgba(0, 0, 0, 0.3);
@@ -498,8 +504,8 @@
 
     .container {
         position: relative;
-        display: flex;
         display: -webkit-flex;
+        display: flex;
         margin-bottom: 10px;
         max-height: 70vh;
         overflow: hidden;
@@ -565,6 +571,10 @@
         /*opacity: 0.8;*/
         fill: deepskyblue;
         fill-opacity: 0.3;
+    }
+
+    .hide {
+        display: none;
     }
 
 </style>
