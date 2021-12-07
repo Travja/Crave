@@ -44,6 +44,7 @@
         align-items: center;
         flex: 1;
         flex-grow: 1;
+        padding: 0.7rem;
     }
 
     h1 {
@@ -64,5 +65,11 @@
 
     img {
         width: 100%;
+    }
+
+    @media only screen and (min-width: 768px) {
+        section {
+            padding: 1rem;
+        }
     }
 </style>

@@ -148,7 +148,7 @@
         {/if}
 
         {#if items.length > 1}
-            <h4>Also available at...</h4>
+            <h4 class="clear">Also available at...</h4>
             {#each items as itm, i}
                 {#if itm.store != item.store}
                     <div class="other">

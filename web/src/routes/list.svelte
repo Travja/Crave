@@ -5,7 +5,7 @@
     import {onDestroy, onMount} from "svelte";
     import Thumb from "$lib/ui/Thumb.svelte";
     import FilterBox from "$lib/ui/FilterBox.svelte";
-    import {formatter} from "$lib/util";
+    import {formatter, haversineDistance} from "$lib/util";
 
     title.set("Shopping List");
 
@@ -47,6 +47,8 @@
         }
     ];
 
+    let stores = [];
+
     let itemContainer, priceContainer, dataList = [];
     let priceStrategy = "cheapest-price";
     let complete = 0;
@@ -64,10 +66,13 @@
     let numStores = 0;
     let lowestStore = -1;
 
+    let position;
+
     let unsubscribe = () => {
     };
     onMount(() => {
         unsubscribe = variables.jwt.subscribe(getList);
+        getLocation(getList);
     });
     onDestroy(unsubscribe);
 
@@ -96,24 +101,44 @@
 
         if (items.length > 1) {
             totalCost = 0;
-            let stores = [];
+            let tmp = [];
+            stores = [];
             items.forEach(item => {
                 if (item.lowestDetails) {
-                    if (!stores.includes(item.lowestDetails.store.id))
-                        stores.push(item.lowestDetails.store.id);
+                    if (!tmp.includes(item.lowestDetails.store.id)) {
+                        tmp.push(item.lowestDetails.store.id);
+                        stores.push(item.lowestDetails.store);
+                    }
                     totalCost += item.lowestDetails.price;
                 }
             });
+            if(position)
+            stores = stores.sort((a, b) =>
+                haversineDistance({...a.location}, {lat: position.coords.latitude, lon: position.coords.longitude}) -
+                haversineDistance({...b.location},  {lat: position.coords.latitude, lon: position.coords.longitude})
+            );
+            console.log(stores);
             numStores = stores.length;
         }
     }
+
+    const getLocation = (callback) => {
+        if (navigator && navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(pos => {
+                position = pos;
+                if(callback)
+                    callback();
+            });
+        } else {
+            alert("Geolocation is not supported by this browser.");
+        }
+    };
 
     const getList = () => {
         fetch(`${gateway()}/auth-service/list?detailed=true&priceStrategy=` +
             `${priceStrategy.toUpperCase().replace("-", "_")}`)
             .then(res => res.json())
             .then(data => {
-                console.log(data);
                 if (!data.status || data.status == 200) {
                     let list = [];
 
@@ -126,7 +151,6 @@
                         itm.uid = {};
                         itm.id = undefined;
 
-                        console.log(itm.lowestDetails);
                         if (itm.lowestDetails)
                             lowestStore = itm.lowestDetails.store.id;
 
@@ -469,6 +493,7 @@
                     <!--                         style="opacity: 0; height: 0;"-->
                     <!--                         on:focus={(e) => document.getElementById(`input${i}`).focus()}-->
                     <div class="textarea" contenteditable="true" wrap="hard"
+                         class:notfound={itm.text.length > 1 && !itm.lowestDetails && priceStrategy == "single-price"}
                          bind:textContent={itm.text}
                          id="input{i}"
                          list="data"
@@ -503,7 +528,7 @@
                             </div>
                         </div>
                     {:else if itm.text.length > 1 && !itm.lowestDetails && priceStrategy == "single-price"}
-                        <div class="details"
+                        <div class="details notfound"
                              transition:slide>
                             <div class="predicted-name">Not found at store with other items.</div>
                         </div>
@@ -520,6 +545,25 @@
     <div>Number of Stores: {numStores}</div>
 
     <div class="button" on:click={saveList}>Save List</div>
+
+    {#if stores.length > 0}
+        <h3>Stores to visit</h3>
+        {#each stores as stor (stor.id)}
+            <div class="store">
+                <div><strong>{stor.name}</strong> -
+                    <a
+                            href={`https://www.google.com/maps/dir/?api=1&travelmode=driving&destination=${stor.streetAddress.replaceAll(" ", "+") + "+" + stor.city.replaceAll(" ", "+")}`}
+                       target="_blank">
+                        {stor.streetAddress}, {stor.city}
+                    </a>
+                    {#if position}
+                        (~{haversineDistance({...stor.location}, {lat: position.coords.latitude,
+                            lon: position.coords.longitude}).toFixed(2)} mi)
+                    {/if}
+                </div>
+            </div>
+        {/each}
+    {/if}
 </div>
 
 <style>
@@ -531,9 +575,8 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        overflow-x: hidden;
         /*width: 30%;*/
-        margin: 0 auto;
+        margin: 1rem auto;
         flex-grow: 1;
     }
 
@@ -720,5 +763,9 @@
 
     input[type="radio"] {
         margin-right: 0.5em;
+    }
+
+    .notfound {
+        color: red;
     }
 </style>

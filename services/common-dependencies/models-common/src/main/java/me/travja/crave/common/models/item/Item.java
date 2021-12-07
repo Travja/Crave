@@ -38,7 +38,7 @@ public class Item {
     @JsonIgnore
     @OneToOne(mappedBy = "item", cascade = CascadeType.ALL, optional = false)
     private UPC    upc;
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "MEDIUMBLOB")
     private String image = DEF_IMAGE;
 
     @JsonView(ItemView.class)
@@ -81,7 +81,9 @@ public class Item {
             log.info("Set description");
         }
 
-        if (prodInfo.getImage() != null && prodInfo.getImage().equals(DEF_IMAGE) && (getImage().equals(DEF_IMAGE) || isAdmin)) {
+        log.info("New image? " + prodInfo.getImage());
+        log.info("Has image? " + getImage().equals(DEF_IMAGE) + " -- " + isAdmin);
+        if (prodInfo.getImage() != null && !prodInfo.getImage().equals(DEF_IMAGE) && (getImage().equals(DEF_IMAGE) || isAdmin)) {
             setImage(prodInfo.getImage());
             log.info("Set image");
         }

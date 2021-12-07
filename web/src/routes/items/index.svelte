@@ -237,6 +237,7 @@
         /*justify-content: center;*/
         /*align-items: center;*/
         flex: 1;
+        padding: 0.7rem;
     }
 
     h1 {
@@ -304,6 +305,12 @@
     .pageNum.active {
         text-decoration: underline;
         font-weight: bold;
+    }
+
+    @media only screen and (min-width: 768px) {
+        section {
+            padding: 1rem;
+        }
     }
 
 </style>

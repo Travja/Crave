@@ -38,7 +38,9 @@
 
 <div class="section">
     <a alt="{name}" {href}>
-        <img alt={name} src={image}/>
+        <div class="imgWrapper">
+            <img alt={name} src={image}/>
+        </div>
         <div class="sp"/>
         <div class="name">{name}</div>
         <div class="price">Lowest price:&nbsp;
@@ -104,6 +106,12 @@
             flex: 1;
             align-items: center;
             justify-content: center;
+        }
+
+        .imgWrapper {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
         }
 
         .section {

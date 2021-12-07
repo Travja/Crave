@@ -14,6 +14,8 @@
 
     let numRegex = /^[0-9]*?\.?[0-9]{0,2}$/;
 
+    let entryType;
+
     onMount(() => gate = gateway());
 
     const testInput = e => {
@@ -33,10 +35,15 @@
 
 </script>
 <section>
+    {#if entryType == "scanner"}
+        <div transition:slide>
     <p>*The receipt scanner currently supports receipts from Walmart and Target.</p>
     <Cropper/>
-    <hr>
-    <section id="manual">
+        <div class="or">OR</div>
+        <div class="button" on:click={() => entryType="manual"}>Enter Items Manually</div>
+        </div>
+    {:else if entryType == "manual"}
+    <section id="manual" transition:slide>
         <h1>Don't have a receipt? Is your receipt type not supported?</h1>
         <p>Enter your data manually here.</p>
         <form action="{gate}/item-service/receipt/web/items" bind:this={manForm}
@@ -63,12 +70,21 @@
                 </div>
             {/if}
         </form>
-        <div class="button submit" on:click={submit}>Submit</div>
         <div class="button" on:click={() => rows++}>Add Row
         </div>
         <div class="button" on:click={() => {if(rows > 1) rows--;}}>Remove Row
         </div>
+        <div class="button submit" on:click={submit}>Submit</div>
+        <div class="or">OR</div>
+        <div class="button" on:click={() => entryType="scanner"}>Use a Receipt</div>
     </section>
+    {:else}
+        <div transition:slide>
+        <h3>Please pick an option</h3>
+        <div class="button" on:click={() => entryType="scanner"}>Scan Receipt</div>
+        <div class="button" on:click={() => entryType="manual"}>Enter Items Manually</div>
+        </div>
+    {/if}
 </section>
 <style>
     section {
@@ -146,5 +162,15 @@
 
     #table label {
         margin: 0 10px 0 5px;
+    }
+
+    hr {
+        width: 95%;
+    }
+
+    .or {
+        font-weight: bold;
+        font-style: italic;
+        font-size: 0.8em;
     }
 </style>

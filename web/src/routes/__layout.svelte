@@ -70,13 +70,14 @@
 
     .content {
         /*position: relative;*/
-        padding: 0.7rem;
+        /*padding: 0.7rem;*/
         margin-top: -0.6rem;
         z-index: 3;
         background: var(--bg-color);
         display: flex;
         flex: 1;
         flex-direction: column;
+        font-family: 'Roboto', sans-serif;
         /*transform: translate3d(0.00001px, 0.000001px, 0.00001px);*/
     }
 
@@ -109,7 +110,7 @@
         }
 
         .content {
-            padding: 1rem;
+            /*padding: 1rem;*/
             width: 100%;
             margin: -0.6rem auto 0;
             box-sizing: border-box;

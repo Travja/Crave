@@ -1,5 +1,6 @@
 <script>
     import {variables} from "$lib/variables";
+    import {haversineDistance} from "$lib/util.js";
     import {slide} from "svelte/transition";
     import {onMount} from "svelte";
 
@@ -18,11 +19,6 @@
         } else {
             alert("Geolocation is not supported by this browser.");
         }
-    };
-
-    const toRads = (degrees) => {
-        let pi = Math.PI;
-        return degrees * (pi / 180);
     };
 
     let url = "https://atlas.microsoft.com/search/fuzzy/json" +
@@ -77,23 +73,6 @@
                 .catch(e => console.error(e));
 
         });
-    };
-
-    const haversineDistance = (c1 = {lat: 0, lon: 0}, c2 = {lat: 0, lon: 0}) => {
-        let earthRadius = 3958.75;
-
-        let t1 = c1.lat;
-        let t2 = c2.lat;
-        let n1 = c1.lon;
-        let n2 = c2.lon;
-
-        let hav = Math.pow(Math.sin(toRads((t2 - t1) / 2)), 2)    // sin^2((t2-t1)/2)
-            + (Math.pow(Math.sin(toRads((n2 - n1) / 2)), 2)       // sin^2((n2-n1)/2)
-                * Math.cos(toRads(t2)) * Math.cos(toRads(t1)));     // cos(t2)*cos(t1)
-
-        // distance = 2r*arcsin(√(sin^2((t2-t1)/2) + cos(t2)cos(t1)sin^2((n2-n1)/2)))
-        let distance = 2 * earthRadius * Math.asin(Math.sqrt(hav));
-        return distance;
     };
 
     const selectStore = (e, i) => {

@@ -316,6 +316,7 @@
 
 <section>
     <input accept="image/*" bind:this={fileUpload} id="file-upload" on:change={newFile} type="file"/>
+<!--     class:hidden={!url}-->
     <div class="container">
         <div bind:clientWidth={backgroundWidth} bind:this={background}
              class="o_image"
@@ -362,7 +363,7 @@
     {/if}
     <div class="buttonContainer">
         <label class="button" for="file-upload">Choose Image</label>
-        <div class="button" on:click={saveCroppedImage}>Submit</div>
+        <div class="button submit" on:click={saveCroppedImage}>Submit</div>
         <!--        <a id="download" href="#" bind:this={downloadLink} download="Receipt.png"/>-->
     </div>
 
@@ -510,6 +511,10 @@
         display: none;
     }
 
+    .submit {
+        background: var(--accent-color);
+    }
+
     @media only screen and (min-width: 768px) {
         .p_image {
             display: flex;
@@ -543,5 +548,9 @@
         /*opacity: 0.8;*/
         fill: deepskyblue;
         fill-opacity: 0.3;
+    }
+
+    .hidden {
+        display: none;
     }
 </style>
