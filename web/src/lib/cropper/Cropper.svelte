@@ -386,13 +386,13 @@
         <input bind:this={fileInput} id="file" name="file" type="hidden"/>
     </form>
 
-    {#if submitting}
+    <!--{#if submitting}-->
         <div id="loading">
             <div id="imgWrapper">
                 <img src="/loading.gif" id="loadingImg" alt="Loading"/>
             </div>
         </div>
-    {/if}
+    <!--{/if}-->
 </section>
 
 <style>
@@ -413,8 +413,8 @@
         width: 40vh;
         height: 40vh;
         border-radius: 50%;
-        /*display: flex;*/
-        /*display: -webkit-flex;*/
+        display: flex;
+        display: -webkit-flex;
         align-items: center;
         justify-content: center;
         overflow: hidden;
