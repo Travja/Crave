@@ -55,7 +55,9 @@
 
     const numberValidate = e => {
         let text = e.target.innerText;
-        let caretPos = window.getSelection().getRangeAt(0).startOffset;
+        let caretPos = 0;
+        if (window)
+            caretPos = window.getSelection().getRangeAt(0).startOffset;
         let newText = text;
         if (e.key.length == 1) {
             let t1 = text.substring(0, caretPos) + e.key;

@@ -26,11 +26,13 @@ Engine mode:
 package me.travja.crave.receiptservice;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import me.travja.crave.common.annotations.CraveController;
 import me.travja.crave.common.models.ResponseObject;
 import me.travja.crave.receiptservice.models.ReceiptData;
 import me.travja.crave.receiptservice.models.TargetItem;
 import me.travja.crave.receiptservice.parser.ParserManager;
+import me.travja.crave.receiptservice.parser.ReceiptParseException;
 import org.apache.tika.Tika;
 import org.apache.tika.config.TikaConfig;
 import org.apache.tika.metadata.Metadata;
@@ -52,6 +54,7 @@ import java.io.*;
 import java.nio.charset.Charset;
 import java.util.Base64;
 
+@Slf4j
 @RequiredArgsConstructor
 @CraveController("/receipt")
 public class ReceiptRestController {
@@ -84,9 +87,9 @@ public class ReceiptRestController {
 
             return ResponseObject.successConditional(data.submit());
         } catch (IOException e) {
-            System.err.println("Could not parse image.");
+            log.info("Could not parse image.");
             e.printStackTrace();
-            return ResponseObject.failure("error", e.getMessage());
+            throw new ReceiptParseException("There was a problem parseing the receipt: " + e.getMessage());
         }
     }
 
@@ -116,10 +119,10 @@ public class ReceiptRestController {
             InputStream inputStream = f.getInputStream();
             return parse(inputStream);
         } catch (IOException e) {
-            System.err.println("Could not parse image.");
+            log.error("Could not parse image.");
             e.printStackTrace();
+            throw new ReceiptParseException("Could not parse image. " + e.getMessage());
         }
-        return null;
     }
 
     public ReceiptData parse(InputStream inputStream) throws IOException {
@@ -129,16 +132,19 @@ public class ReceiptRestController {
 
             String result = new String(out.toByteArray(), Charset.defaultCharset());
 
+            if (result.trim().isEmpty())
+                throw new ReceiptParseException("Data parsed was empty!");
+
             return new ReceiptData(result, parserManager);
         } catch (Exception e) {
-            System.err.println("Could not parse image.");
+            log.error("Could not parse image.");
             e.printStackTrace();
+            throw new ReceiptParseException("Could not parse image. " + e.getMessage());
         } finally {
             inputStream.close();
             out.close();
             System.gc();
         }
-        return null;
     }
 
 }

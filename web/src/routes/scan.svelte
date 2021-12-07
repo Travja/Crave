@@ -34,13 +34,14 @@
     let store;
 
 </script>
-<section>
+<section class="max">
     {#if entryType == "scanner"}
-        <div transition:slide>
-    <p>*The receipt scanner currently supports receipts from Walmart and Target.</p>
-    <Cropper/>
-        <div class="or">OR</div>
-        <div class="button" on:click={() => entryType="manual"}>Enter Items Manually</div>
+        <div class="scanner" transition:slide>
+            <h1>Receipt Scanner</h1>
+            <p>*The receipt scanner currently supports receipts from Walmart and Target.</p>
+            <Cropper/>
+            <div class="or">OR</div>
+            <div class="button" on:click={() => entryType="manual"}>Enter Items Manually</div>
         </div>
     {:else if entryType == "manual"}
     <section id="manual" transition:slide>
@@ -80,9 +81,9 @@
     </section>
     {:else}
         <div transition:slide>
-        <h3>Please pick an option</h3>
-        <div class="button" on:click={() => entryType="scanner"}>Scan Receipt</div>
-        <div class="button" on:click={() => entryType="manual"}>Enter Items Manually</div>
+            <h3>Please pick an option</h3>
+            <div class="button" on:click={() => entryType="scanner"}>Scan Receipt</div>
+            <div class="button" on:click={() => entryType="manual"}>Enter Items Manually</div>
         </div>
     {/if}
 </section>
@@ -107,6 +108,10 @@
 
     #man-form {
         overflow-x: auto;
+    }
+
+    .scanner {
+        width: 100%;
     }
 
     @media only screen and (min-width: 768px) {
@@ -172,5 +177,13 @@
         font-weight: bold;
         font-style: italic;
         font-size: 0.8em;
+    }
+
+    .max {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
     }
 </style>

@@ -118,6 +118,9 @@
 
     .slide:nth-child(2n) {
         background-color: var(--secondary-color);
+    }
+
+    .slide:not(:first-child) {
         box-shadow: 0px 0px 6px #444;
     }
 

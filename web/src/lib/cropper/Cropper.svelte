@@ -20,6 +20,10 @@
     let circleRadius = 7;
     let circles = [];
     let sizes = spring(Array(4).fill(circleRadius));
+    $: if (isMobile) {
+        circleRadius = 14;
+        sizes = spring(Array(4).fill(circleRadius));
+    }
 
     let updating;
     let offset = {x: 0, y: 0};
@@ -46,6 +50,9 @@
     let url;
     let img;
     let disabled = true;
+
+    let isMobile = false;
+
     $: if (img && url) {
         img.src = url;
     }
@@ -64,7 +71,7 @@
         let y = updating.y;
 
         let newSizes = [...$sizes];
-        newSizes[updating.index] = 14;
+        newSizes[updating.index] = isMobile ? 20 : 14;
         sizes.set(newSizes);
 
         cursor = "grab";
@@ -93,7 +100,7 @@
         let y = e.touches && e.touches.length > 0 ? e.touches[0].clientY : e.clientY;
 
         updating.x = x - svgDx;
-        updating.y = y - svgDy;
+        updating.y = y - svgDy - (isMobile ? 40 : 0);
 
         let target = targetPoints[updating.index];
         target[0] = updating.x;
@@ -268,6 +275,7 @@
 
     let gate;
     onMount(() => {
+        isMobile = window.innerWidth <= 768;
         img = new Image();
         utils = new Utils('errorMessage');
         gate = gateway();

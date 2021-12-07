@@ -5,6 +5,7 @@
     import {onMount} from "svelte";
 
     export let store;
+    let fetching = false;
     let position;
     let storeSelect,
         addressInput,
@@ -26,7 +27,8 @@
         "&query={query}" +
         "&subscription-key=" + variables.subKey +
         "&lat={lat}" +
-        "&lon={lon}";
+        "&lon={lon}" +
+        "&categorySet=9361022,9361023,9361063,7332005,7332,9361021,7327";
     let strs = [];
     export let selected;
     const updateStore = str => {
@@ -34,6 +36,7 @@
 
         selected = str;
 
+        fetching = true;
         getLocation((store) => {
             if (!position) return;
             console.log(position.coords);
@@ -69,8 +72,12 @@
                             selected: false
                         });
                     }
+                    fetching = false;
                 })
-                .catch(e => console.error(e));
+                .catch(e => {
+                    console.error(e);
+                    fetching = false;
+                });
 
         });
     };
@@ -115,14 +122,25 @@
         <input bind:this={cityInput} id="city" name="city" type="text"/>
     </div>
     <h4>Pick Your Store</h4>
-    {#each variables.validStores as validStore}
-        <label>
-            <!-- disabled="{!!store}" -->
-            <input name="store" on:click={() => updateStore(validStore)} type="radio"
-                   checked="{validStore.toLowerCase() == store?.toLowerCase()}"/>
-            {validStore}
-        </label>
-    {/each}
+    <select on:change={e => updateStore(e.target.value)}>
+        <option></option>
+        {#each variables.validStores as validStore}
+            <option value={validStore}>{validStore}</option>
+        {/each}
+    </select>
+    <!--{#each variables.validStores as validStore}-->
+    <!--    <label>-->
+    <!--        &lt;!&ndash; disabled="{!!store}" &ndash;&gt;-->
+    <!--        <input name="store" on:click={() => updateStore(validStore)} type="radio"-->
+    <!--               checked="{validStore.toLowerCase() == store?.toLowerCase()}"/>-->
+    <!--        {validStore}-->
+    <!--    </label>-->
+    <!--{/each}-->
+    {#if fetching}
+        <div class="load">
+            <img class="buffer" src="/buffer.gif" alt="Getting Stores"/>
+        </div>
+    {/if}
     <div class="stores">
         {#each strs as store, i}
             <div class="store"
@@ -170,5 +188,23 @@
     .store:hover {
         background: #aaa;
         cursor: pointer;
+    }
+
+    select {
+        font-size: 1em;
+        padding: 0.5em;
+        border-radius: 0.2em;
+        box-shadow: 4px 4px 4px #aaa;
+    }
+
+    .load {
+        height: 1.5em;
+        margin: 0.7em;
+    }
+
+    .buffer {
+        max-height: 100%;
+        max-width: 100%;
+        aspect-ratio: 1;
     }
 </style>

@@ -3,6 +3,7 @@ package me.travja.crave.receiptservice.models;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import me.travja.crave.common.conf.AppContext;
 import me.travja.crave.common.conf.Variables;
 import me.travja.crave.common.models.item.SimpleReceiptData;
@@ -19,6 +20,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Data
+@Slf4j
 public class ReceiptData extends SimpleReceiptData {
 
     private static LoadBalancerClient loadBalancerClient;
@@ -37,7 +39,7 @@ public class ReceiptData extends SimpleReceiptData {
         List<String> list = Arrays.stream(data.split("\n"))
                 .filter(s -> s.length() > 2).map(str -> str.replaceAll("[\\[\\]]", "1")).collect(Collectors.toList());
 
-        System.out.println(String.join("\n", list));
+        log.info(String.join("\n", list));
         for (String str : list) {
             if (str.toLowerCase().contains("walmart") || str.toLowerCase().contains("live better"))
                 receiptType = ReceiptType.WALMART;
