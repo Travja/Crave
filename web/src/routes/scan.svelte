@@ -169,10 +169,6 @@
         margin: 0 10px 0 5px;
     }
 
-    hr {
-        width: 95%;
-    }
-
     .or {
         font-weight: bold;
         font-style: italic;

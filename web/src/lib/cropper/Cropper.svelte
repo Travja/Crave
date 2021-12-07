@@ -99,7 +99,7 @@
         let x = e.touches && e.touches.length > 0 ? e.touches[0].clientX : e.clientX;
         let y = e.touches && e.touches.length > 0 ? e.touches[0].clientY : e.clientY;
 
-        updating.x = x - svgDx;
+        updating.x = x - svgDx - (isMobile ? 40 : 0);
         updating.y = y - svgDy - (isMobile ? 40 : 0);
 
         let target = targetPoints[updating.index];
@@ -280,13 +280,6 @@
         utils = new Utils('errorMessage');
         gate = gateway();
 
-        img.onload = () => {
-            imgWidth = img.width;
-            imgHeight = img.height;
-            utils.loadImageToCanvas(url, "imageInit");
-            setTimeout(setupCropBox, 500);
-        };
-
         window.addEventListener("resize", checkResize);
 
         // script = document.createElement("script");
@@ -296,6 +289,15 @@
         //
         // document.body.appendChild(script);
     });
+
+    const setup = () => {
+        if(img) {
+            imgWidth = img.width;
+            imgHeight = img.height;
+            utils.loadImageToCanvas(url, "imageInit");
+            setTimeout(setupCropBox, 500);
+        }
+    };
 
     // onDestroy(() => document.body.removeChild(script));
 
@@ -333,7 +335,8 @@
             <div bind:clientHeight={myHeight} bind:clientWidth={myWidth}
                  bind:this={wrap} class="imgWrapper">
                 {#if url}
-                    <img alt="Upload a Receipt" bind:this={image} src="{url}"/>
+                    <img alt="Upload a Receipt" bind:this={image} src="{url}"
+                    on:load={setup}/>
                 {:else}
                     <div>Upload a Receipt</div>
                 {/if}
