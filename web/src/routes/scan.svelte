@@ -42,6 +42,7 @@
             <Cropper/>
             <div class="or">OR</div>
             <div class="button" on:click={() => entryType="manual"}>Enter Items Manually</div>
+            <a href="/walmart" class="button">Manual Walmart Entry</a>
         </div>
     {:else if entryType == "manual"}
     <section id="manual" transition:slide>
@@ -78,12 +79,17 @@
         <div class="button submit" on:click={submit}>Submit</div>
         <div class="or">OR</div>
         <div class="button" on:click={() => entryType="scanner"}>Use a Receipt</div>
+        {#if store?.toLowerCase().includes("walmart")}
+            <a href="/walmart" class="button">Manual Walmart Entry</a>
+        {/if}
     </section>
     {:else}
         <div transition:slide>
             <h3>Please pick an option</h3>
             <div class="button" on:click={() => entryType="scanner"}>Scan Receipt</div>
+            <div class="or">OR</div>
             <div class="button" on:click={() => entryType="manual"}>Enter Items Manually</div>
+            <a href="/walmart" class="button">Manual Walmart Entry</a>
         </div>
     {/if}
 </section>
@@ -173,6 +179,7 @@
         font-weight: bold;
         font-style: italic;
         font-size: 0.8em;
+        width: 100%;
     }
 
     .max {

@@ -386,13 +386,13 @@
         <input bind:this={fileInput} id="file" name="file" type="hidden"/>
     </form>
 
-    <!--{#if submitting}-->
+    {#if submitting}
         <div id="loading">
             <div id="imgWrapper">
                 <img src="/loading.gif" id="loadingImg" alt="Loading"/>
             </div>
         </div>
-    <!--{/if}-->
+    {/if}
 </section>
 
 <style>
