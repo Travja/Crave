@@ -172,7 +172,7 @@ public class WalmartParser implements ReceiptProcessor {
 
         WalmartResponse.WalmartReceipt.WalmartStore.WalmartAddress walAddress = response.getReceipts().size() > 0 ?
                 response.getReceipts().get(0).getStore().getAddress() : null;
-        log.info("Address: " + walAddress.toString());
+        log.info("Address: " + (walAddress != null ? walAddress.toString() : "No address"));
         if (list != null && walAddress != null) {
             address = new Address();
             address.setStreetAddress(walAddress.getAddressLineOne());
@@ -195,8 +195,9 @@ public class WalmartParser implements ReceiptProcessor {
             receipt.getItems().forEach(item -> {
                 WalmartItem wItem = new WalmartItem();
                 wItem.setName(item.getDescription());
-                wItem.setImage(item.getImageUrl().replace("odnHeight=180", "odnHeight=420").replace("odnWidth=180",
-                        "odnWidth=420"));
+                if (item.getImageUrl() != null-)
+                    wItem.setImage(item.getImageUrl().replace("odnHeight=180", "odnHeight=420").replace("odnWidth=180",
+                            "odnWidth=420"));
                 wItem.setPrice(item.getUnitPrice() > 0d ? item.getUnitPrice() : item.getPrice());
                 wItem.setUpc(getValidatedUPC(item.getUpc()));
 
