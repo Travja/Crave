@@ -38,7 +38,7 @@
         console.log(manForm);
         formSubmit(manForm, (data) => {
             if (data.error) {
-                alert("There was a problem processing these items.", data.message);
+                alert("There was a problem processing these items: " + data.message);
                 return;
             }
             console.log(data);
