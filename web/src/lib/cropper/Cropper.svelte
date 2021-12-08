@@ -318,12 +318,12 @@
 
     const submitForm = () => {
         formSubmit(form, (data) => {
+            submitting = false;
             if (data.error) {
                 alert("There was a problem processing this receipt.", data.message);
                 return;
             }
             console.log(data);
-            submitting = false;
             alert("Receipt submitted successfully");
             //TODO Eventually allow approval of submitted receipt data.
             // location.reload();
