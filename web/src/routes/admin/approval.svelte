@@ -61,28 +61,36 @@
     });
 </script>
 
-<h3>Pending Items ({needsApproval.length})</h3>
-{#if fetchPending}
-    <p>Fetching pending items...</p>
-{:else}
-    {#if needsApproval.length > 0}
-        {#each needsApproval as item}
-            <PendingItem {...item} on:approved={getPendingItems} on:rejected={getPendingItems}/>
-        {/each}
+<div class="content">
+    <h3>Pending Items ({needsApproval.length})</h3>
+    {#if fetchPending}
+        <p>Fetching pending items...</p>
     {:else}
-        <p>There are no pending items at the moment! Good work!</p>
+        {#if needsApproval.length > 0}
+            {#each needsApproval as item}
+                <PendingItem {...item} on:approved={getPendingItems} on:rejected={getPendingItems}/>
+            {/each}
+        {:else}
+            <p>There are no pending items at the moment! Good work!</p>
+        {/if}
     {/if}
-{/if}
 
-<h3>Pending Sales ({saleApprovals.length})</h3>
-{#if fetchingSales}
-    <p>Fetching pending sales...</p>
-{:else}
-    {#if saleApprovals.length > 0}
-        {#each saleApprovals as sale}
-            <PendingSaleItem {...sale} on:approved={getPendingSales} on:rejected={getPendingSales}/>
-        {/each}
+    <h3>Pending Sales ({saleApprovals.length})</h3>
+    {#if fetchingSales}
+        <p>Fetching pending sales...</p>
     {:else}
-        <p>There are no pending items at the moment! Good work!</p>
+        {#if saleApprovals.length > 0}
+            {#each saleApprovals as sale}
+                <PendingSaleItem {...sale} on:approved={getPendingSales} on:rejected={getPendingSales}/>
+            {/each}
+        {:else}
+            <p>There are no pending items at the moment! Good work!</p>
+        {/if}
     {/if}
-{/if}
+</div>
+
+<style>
+    .content {
+        padding: 1rem;
+    }
+</style>

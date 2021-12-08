@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import me.travja.crave.common.models.item.ProductInformation;
 import me.travja.crave.common.models.store.Address;
+import me.travja.crave.receiptservice.WalmartRequest;
 import me.travja.crave.receiptservice.models.WalmartItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -128,7 +129,8 @@ public class WalmartParser implements ReceiptProcessor {
         log.info("Store Id: " + storeId + " -- Last Four: " + lastFourDigits + " -- Card Type: " + cardType + " -- " +
                 "Purchase Date: " + purchaseDate + " -- Total: " + total);
 
-        List<WalmartItem> fetchedItems = getItems(storeId, lastFourDigits, purchaseDate, cardType, total, list);
+        List<WalmartItem> fetchedItems =
+                getItems(new WalmartRequest(storeId, lastFourDigits, purchaseDate, cardType, total), list);
 
         fetchedItems.forEach(System.out::println);
 
@@ -155,18 +157,17 @@ public class WalmartParser implements ReceiptProcessor {
         return null;
     }
 
-    public List<WalmartItem> getItems(String storeId, String lastFourDigits, String purchaseDate,
-                                      String cardType, double total, List<String> list) throws IllegalArgumentException {
-        if (storeId.isEmpty() || lastFourDigits.isEmpty() || purchaseDate.isEmpty() || cardType.isEmpty() || total == 0)
-            throw new IllegalArgumentException("Invalid data supplied.");
+    public List<WalmartItem> getItems(WalmartRequest req, List<String> list) throws IllegalArgumentException {
+        if (req.getStoreId().isEmpty() || req.getLastFourDigits().isEmpty() || req.getPurchaseDate().isEmpty()
+                || req.getCardType().isEmpty() || req.getTotal() == 0)
+            throw new ReceiptParseException("Invalid data supplied.");
 
-        if (lastFourDigits.length() != 4)
-            throw new IllegalArgumentException("Card number not 4 digits");
+        if (req.getLastFourDigits().length() != 4)
+            throw new ReceiptParseException("Card number not 4 digits");
 
-        String         url     = "https://www.walmart.com/chcwebapp/api/receipts";
-        ReceiptRequest request = new ReceiptRequest(storeId, lastFourDigits, purchaseDate, cardType, total);
+        String url = "https://www.walmart.com/chcwebapp/api/receipts";
 
-        WalmartResponse response = restTemplate.postForObject(url, request, WalmartResponse.class);
+        WalmartResponse response = restTemplate.postForObject(url, req, WalmartResponse.class);
 
         WalmartResponse.WalmartReceipt.WalmartStore.WalmartAddress walAddress = response.getReceipts().size() > 0 ?
                 response.getReceipts().get(0).getStore().getAddress() : null;
@@ -203,13 +204,6 @@ public class WalmartParser implements ReceiptProcessor {
         });
 
         return items;
-    }
-
-    @Data
-    @AllArgsConstructor
-    private static class ReceiptRequest {
-        private String storeId, lastFourDigits, purchaseDate, cardType;
-        private double total;
     }
 
     /**

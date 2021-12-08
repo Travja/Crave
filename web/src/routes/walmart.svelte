@@ -1,27 +1,71 @@
 <script>
+    import {gateway, title} from "$lib/variables.js";
+    import {formatDate} from "$lib/util.js";
+    import {onMount} from "svelte";
+
+    title.set("Walmart Entry");
+
+    let form;
+
+    let storeId, purchaseDate, cardType = "visa", lastFourDigits, total;
+
+    let gate;
+
+    onMount(() => gate = gateway());
+
+    const submit = () => {
+        let body = JSON.stringify({
+            storeId,
+            purchaseDate: formatDate(new Date(purchaseDate)),
+            cardType,
+            lastFourDigits,
+            total
+        });
+
+        console.log(body);
+        fetch(gate + "/receipt-service/receipt/walmart", {
+            method: "post",
+            headers: {'Content-Type': 'application/json'},
+            body
+        })
+            .then(res => res.json())
+            .then(data => console.log(data))
+            .catch(e => console.err);
+        // formSubmit(form, (data) => {
+        //     console.log(data);
+        // });
+    };
+
+    $: console.log(storeId, purchaseDate, cardType, lastFourDigits, total,
+        formatDate(new Date(purchaseDate)));
 
 </script>
 
 <div class="content">
     <h1>Enter your Walmart Receipt Information</h1>
 
-    <form id="walmartForm">
-        <label>Store ID: <input type="text" placeholder="03589"/></label>
-        <label>Purchase Date: <input type="date"/></label>
-        <label>
-            Card Type:
-            <select id="card-type" aria-required="true">
-                <option value="visa">Visa</option>
-                <option value="mastercard">Mastercard</option>
-                <option value="amex">Amex</option>
-                <option value="discover">Discover</option>
-                <option value="debit">Debit</option>
-                <option value="other">Other</option>
-            </select>
-        </label>
-        <label>Last Four of Card: <input type="text" placeholder="3589"/></label>
-        <label>Receipt Total: <input type="number" min="0" max="10000" step="0.01" placeholder="5.00"/></label>
-        <div class="button submit">Submit</div>
+    <form id="walmartForm" bind:this={form} action="{gate}/receipt-service/receipt/walmart" method="post">
+        <label>Store ID</label>
+        <input type="text" placeholder="03589" bind:value={storeId}/>
+        <label>Purchase Date</label>
+        <input type="date" bind:value={purchaseDate}/>
+        <label>Card Type</label>
+        <select id="card-type" aria-required="true" on:change={e => cardType =
+        e.target.children[e.target.selectedIndex].value}>
+            <option value="visa">Visa</option>
+            <option value="mastercard">Mastercard</option>
+            <option value="amex">Amex</option>
+            <option value="discover">Discover</option>
+            <option value="debit">Debit</option>
+            <option value="other">Other</option>
+        </select>
+        <label>Last Four of Card</label>
+        <input type="text" placeholder="####" bind:value={lastFourDigits}/>
+        <label>Receipt Total</label>
+        <input type="number" min="0" max="10000" step="0.01" placeholder="5.00" bind:value={total}/>
+        <span class="submitWrap">
+            <div class="button submit" on:click={submit}>Submit</div>
+        </span>
     </form>
 </div>
 
@@ -32,8 +76,38 @@
         padding: 0.7rem;
     }
 
+    .submitWrap {
+        text-align: center;
+    }
+
     .submit {
         background: var(--accent-color);
+        flex-grow: 0;
+    }
+
+    #walmartForm {
+        display: flex;
+        flex-direction: column;
+        max-width: 50%;
+        margin: 0 auto;
+    }
+
+    #walmartForm > * {
+        margin: 0.3rem;
+    }
+
+    label {
+        display: flex;
+        text-decoration: underline;
+    }
+
+    label > * {
+        margin-left: 0.5rem;
+    }
+
+    input, select {
+        padding: 0.5rem;
+        font-size: 1rem;
     }
 
     @media only screen and (min-width: 768px) {

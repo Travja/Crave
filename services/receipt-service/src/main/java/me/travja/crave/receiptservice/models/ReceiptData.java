@@ -23,16 +23,6 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ReceiptData extends SimpleReceiptData {
 
-    private static LoadBalancerClient loadBalancerClient;
-    private static RestTemplate       restTemplate;
-    private static Variables          variables;
-
-    static {
-        loadBalancerClient = AppContext.getBean(LoadBalancerClient.class);
-        restTemplate = AppContext.getBean(RestTemplate.class);
-        variables = AppContext.getBean(Variables.class);
-    }
-
     public ReceiptData(String data, ParserManager parserManager) {
         data = data.replaceAll("\n+", "\n");
 
@@ -63,22 +53,6 @@ public class ReceiptData extends SimpleReceiptData {
         setStreetAddress(address.getStreetAddress());
         setCity(address.getCity());
         setState(address.getState());
-    }
-
-    public boolean submit() {
-        String auth = "Bearer " + variables.SERVICE_KEY;
-        SubmissionResponse response = Communication.post(Services.ITEM_SERVICE, "/receipt", auth,
-                this, SubmissionResponse.class);
-        return response != null ? response.success : false;
-    }
-
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class SubmissionResponse {
-        private boolean success;
-        private int     updated;
-        private String  error;
     }
 
 }

@@ -170,3 +170,12 @@ export const haversineDistance = (c1 = {lat: 0, lon: 0}, c2 = {lat: 0, lon: 0}) 
     let distance = 2 * earthRadius * Math.asin(Math.sqrt(hav));
     return distance;
 };
+
+export const formatDate = date => {
+    if (!date) return "No date";
+    let formatted_date =
+        (date.getMonth() + 1) + "-" +
+        (date.getDate() + 1) + "-" +
+        date.getFullYear();
+    return formatted_date;
+}

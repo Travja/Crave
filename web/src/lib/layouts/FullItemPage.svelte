@@ -2,13 +2,18 @@
     import {formatter} from "$lib/util";
     import {gateway} from "$lib/variables";
     import {goto} from "$app/navigation";
+    import {onMount} from "svelte";
 
     export let items, item, src;
     export let editable = false;
     let imgUpload;
 
+    let gate;
+
     const numberRegex = /[0-9\.]/;
     const priceRegex = /^[0-9]*\.?[0-9]{0,2}$/;
+
+    const dateOpts = {weekday: 'long', year: 'numeric', month: 'short', day: 'numeric'};
 
     const changeImg = e => {
         let reader = new FileReader();
@@ -25,6 +30,8 @@
     let prices = [];
     let description, priceObj, focused, leadPrice;
 
+    onMount(() => gate = gateway());
+
     const save = () => {
         console.log(item);
         for (let itm of items) {
@@ -38,7 +45,7 @@
         }
         console.log(items);
 
-        fetch(`${gateway()}/item-service/item-details/multiple`,
+        fetch(`${gate}/item-service/item-details/multiple`,
             {
                 method: 'PATCH',
                 headers: {'Content-Type': 'application/json'},
@@ -133,6 +140,14 @@
                     </div>
                 {/if}
                 <strong>{item.store.name}</strong> - {item.store.streetAddress}, {item.store.city}
+                {#if item.lastUpdated}
+                    <div class="updated">
+                        <strong>Last updated: </strong>
+                        {new Date(item.lastUpdated).toLocaleDateString('en-us', dateOpts)}
+                        at
+                        {new Date(item.lastUpdated).toLocaleTimeString('en-US', {timeStyle: "short"})}
+                    </div>
+                {/if}
             </div>
             <hr/>
             {#if editable}

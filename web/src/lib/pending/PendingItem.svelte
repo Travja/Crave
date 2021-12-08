@@ -63,10 +63,12 @@
         <div class="filler"/>
         <div class="button approve"
              on:click={approve}>
+            <span class="material-icons-round">thumb_up</span>
             Approve
         </div>
         <div class="button reject"
              on:click={reject}>
+            <span class="material-icons-round">thumb_down</span>
             Reject
         </div>
     </div>
@@ -92,6 +94,17 @@
 </div>
 
 <style>
+    .button {
+        margin: 0 0 0 0.5rem;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+    }
+
+    .button .material-icons-round {
+        margin-right: 0.3em;
+    }
+
     .line-one {
         display: flex;
         align-items: center;
@@ -123,18 +136,12 @@
 
     .price {
         background: var(--accent-color);
-        padding: 0.5rem;
-        border-radius: 0.5em;
         color: white;
-    }
-
-    .price {
         font-size: 1.1em;
         font-weight: bold;
         border-radius: 0.2em;
         padding: 0.4em;
         display: inline-block;
-        color: white;
         box-sizing: border-box;
         background: var(--accent-color);
     }
@@ -142,6 +149,7 @@
     .priceWrap {
         display: flex;
         align-items: center;
+        padding-bottom: 0.5em;
     }
 
     .filler {
