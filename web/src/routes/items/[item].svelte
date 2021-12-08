@@ -3,9 +3,6 @@
 
     title.set("Item Entry");
 
-    let src = "/find-image.svg";
-    let items;
-    let item;
     let itemId;
 
     export async function load({page, fetch}) {
@@ -43,7 +40,7 @@
         const res = await fetch(url);
 
         if (res.ok) {
-            let json = await res.json()
+            let json = await res.json();
             console.log(json);
             items = json;
             item = findCheapest(items);

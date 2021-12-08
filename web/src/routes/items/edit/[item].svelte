@@ -3,9 +3,6 @@
 
     title.set("Item Entry");
 
-    let src = "/find-image.svg";
-    let items;
-    let item;
     let itemId;
 
     export async function load({page, fetch}) {
@@ -20,6 +17,10 @@
     import {goto} from "$app/navigation";
     import {gateway} from "$lib/variables.js";
 
+    let src = "/find-image.svg";
+    let items;
+    let item;
+
     onMount(async () => {
         let jwt = parseJWT();
         if (!jwt || !jwt.authorities.includes("ADMIN"))
@@ -30,7 +31,8 @@
         const res = await fetch(url);
 
         if (res.ok) {
-            let json = await res.json()
+            let json = await res.json();
+            console.log("test");
             console.log(json);
             items = json;
             item = findCheapest(items);
