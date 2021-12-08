@@ -1,6 +1,5 @@
 <script context="module">
-    import {gateway, title} from "$lib/variables";
-    import {findCheapest} from "$lib/util";
+    import {title} from "$lib/variables";
 
     title.set("Item Entry");
 
