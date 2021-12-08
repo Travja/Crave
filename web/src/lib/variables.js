@@ -51,3 +51,5 @@ export const logout = () => {
     loginState.loggedIn.set(false);
     variables.jwt.set(undefined);
 };
+
+export let modal = writable();

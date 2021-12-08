@@ -15,7 +15,7 @@
 
     const submit = () => {
         let body = JSON.stringify({
-            storeId,
+            storeId: ("00000" + (storeId)).slice(-5),
             purchaseDate: formatDate(new Date(purchaseDate)),
             cardType,
             lastFourDigits,
@@ -36,17 +36,31 @@
         // });
     };
 
-    $: console.log(storeId, purchaseDate, cardType, lastFourDigits, total,
-        formatDate(new Date(purchaseDate)));
+    let numRegex = /^[0-9]*?\.?[0-9]{0,2}$/;
+    const testInput = e => {
+        if (!numRegex.test(e.target.value + e.key))
+            e.preventDefault();
+    };
+
+    const testStoreId = e => {
+        if (!/^[0-9]{0,5}$/.test(e.target.value + e.key))
+            e.preventDefault();
+    };
+
+    const testLastFour = e => {
+        if (!/^[0-9]{0,4}$/.test(e.target.value + e.key))
+            e.preventDefault();
+    };
 
 </script>
 
 <div class="content">
     <h1>Enter your Walmart Receipt Information</h1>
+    <p>In order to parse your data, we need a few things from you first...</p>
 
     <form id="walmartForm" bind:this={form} action="{gate}/receipt-service/receipt/walmart" method="post">
         <label>Store ID</label>
-        <input type="text" placeholder="03589" bind:value={storeId}/>
+        <input type="text" placeholder="03589" on:keypress={testStoreId} bind:value={storeId}/>
         <label>Purchase Date</label>
         <input type="date" bind:value={purchaseDate}/>
         <label>Card Type</label>
@@ -60,9 +74,10 @@
             <option value="other">Other</option>
         </select>
         <label>Last Four of Card</label>
-        <input type="text" placeholder="####" bind:value={lastFourDigits}/>
+        <input type="text" placeholder="####" on:keypress={testLastFour} bind:value={lastFourDigits}/>
         <label>Receipt Total</label>
-        <input type="number" min="0" max="10000" step="0.01" placeholder="5.00" bind:value={total}/>
+        <input type="number" min="0" max="10000" step="0.01" placeholder="5.00"
+               on:keypress={testInput} bind:value={total}/>
         <span class="submitWrap">
             <div class="button submit" on:click={submit}>Submit</div>
         </span>
@@ -108,6 +123,8 @@
     input, select {
         padding: 0.5rem;
         font-size: 1rem;
+        border: 1px solid #888;
+        border-radius: 0.3rem;
     }
 
     @media only screen and (min-width: 768px) {

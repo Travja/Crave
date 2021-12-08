@@ -99,39 +99,6 @@
         transition: background-color 0.3s;
     }
 
-    @media only screen and (min-width: 768px) {
-        .section, .section > a {
-            display: flex;
-            flex-direction: column;
-            flex: 1;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .imgWrapper {
-            flex-grow: 1;
-            display: flex;
-            align-items: center;
-        }
-
-        .section {
-            flex-basis: 15%;
-        }
-
-        a {
-            margin-bottom: 0;
-        }
-
-        .name {
-            text-align: center;
-        }
-
-        .icons {
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-    }
-
     .section:hover {
         background-color: #ddd;
     }
@@ -146,9 +113,9 @@
     }
 
     img {
-        float: left;
         min-width: 200px;
         max-width: 200px;
+        margin-bottom: 0.5rem;
     }
 
     .price {
@@ -218,5 +185,44 @@
 
     .costSale {
         color: red;
+    }
+
+    .imgWrapper {
+        flex-grow: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    @media only screen and (min-width: 768px) {
+        .section, .section > a {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            align-items: center;
+            justify-content: center;
+        }
+
+
+        img {
+            float: left;
+        }
+
+        .section {
+            flex-basis: 15%;
+        }
+
+        a {
+            margin-bottom: 0;
+        }
+
+        .name {
+            text-align: center;
+        }
+
+        .icons {
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
     }
 </style>

@@ -123,7 +123,7 @@
     </div>
     <h4>Pick Your Store</h4>
     <select on:change={e => updateStore(e.target.value)}>
-        <option></option>
+        <option>-- Select --</option>
         {#each variables.validStores as validStore}
             <option value={validStore}>{validStore}</option>
         {/each}

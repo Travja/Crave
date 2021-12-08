@@ -41,6 +41,7 @@
         background-color: white;
         max-width: 100%;
         max-height: 10em;
+        padding: 1em;
     }
 
     @media only screen and (min-width: 768px) {

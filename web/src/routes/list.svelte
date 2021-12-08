@@ -112,11 +112,14 @@
                     totalCost += item.lowestDetails.price;
                 }
             });
-            if(position)
-            stores = stores.sort((a, b) =>
-                haversineDistance({...a.location}, {lat: position.coords.latitude, lon: position.coords.longitude}) -
-                haversineDistance({...b.location},  {lat: position.coords.latitude, lon: position.coords.longitude})
-            );
+            if (position)
+                stores = stores.sort((a, b) =>
+                    haversineDistance({...a.location}, {
+                        lat: position.coords.latitude,
+                        lon: position.coords.longitude
+                    }) -
+                    haversineDistance({...b.location}, {lat: position.coords.latitude, lon: position.coords.longitude})
+                );
             console.log(stores);
             numStores = stores.length;
         }
@@ -126,7 +129,7 @@
         if (navigator && navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(pos => {
                 position = pos;
-                if(callback)
+                if (callback)
                     callback();
             });
         } else {
@@ -550,18 +553,25 @@
         <h3>Stores to visit</h3>
         {#each stores as stor (stor.id)}
             <div class="store">
-                <div><strong>{stor.name}</strong> -
+                <div><strong>{stor.name}</strong>
+                    {#if position}
+                        <div class="dist">
+                            (~{haversineDistance({...stor.location}, {
+                            lat: position.coords.latitude,
+                            lon: position.coords.longitude
+                        }).toFixed(2)} mi)
+                        </div>
+                    {/if}
                     <a
                             href={`https://www.google.com/maps/dir/?api=1&travelmode=driving&destination=${stor.streetAddress.replaceAll(" ", "+") + "+" + stor.city.replaceAll(" ", "+")}`}
-                       target="_blank">
+                            target="_blank">
                         {stor.streetAddress}, {stor.city}
                     </a>
-                    {#if position}
-                        (~{haversineDistance({...stor.location}, {lat: position.coords.latitude,
-                            lon: position.coords.longitude}).toFixed(2)} mi)
-                    {/if}
                 </div>
             </div>
+            {#if stores.indexOf(stor) < stores.length - 1}
+                <hr/>
+            {/if}
         {/each}
     {/if}
 </div>
@@ -578,6 +588,7 @@
         /*width: 30%;*/
         margin: 1rem auto;
         flex-grow: 1;
+        padding: 0.7rem;
     }
 
     .container > * {
@@ -767,5 +778,19 @@
 
     .notfound {
         color: red;
+    }
+
+    .store {
+        text-align: center;
+    }
+
+    .dist {
+        font-size: 0.7rem;
+    }
+
+    hr {
+        width: 70%;
+        border: none;
+        border-bottom: 1px solid var(--fg-color);
     }
 </style>

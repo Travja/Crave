@@ -3,11 +3,12 @@
     import Header from "$lib/header/Header.svelte";
     import Footer from "$lib/Footer.svelte";
     // noinspection ES6UnusedImports
-    import {title, variables} from "$lib/variables.js";
+    import {modal, title, variables} from "$lib/variables.js";
     import {initScroll, overrideFetch, overrideXMLSend, scrollDistance, setupButtons} from "$lib/util";
     import {afterUpdate, beforeUpdate, onDestroy, onMount} from "svelte";
     import Parrallax from "$lib/Parrallax.svelte";
     import {fly} from "svelte/transition";
+    import Modal from "$lib/ui/Modal.svelte";
 
     let unsubscribe, unscroll;
     let firstRun = true;
@@ -61,6 +62,16 @@
     {/if}
 </main>
 
+{#if $modal && $modal.content}
+    <Modal>
+        {#if $modal?.content.startsWith("img")}
+            <img class="modalImg" src="{$modal?.content.replace('img:', '')}"/>
+        {:else}
+            {$modal?.content}
+        {/if}
+    </Modal>
+{/if}
+
 <!--<div style="height: 15000px"/>-->
 
 <style>
@@ -98,6 +109,11 @@
         box-shadow: 0 0 15px #333;
         z-index: 1000;
         /*transform: translate3d(0.00001px, 0.000001px, 0.00001px);*/
+    }
+
+    :global(.modalImg) {
+        max-width: 100%;
+        max-height: 70vh;
     }
 
     @media only screen and (min-width: 768px) {
