@@ -41,7 +41,7 @@
             })
             .catch(e => {
                 alert("Something went wrong when processing this request.");
-                console.err(e);
+                console.error(e);
             });
         // formSubmit(form, (data) => {
         //     console.log(data);
