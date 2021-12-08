@@ -27,7 +27,7 @@ export const variables = {
     tip: false
 };
 
-export const gateway = () => variables.gateway ? variables.gateway : window?.location.origin
+export const gateway = () => variables.gateway ? variables.gateway : (window ? window?.location.origin : "");
 
 export let title = writable("Untitled");
 
