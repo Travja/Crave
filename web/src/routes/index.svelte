@@ -8,26 +8,36 @@
     title.set("Home");
 </script>
 
-<h1 class="underline">Welcome to Crave!</h1>
-<em>Shop Smart, Shop Efficient</em>
+<div class="head hcenter">
+    <h1 class="underline">Welcome to Crave!</h1>
+    <em>Shop Smart, Shop Efficient</em>
+</div>
 <section>
     <div class="slide with-img">
-        <p>
-            Crave is your one-stop shop for all of your shopping needs!
-            Through use of crowd-sourcing, we keep a database stocked with data about all the things
-            <strong>you</strong> buy. Our goal is to provide one location where you can go to
-            keep track of your shopping list, find deals, and plan your shopping trips!
-        </p>
+        <span>
+            <h2>Shop Confidently</h2>
+            <p>
+                Go to the store with the peace of mind that you're getting the best deal.
+                <br/>
+                No need to debate <em>"is it cheaper elsewhere?"</em>
+                <br/>
+                We've got your back.
+            </p>
+        </span>
         <div class="imgWrapper">
             <img src="https://www.rtm.com/wp-content/uploads/2018/05/shopper-marketing.jpg"/>
         </div>
     </div>
-    <div class="slide clear">
-        <p>
-            Create and organize shopping lists that automatically calculate the best places to go to
-            get your items. Whether you want to shop at a single store or are looking for the best bargains,
-            we've got you covered!
-        </p>
+    <div class="slide clear grocWrapper">
+        <div>
+            <h1 class="material-icons-round">format_list_bulleted</h1>
+            <p>
+                Create and organize shopping lists that automatically calculate the best places to go to
+                get your items. Whether you want to shop at a single store or are looking for the best bargains,
+                we've got you covered!
+            </p>
+        </div>
+        <div class="groceries"/>
     </div>
 
     <div class="slide">
@@ -43,21 +53,28 @@
         </p>
     </div>
 
-    <div class="slide">
-        <h4>There is limited store support!</h4>
-        <p>
-            Unfortunately, many stores do not offer public APIs, nor do their receipts supply appropriate
-            information for us to automatically parse and read. We plan to continue to expand our supported
-            stores, but as of right now, Walmart and Target are the only stores whose receipts you can scan
-            automatically. Other stores, when added, are available to be used through the manual entry at
-            the bottom of the scan page.
-        </p>
+    <div class="slide grocWrapper">
+        <div>
+            <h4>There is limited store support!</h4>
+            <p>
+                Unfortunately, many stores do not offer public APIs, nor do their receipts supply appropriate
+                information for us to automatically parse and read. We plan to continue to expand our supported
+                stores, but as of right now, Walmart and Target are the only stores whose receipts you can scan
+                automatically. Other stores, when added, are available to be used through the manual entry at
+                the bottom of the scan page.
+            </p>
+        </div>
+        <div class="groceries"/>
     </div>
 
-    <h1 class="underline">Thank you for being a part of such a great community!</h1>
+    <h1 class="underline slide">Thank you for being a part of such a great community!</h1>
 </section>
 
 <style>
+    .head {
+        background: var(--bg-color);
+    }
+
     section {
         /*justify-content: center;*/
         flex: 1;
@@ -105,19 +122,32 @@
     }
 
     .slide {
-        position: sticky;
-        top: 3rem;
         background: var(--bg-color);
-        min-height: 40vh;
+        min-height: 90vh;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
         text-align: center;
+        position: relative;
+    }
+
+    .underline.slide {
+        height: 10em;
+        margin: 0;
+    }
+
+    .slide span {
+        flex: 1;
+    }
+
+    .slide:first-child {
+        min-height: 60vh;
     }
 
     .slide:nth-child(2n) {
         background-color: var(--secondary-color);
+        z-index: 2;
     }
 
     .slide:not(:first-child) {
@@ -126,6 +156,12 @@
 
     .slide p {
         padding: 1em;
+    }
+
+    h1.slide {
+        padding: 3rem 1rem;
+        min-height: 10em;
+        height: 10em;
     }
 
     hr {
@@ -140,17 +176,39 @@
         left: 0;
         width: 100%;
         height: 100%;
+        z-index: -1;
         background-attachment: fixed;
         background-repeat: no-repeat;
+        background-position: center;
         background-size: cover;
     }
 
-    .grocWrapper p {
+    .material-icons-round {
+        background: var(--bg-color);
+        font-size: 6em;
+        padding: 0.5em;
+        border-radius: 50%;
+        margin: 0;
+        box-shadow: 3px 3px 3px #888;
+    }
+
+    .grocWrapper div:first-child {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .grocWrapper > p, .grocWrapper > div:first-child {
+        margin: 0;
         padding: 3rem 1em;
         box-sizing: border-box;
         max-height: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
         z-index: 1;
-        background: rgba(255, 255, 255, 0.7);
+        flex: 1;
+        background: rgba(210, 210, 255, 0.8);
         backdrop-filter: blur(8px);
     }
 
@@ -159,6 +217,12 @@
     }
 
     @media only screen and (min-width: 768px) {
+
+        .slide {
+            /*position: sticky;*/
+            /*top: 3rem;*/
+        }
+
         .with-img {
             flex-direction: row;
         }
@@ -166,5 +230,6 @@
         .with-img .imgWrapper, .with-img p {
             flex: 1;
         }
+
     }
 </style>

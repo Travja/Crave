@@ -19,6 +19,7 @@
     footer {
         position: relative;
         background: var(--bg-color);
+        z-index: 4;
     }
 
     hr {

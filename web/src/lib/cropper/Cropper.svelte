@@ -81,6 +81,20 @@
         sizes.set(newSizes);
 
         updating = cursor = undefined;
+
+        let bounds = svg.getBoundingClientRect();
+        for (let circle of circles) {
+            if (circle.y < -margin.top)
+                circle.y = -margin.top;
+            else if (circle.y > bounds.height - margin.top)
+                circle.y = bounds.height - margin.top;
+
+            if (circle.x < -margin.left)
+                circle.x = -margin.left;
+            else if (circle.x > bounds.width - margin.left)
+                circle.x = bounds.width - margin.left;
+        }
+
         circles = [...circles];
         dragged();
     };
@@ -245,23 +259,21 @@
         if (!svg) return;
         // console.log(svg.clientWidth, svg.clientHeight);
         let updated = false;
-        for (let circ of circles) {
-            let rightBound = circ.x + margin.left + circ.size;
-            let lowerBound = circ.y + margin.top + circ.size;
-            if (rightBound > svg.clientWidth) {
-                circ.x = svg.clientWidth - circ.size - margin.left;
+        let bounds = svg.getBoundingClientRect();
+        for (let circle of circles) {
+            if (circle.y < -margin.top) {
+                circle.y = -margin.top;
+                updated = true;
+            } else if (circle.y > bounds.height - margin.top) {
+                circle.y = bounds.height - margin.top;
                 updated = true;
             }
 
-            if (lowerBound > svg.clientHeight) {
-                circ.y = svg.clientHeight - circ.size - margin.top;
+            if (circle.x < -margin.left) {
+                circle.x = -margin.left;
+            } else if (circle.x > bounds.width - margin.left) {
+                circle.x = bounds.width - margin.left;
                 updated = true;
-            }
-
-            if (updated) {
-                let target = targetPoints[circ.index];
-                target[0] = circ.x;
-                target[1] = circ.y;
             }
         }
         if (updated) {
@@ -274,7 +286,7 @@
 
     let gate;
     onMount(() => {
-        isMobile = window.innerWidth <= 768;
+        isMobile = document.documentElement.clientWidth <= 768;
         img = new Image();
         utils = new Utils('errorMessage');
         gate = gateway();
@@ -290,7 +302,7 @@
     });
 
     const setup = () => {
-        if(img && image) {
+        if (img && image) {
             img.src = image.src;
             img.onload = () => {
                 imgWidth = img.width;
@@ -328,16 +340,16 @@
 
 <section>
     <input accept="image/*" bind:this={fileUpload} id="file-upload" on:change={newFile} type="file"/>
-<!--     class:hidden={!url}-->
+    <!--     class:hidden={!url}-->
     <div class="container">
         <div bind:clientWidth={backgroundWidth} bind:this={background}
              class="o_image"
              id="background">
-<!--                        <img id="sample" src="/cropper/bill.png" alt="bill"/>-->
+            <!--                        <img id="sample" src="/cropper/bill.png" alt="bill"/>-->
             <div bind:clientHeight={myHeight} bind:clientWidth={myWidth}
                  bind:this={wrap} class="imgWrapper">
                 <img class:hide={!image?.src} alt="Upload a Receipt" bind:this={image}
-                      src="{url}" on:load={setup}/>
+                     src="{url}" on:load={setup}/>
                 <div class:hide={image?.src}>Upload a Receipt</div>
             </div>
             <div class="wrapper" on:click={upload} style="{`--hover: ${!url ? 'pointer' : ''}`}">
@@ -443,7 +455,7 @@
 
     .imgWrapper img {
         position: relative;
-        height: 70vh;
+        max-height: 70vh;
         max-width: 100%;
         /*width: 100%;*/
     }
