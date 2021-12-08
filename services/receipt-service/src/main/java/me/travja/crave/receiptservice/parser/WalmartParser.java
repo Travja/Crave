@@ -195,7 +195,7 @@ public class WalmartParser implements ReceiptProcessor {
             receipt.getItems().forEach(item -> {
                 WalmartItem wItem = new WalmartItem();
                 wItem.setName(item.getDescription());
-                if (item.getImageUrl() != null-)
+                if (item.getImageUrl() != null)
                     wItem.setImage(item.getImageUrl().replace("odnHeight=180", "odnHeight=420").replace("odnWidth=180",
                             "odnWidth=420"));
                 wItem.setPrice(item.getUnitPrice() > 0d ? item.getUnitPrice() : item.getPrice());
