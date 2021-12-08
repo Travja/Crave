@@ -1,7 +1,5 @@
 package me.travja.crave.receiptservice.parser;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
 import me.travja.crave.common.models.item.ProductInformation;
 import me.travja.crave.common.models.store.Address;
 import me.travja.crave.receiptservice.WalmartRequest;
@@ -171,6 +169,7 @@ public class WalmartParser implements ReceiptProcessor {
 
         WalmartResponse.WalmartReceipt.WalmartStore.WalmartAddress walAddress = response.getReceipts().size() > 0 ?
                 response.getReceipts().get(0).getStore().getAddress() : null;
+        log.info("Address: " + walAddress.toString());
         if (list != null && walAddress != null) {
             Address address = new Address();
             address.setStreetAddress(walAddress.getAddressLineOne());

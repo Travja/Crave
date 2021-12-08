@@ -5,6 +5,7 @@ import me.travja.crave.common.conf.AppContext;
 import me.travja.crave.common.conf.Variables;
 import me.travja.crave.common.util.Communication;
 import me.travja.crave.common.util.Services;
+import org.apache.commons.lang.WordUtils;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.web.client.RestTemplate;
 
@@ -35,7 +36,9 @@ public class SimpleReceiptData {
     }
 
     public void setStreetAddress(String streetAddress) {
-        this.streetAddress = streetAddress.toUpperCase().replaceAll("\\bAVE\\b", "AVENUE");
+        this.streetAddress = WordUtils.capitalize(
+                WordUtils.uncapitalize(streetAddress).replaceAll("\\bave\\b", "avenue")
+        );
     }
 
     public boolean submit() {
@@ -45,10 +48,17 @@ public class SimpleReceiptData {
         return response != null ? response.success : false;
     }
 
+    @Getter
+    @AllArgsConstructor
     public enum ReceiptType {
-        WALMART,
-        TARGET,
-        UNKNOWN
+        WALMART("Walmart"),
+        TARGET("Target"),
+        HARMONS("Harmons"),
+        SMITHS("Smiths"),
+        WINCO("WinCo Foods"),
+        UNKNOWN("Unknown");
+
+        private String name;
     }
 
     @Data

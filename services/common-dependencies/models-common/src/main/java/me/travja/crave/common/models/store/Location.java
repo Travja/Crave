@@ -1,6 +1,7 @@
 package me.travja.crave.common.models.store;
 
 import lombok.*;
+import lombok.extern.slf4j.Slf4j;
 import me.travja.crave.common.conf.AppContext;
 import me.travja.crave.common.conf.Variables;
 import me.travja.crave.common.models.AzureResponse;
@@ -12,6 +13,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import java.util.Objects;
 
+@Slf4j
 @Getter
 @Setter
 @Entity
@@ -55,17 +57,25 @@ public class Location {
     }
 
     public static Location fromAddress(String address) {
+        return fromAddress(address, new Location(41, -111));
+    }
+
+    public static Location fromAddress(String address, Location preferredLoc) {
+        log.info("Looking up location for " + address);
         RestTemplate restTemplate = AppContext.getBean(RestTemplate.class);
         Variables    variables    = AppContext.getBean(Variables.class);
         String url = "https://atlas.microsoft.com/search/fuzzy/json" +
                 "?api-version=1.0" +
                 "&query=" + address +
                 "&subscription-key=" + variables.AZURE_KEY +
-                "&lat=41" +
-                "&lon=-111";
+                "&lat=" + preferredLoc.getLat() +
+                "&lon=" + preferredLoc.getLon();
+
+        log.info(url);
 
         AzureResponse res = restTemplate.getForObject(url, AzureResponse.class);
 
+        log.info("Response: " + res.toString());
         if (res.getResults().isEmpty())
             return new Location(0, 0);
         else

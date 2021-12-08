@@ -9,7 +9,7 @@ public class Variables {
     @Value("${SERVICE_KEY}")
     public String SERVICE_KEY;
 
-    @Value("${VITE_AZURE_KEY")
+    @Value("${VITE_AZURE_KEY}")
     public String AZURE_KEY;
 
 }

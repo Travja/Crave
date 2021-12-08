@@ -3,19 +3,18 @@ package me.travja.crave.itemservice;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import me.travja.crave.common.AsyncCaller;
 import me.travja.crave.common.annotations.CraveController;
 import me.travja.crave.common.models.ResponseObject;
 import me.travja.crave.common.models.item.*;
 import me.travja.crave.common.models.item.SimpleReceiptData.ReceiptType;
 import me.travja.crave.common.models.store.Location;
 import me.travja.crave.common.models.store.Store;
-import me.travja.crave.common.AsyncCaller;
 import me.travja.crave.common.repositories.ItemService;
 import me.travja.crave.common.repositories.PendingDetailsRepository;
 import me.travja.crave.common.repositories.StoreRepository;
 import me.travja.crave.common.util.Formatter;
 import me.travja.crave.common.views.CraveViews.DetailsView;
-import org.apache.commons.lang.WordUtils;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,8 +33,8 @@ public class ItemReceiptRestController {
 
     private final ItemService              itemService;
     private final PendingDetailsRepository pendingRepo;
-    private final StoreRepository storeRepo;
-    private final AsyncCaller     async;
+    private final StoreRepository          storeRepo;
+    private final AsyncCaller              async;
 
     @PostMapping
     @Transactional
@@ -45,14 +44,15 @@ public class ItemReceiptRestController {
                 ? auth.getAuthorities().stream().map(at -> at.getAuthority()).collect(Collectors.toList())
                 : new ArrayList<>();
         try {
-            System.out.println(data);
+            log.info(data.toString());
             ReceiptType type      = data.getReceiptType();
-            String      storeName = WordUtils.capitalize(type.toString());
+            String      storeName = type.getName();
             int         updated   = 0;
 
             Map<ItemDetails, Double> pricesUpdated = new HashMap<>();
             List<PendingDetails>     pending       = new ArrayList<>();
 
+            log.info("Test");
             for (ProductInformation prod : data.getProductData()) {
                 if (prod.getPrice() <= 0) continue;
 
@@ -62,6 +62,7 @@ public class ItemReceiptRestController {
 
                 store.ifPresentOrElse((stor) -> {
                     Optional<ItemDetails> details = item.getDetails(stor);
+                    log.info("Store is present: " + stor.toString());
                     details.ifPresentOrElse((dets) -> {
                                 double originalPrice = dets.getPrice();
 
@@ -92,13 +93,13 @@ public class ItemReceiptRestController {
                             },
                             () -> item.getDetails().add(new ItemDetails(item, stor, prod.getPrice())));
                 }, () -> { //Otherwise, if store is null
+                    log.info("Store is missing...");
                     Store stor = new Store();
 
                     Location loc =
                             Location.fromAddress(data.getStreetAddress() + " " + data.getCity() + " " + data.getState());
 
                     stor.setName(storeName);
-                    //TODO Standardize addresses. Maybe link to Azure results.
                     stor.setStreetAddress(data.getStreetAddress());
                     stor.setCity(data.getCity());
                     stor.setState(data.getState());
@@ -113,6 +114,7 @@ public class ItemReceiptRestController {
                 item.update(prod, authorities);
                 itemService.save(item);
                 updated++;
+                log.info("Updated item: " + item.getName());
             }
 
             ResponseObject res = ResponseObject.success("updated", updated, "pending", pending);

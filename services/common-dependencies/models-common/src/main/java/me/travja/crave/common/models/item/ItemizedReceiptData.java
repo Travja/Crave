@@ -17,7 +17,7 @@ public class ItemizedReceiptData extends SimpleReceiptData {
     public ItemizedReceiptData(MultiValueMap<String, String> map) {
         map.keySet().forEach(key -> System.out.println(key + ": " + map.get(key)));
 
-        receiptType = ReceiptType.valueOf(map.getFirst("store-select").toUpperCase());
+        receiptType = ReceiptType.valueOf(map.getFirst("store-select").toUpperCase().replace("'", "").split(" ")[0]);
 
         setStreetAddress(map.getFirst("address"));
         setCity(map.getFirst("city"));
@@ -25,12 +25,18 @@ public class ItemizedReceiptData extends SimpleReceiptData {
 
         int index = 0;
         while (map.containsKey("item-" + ++index + "-name")) {
-            String name  = map.getFirst("item-" + index + "-name");
-            String upc   = map.getFirst("item-" + index + "-upc");
-            double price = Double.parseDouble(map.getFirst("item-" + index + "-price"));
+            if (map.getFirst("item-" + index + "-name").isEmpty()) continue;
 
-            ProductInformation info = new ProductInformation(name, upc, null, null, price);
-            getProductData().add(info);
+            try {
+                String name  = map.getFirst("item-" + index + "-name");
+                String upc   = map.getFirst("item-" + index + "-upc");
+                double price = Double.parseDouble(map.getFirst("item-" + index + "-price"));
+
+                ProductInformation info = new ProductInformation(name, upc, null, null, price);
+                getProductData().add(info);
+            } catch (Exception e) {
+                continue;
+            }
         }
     }
 
