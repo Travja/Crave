@@ -41,7 +41,6 @@
         background-color: white;
         max-width: 100%;
         max-height: 10em;
-        padding: 1em;
     }
 
     @media only screen and (min-width: 768px) {
@@ -74,6 +73,8 @@
     }
 
     .content {
+        box-sizing: border-box;
+        padding: 1em;
         color: white;
         text-shadow: 2px 2px 4px #333;
         width: 100%;

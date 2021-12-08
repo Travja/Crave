@@ -36,8 +36,8 @@ public class SimpleReceiptData {
     }
 
     public void setStreetAddress(String streetAddress) {
-        this.streetAddress = WordUtils.capitalize(
-                WordUtils.uncapitalize(streetAddress).replaceAll("\\bave\\b", "avenue")
+        this.streetAddress = WordUtils.capitalizeFully(
+                streetAddress.toLowerCase().replaceAll("\\bave\\b", "avenue")
         );
     }
 

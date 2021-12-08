@@ -177,15 +177,15 @@ public class Queries {
                     byNameAndStore      =
                     """
                     select distinct id from (
-                      select i.id, min(i.name) as name, min(s2.new_price) as sale, min(d.price) as min
+                      select i.id, min(i.name) as name, min(s2.new_price) as sale, min(d.price) as min,
+                      regexp_like(group_concat(s.name), :storeName) names
                       from item i
                         left outer join item_details d on d.item_id = i.id
                         left outer join store s on s.id = d.store_id
-                        left outer join sale s2 on d.id = s2.item_id
+                        left outer join sale s2 on d.id = s2.item_id and s2.end_date > CURRENT_DATE
                       where i.name like :name
-                        and regexp_like(s.name, :storeName) > 0
-                        and (s2.new_price is null or s2.end_date > CURRENT_DATE)
                       group by i.id
+                      having names > 0
                       order by sale asc, min asc, name asc
                       limit :limit
                       offset :offset
@@ -199,10 +199,9 @@ public class Queries {
                               from item i
                                 left outer join item_details d on d.item_id = i.id
                                 left outer join store s on s.id = d.store_id
-                                left outer join sale s2 on d.id = s2.item_id
+                                left outer join sale s2 on d.id = s2.item_id and s2.end_date > CURRENT_DATE
                               where i.name like :name
                                 and s.id like :storeId
-                                and (s2.new_price is null or s2.end_date > CURRENT_DATE)
                               group by i.id
                               order by sale asc, min asc, name asc
                               limit :limit
@@ -223,7 +222,7 @@ public class Queries {
                               from item i
                                left outer join item_details d on d.item_id = i.id
                                left outer join store s on s.id = d.store_id
-                               left outer join sale s2 on d.id = s2.item_id
+                               left outer join sale s2 on d.id = s2.item_id and s2.end_date > CURRENT_DATE
                                left join location l on l.id = s.location_id
                               where i.name like :name
                               group by i.id
@@ -239,15 +238,16 @@ public class Queries {
                     byNameandStore      =
                     """
                     select distinct id from (
-                      select i.id, min(i.name) as name, min(s2.new_price) as sale, min(d.price) as min
+                      select i.id, min(i.name) as name, min(s2.new_price) as sale, min(d.price) as min,
+                      regexp_like(group_concat(s.name), :storeName) names
                       from item i
                         left outer join item_details d on d.item_id = i.id
                         left outer join store s on s.id = d.store_id
-                        left outer join sale s2 on d.id = s2.item_id
+                        left outer join sale s2 on d.id = s2.item_id and s2.end_date > CURRENT_DATE
                       where i.name like :name
                         and regexp_like(s.name, :storeName) > 0
-                        and (s2.new_price is null or s2.end_date > CURRENT_DATE)
                       group by i.id
+                      having names > 0
                       order by sale desc, min desc, name asc
                       limit :limit
                       offset :offset
@@ -261,10 +261,9 @@ public class Queries {
                               from item i
                                 left outer join item_details d on d.item_id = i.id
                                 left outer join store s on s.id = d.store_id
-                                left outer join sale s2 on d.id = s2.item_id
+                                left outer join sale s2 on d.id = s2.item_id and s2.end_date > CURRENT_DATE
                               where i.name like :name
                                 and s.id like :storeId
-                                and (s2.new_price is null or s2.end_date > CURRENT_DATE)
                               group by i.id
                               order by sale desc, min desc, name asc
                               limit :limit
@@ -285,7 +284,7 @@ public class Queries {
                               from item i
                                left outer join item_details d on d.item_id = i.id
                                left outer join store s on s.id = d.store_id
-                               left outer join sale s2 on d.id = s2.item_id
+                               left outer join sale s2 on d.id = s2.item_id and s2.end_date > CURRENT_DATE
                                left join location l on l.id = s.location_id
                               where i.name like :name
                               group by i.id

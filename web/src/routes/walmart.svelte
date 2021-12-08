@@ -29,8 +29,17 @@
             body
         })
             .then(res => res.json())
-            .then(data => console.log(data))
-            .catch(e => console.err);
+            .then(data => {
+                if (data.status && data.status != 200) {
+                    alert("Something went wrong... (" + data.error + ")");
+                    return;
+                }
+                console.log(data);
+            })
+            .catch(e => {
+                alert("Something went wrong when processing this request.");
+                console.err(e);
+            });
         // formSubmit(form, (data) => {
         //     console.log(data);
         // });

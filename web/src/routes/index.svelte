@@ -9,7 +9,7 @@
 </script>
 
 <div class="head hcenter">
-    <h1 class="underline">Welcome to Crave!</h1>
+    <h1>Welcome to <img src="/logo.gif"/></h1>
     <em>Shop Smart, Shop Efficient</em>
 </div>
 <section>
@@ -99,6 +99,14 @@
     h1 {
         font-size: 2rem;
         text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    h1 img {
+        max-height: 1.5em;
+        margin-left: 0.2em;
     }
 
     h3 {

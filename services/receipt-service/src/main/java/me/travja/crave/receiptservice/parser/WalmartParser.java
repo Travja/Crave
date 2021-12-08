@@ -1,5 +1,7 @@
 package me.travja.crave.receiptservice.parser;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import me.travja.crave.common.models.item.ProductInformation;
 import me.travja.crave.common.models.store.Address;
 import me.travja.crave.receiptservice.WalmartRequest;
@@ -128,7 +130,7 @@ public class WalmartParser implements ReceiptProcessor {
                 "Purchase Date: " + purchaseDate + " -- Total: " + total);
 
         List<WalmartItem> fetchedItems =
-                getItems(new WalmartRequest(storeId, lastFourDigits, purchaseDate, cardType, total), list);
+                getItems(new WalmartRequest(storeId, lastFourDigits, purchaseDate, cardType, total), list).getItems();
 
         fetchedItems.forEach(System.out::println);
 
@@ -155,7 +157,7 @@ public class WalmartParser implements ReceiptProcessor {
         return null;
     }
 
-    public List<WalmartItem> getItems(WalmartRequest req, List<String> list) throws IllegalArgumentException {
+    public WalmartData getItems(WalmartRequest req, List<String> list) throws IllegalArgumentException {
         if (req.getStoreId().isEmpty() || req.getLastFourDigits().isEmpty() || req.getPurchaseDate().isEmpty()
                 || req.getCardType().isEmpty() || req.getTotal() == 0)
             throw new ReceiptParseException("Invalid data supplied.");
@@ -163,7 +165,8 @@ public class WalmartParser implements ReceiptProcessor {
         if (req.getLastFourDigits().length() != 4)
             throw new ReceiptParseException("Card number not 4 digits");
 
-        String url = "https://www.walmart.com/chcwebapp/api/receipts";
+        Address address = null;
+        String  url     = "https://www.walmart.com/chcwebapp/api/receipts";
 
         WalmartResponse response = restTemplate.postForObject(url, req, WalmartResponse.class);
 
@@ -171,7 +174,7 @@ public class WalmartParser implements ReceiptProcessor {
                 response.getReceipts().get(0).getStore().getAddress() : null;
         log.info("Address: " + walAddress.toString());
         if (list != null && walAddress != null) {
-            Address address = new Address();
+            address = new Address();
             address.setStreetAddress(walAddress.getAddressLineOne());
             Pattern statePat = Pattern.compile("\\b\\w{2}\\b");
             Matcher mat      = statePat.matcher(walAddress.getAddressLineTwo());
@@ -202,7 +205,14 @@ public class WalmartParser implements ReceiptProcessor {
             });
         });
 
-        return items;
+        return new WalmartData(items, address);
+    }
+
+    @Data
+    @AllArgsConstructor
+    public static class WalmartData {
+        private List<WalmartItem> items = new ArrayList<>();
+        private Address           address;
     }
 
     /**

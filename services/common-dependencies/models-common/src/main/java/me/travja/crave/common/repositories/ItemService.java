@@ -2,6 +2,7 @@ package me.travja.crave.common.repositories;
 
 import lombok.extern.slf4j.Slf4j;
 import me.travja.crave.common.models.SortStrategy;
+import me.travja.crave.common.models.item.Detail;
 import me.travja.crave.common.models.item.Item;
 import me.travja.crave.common.models.item.ItemDetails;
 import me.travja.crave.common.models.item.PendingDetails;
@@ -35,7 +36,7 @@ public record ItemService(ItemsRepository itemsRepo,
     }
 
     private Set<ItemDetails> cleanDetails(Set<ItemDetails> list) {
-        list.forEach(ItemDetails::cleanSales);
+        list.forEach(Detail::cleanSales);
 //        list.removeAll(
 //                list.stream()
 //                        .filter(det -> det instanceof PendingDetails)
@@ -202,7 +203,7 @@ public record ItemService(ItemsRepository itemsRepo,
                               double distance, SortStrategy sortStrategy, Pageable pageable) {
         if (store == null) store = ".*";
         else if (!store.startsWith(".") && !store.startsWith("("))
-            store = "(" + String.join("|", store.trim().split(",")) + ")";
+            store = "(" + String.join("|", store.toLowerCase().trim().split(",")) + ")";
 
         return switch (sortStrategy) {
             case ALPHABETICAL -> itemsRepo.findIds(name, store, lat, lon, distance, pageable.getPageSize(), pageable.getOffset());
@@ -214,7 +215,8 @@ public record ItemService(ItemsRepository itemsRepo,
     public Page<Item> getItems(List<Long> ids, Pageable pageable) {
         log.info("Querying db for items with the appropriate ids.");
         Page<Item> items = itemsRepo.findAllByIdIn(ids.stream().collect(Collectors.toList()), PageRequest.of(0,
-                pageable.getPageSize(), pageable.getSort()));
+                pageable.getPageSize() + 1, pageable.getSort()));
+        items.forEach(itm -> log.info(itm.toString()));
         log.info("Found " + items.getNumberOfElements() + " items.");
         log.info("*********************");
         return clean(items);

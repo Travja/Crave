@@ -32,7 +32,6 @@ import java.util.stream.Collectors;
 public class ItemReceiptRestController {
 
     private final ItemService              itemService;
-    private final PendingDetailsRepository pendingRepo;
     private final StoreRepository          storeRepo;
     private final AsyncCaller              async;
 

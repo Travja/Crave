@@ -174,8 +174,8 @@ export const haversineDistance = (c1 = {lat: 0, lon: 0}, c2 = {lat: 0, lon: 0}) 
 export const formatDate = date => {
     if (!date) return "No date";
     let formatted_date =
-        (date.getMonth() + 1) + "-" +
-        (date.getDate() + 1) + "-" +
+        ("00" + (date.getMonth() + 1)).slice(-2) + "-" +
+        ("00" + (date.getDate() + 1)).slice(-2) + "-" +
         date.getFullYear();
     return formatted_date;
 }

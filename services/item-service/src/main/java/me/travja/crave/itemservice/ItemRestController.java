@@ -2,6 +2,7 @@ package me.travja.crave.itemservice;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import me.travja.crave.common.annotations.CraveController;
 import me.travja.crave.common.models.ResponseObject;
 import me.travja.crave.common.models.SortStrategy;
@@ -25,6 +26,7 @@ import java.util.stream.Collectors;
 import static me.travja.crave.common.views.CraveViews.DetailsView;
 import static me.travja.crave.common.views.CraveViews.ItemView;
 
+@Slf4j
 @RequiredArgsConstructor
 @CraveController("/items")
 public class ItemRestController {
@@ -52,32 +54,32 @@ public class ItemRestController {
         else
             items = itemService.getAllFromStore(query, store, sortStrategy, pg);
 
-        List<String> stores = new ArrayList<>();
-        if (store != null && !store.isEmpty())
-            stores = Arrays.stream(store.split(",")).map(str -> str.toLowerCase()).collect(Collectors.toList());
-
-        Location location = null;
-        if (lat != null && lon != null)
-            location = new Location(lat, lon);
-
-        if (!stores.isEmpty() || distance != null) {
-            for (Item item : items) {
-                Location     finalLocation = location;
-                List<String> finalStores   = stores;
-                Set<ItemDetails> details = item.getDetails().stream().filter(dets -> {
-                    boolean good = true;
-                    if (store != null && !finalStores.isEmpty() && !finalStores.contains(dets.getStore().getName().toLowerCase()))
-                        good = false;
-
-                    if (good && distance != null && distance > 0 && finalLocation != null)
-                        good = dets.getStore().getDistance(finalLocation) <= distance;
-
-                    return good;
-                }).collect(Collectors.toSet());
-
-                item.setDetails(details);
-            }
-        }
+//        List<String> stores = new ArrayList<>();
+//        if (store != null && !store.isEmpty())
+//            stores = Arrays.stream(store.split(",")).map(str -> str.toLowerCase()).collect(Collectors.toList());
+//
+//        Location location = null;
+//        if (lat != null && lon != null)
+//            location = new Location(lat, lon);
+//
+//        if (!stores.isEmpty() || distance != null) {
+//            for (Item item : items) {
+//                Location     finalLocation = location;
+//                List<String> finalStores   = stores;
+//                Set<ItemDetails> details = item.getDetails().stream().filter(dets -> {
+//                    boolean good = true;
+//                    if (store != null && !finalStores.isEmpty() && !finalStores.contains(dets.getStore().getName().toLowerCase()))
+//                        good = false;
+//
+//                    if (good && distance != null && distance > 0 && finalLocation != null)
+//                        good = dets.getStore().getDistance(finalLocation) <= distance;
+//
+//                    return good;
+//                }).collect(Collectors.toSet());
+//
+//                item.setDetails(details);
+//            }
+//        }
 
         if (auth != null) {
             Optional<CraveUser> user = userRepo.findByUsernameIgnoreCase(auth.getName());
@@ -88,6 +90,9 @@ public class ItemRestController {
             }
         }
 
+
+        items.forEach(itm ->
+                itm.getDetails().forEach(itemDetails -> log.info(String.valueOf(itemDetails.getPrice()))));
         return items;
     }
 
