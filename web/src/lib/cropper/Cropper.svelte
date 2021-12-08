@@ -5,6 +5,7 @@
     import {gateway} from "$lib/variables.js";
     import {formSubmit} from "$lib/util.js";
     import {spring} from "svelte/motion";
+    import {goto} from "$app/navigation";
 
     let margin = {top: 40, right: 40, bottom: 40, left: 40};
     let gTransform = `translate(${margin.left}, ${margin.top})`;
@@ -325,7 +326,8 @@
             submitting = false;
             alert("Receipt submitted successfully");
             //TODO Eventually allow approval of submitted receipt data.
-            location.reload();
+            // location.reload();
+            goto("/items");
         });
     };
 

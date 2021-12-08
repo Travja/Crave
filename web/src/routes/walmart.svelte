@@ -2,6 +2,7 @@
     import {gateway, title} from "$lib/variables.js";
     import {formatDate} from "$lib/util.js";
     import {onMount} from "svelte";
+    import {goto} from "$app/navigation";
 
     title.set("Walmart Entry");
 
@@ -35,6 +36,8 @@
                     return;
                 }
                 console.log(data);
+                alert("Receipt info submitted successfully!");
+                goto("/items");
             })
             .catch(e => {
                 alert("Something went wrong when processing this request.");

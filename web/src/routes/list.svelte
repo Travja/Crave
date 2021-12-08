@@ -253,6 +253,7 @@
         items[index].text = e.target.innerText;
         focused = -1;
         getApplicableItems(e, index);
+        saveList();
     };
 
     const check = index => {

@@ -5,6 +5,7 @@
     import {formSubmit} from "$lib/util";
     import StoreSelector from "$lib/ui/StoreSelector.svelte";
     import {onMount} from "svelte";
+    import {goto} from "$app/navigation";
 
     title.set("Scan");
 
@@ -36,7 +37,13 @@
         //TODO Validate the form before submission.
         console.log(manForm);
         formSubmit(manForm, (data) => {
+            if (data.error) {
+                alert("There was a problem processing these items.", data.message);
+                return;
+            }
             console.log(data);
+
+            goto("/items");
         });
     };
 
