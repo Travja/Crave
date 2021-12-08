@@ -90,9 +90,6 @@ public class ItemRestController {
             }
         }
 
-
-        items.forEach(itm ->
-                itm.getDetails().forEach(itemDetails -> log.info(String.valueOf(itemDetails.getPrice()))));
         return items;
     }
 
