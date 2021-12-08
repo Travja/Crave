@@ -49,4 +49,15 @@ public class PendingRestController {
         pending.approve();
     }
 
+    @Transactional
+    @PostMapping("/reject/{id}")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void reject(@PathVariable long id) throws NotFoundException {
+        PendingDetails pending = itemService.getPending(id);
+        if (pending == null) throw new NotFoundException("Item by that ID was not found.");
+
+        itemService.delete(pending);
+    }
+
 }

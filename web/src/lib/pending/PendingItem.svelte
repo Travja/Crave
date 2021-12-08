@@ -36,7 +36,7 @@
     };
 
     const reject = () => {
-        fetch(`${gateway()}/sale-service/sale/reject/${id}`, {method: "POST"})
+        fetch(`${gateway()}/item-service/pending/reject/${id}`, {method: "POST"})
             .then(res => {
                 console.log(res);
                 if (res.status == 204) {
