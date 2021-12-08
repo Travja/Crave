@@ -32,7 +32,7 @@ public class ItemizedReceiptData extends SimpleReceiptData {
                 String upc   = map.getFirst("item-" + index + "-upc");
                 double price = Double.parseDouble(map.getFirst("item-" + index + "-price"));
 
-                ProductInformation info = new ProductInformation(name, upc, null, null, price);
+                ProductInformation info = new ProductInformation(name, new UPC(upc).getUPC(), null, null, price);
                 getProductData().add(info);
             } catch (Exception e) {
                 continue;

@@ -43,7 +43,6 @@ public class ItemReceiptRestController {
                 ? auth.getAuthorities().stream().map(at -> at.getAuthority()).collect(Collectors.toList())
                 : new ArrayList<>();
         try {
-            log.info(data.toString());
             ReceiptType type      = data.getReceiptType();
             String      storeName = type.getName();
             int         updated   = 0;
@@ -51,7 +50,6 @@ public class ItemReceiptRestController {
             Map<ItemDetails, Double> pricesUpdated = new HashMap<>();
             List<PendingDetails>     pending       = new ArrayList<>();
 
-            log.info("Test");
             for (ProductInformation prod : data.getProductData()) {
                 if (prod.getPrice() <= 0) continue;
 
