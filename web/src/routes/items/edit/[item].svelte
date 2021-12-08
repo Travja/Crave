@@ -51,4 +51,6 @@
     // };
 </script>
 
-<FullItemPage editable="true" {item} {items} {src}/>
+{#if item}
+    <FullItemPage editable="true" {item} {items} {src}/>
+{/if}

@@ -99,8 +99,6 @@
             }
         });
     };
-
-    //TODO Hook up registration form properly
 </script>
 
 <div class="full vcenter hcenter">
