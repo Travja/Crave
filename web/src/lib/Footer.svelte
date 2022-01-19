@@ -12,7 +12,7 @@
         <a class="button" href="mailto:the.only.t.craft@gmail.com">Contact Me!</a>
         <DiscordButton fontSize="1"/>
     </div>
-    <div class="copy">&copy;2021 Travja</div>
+    <div class="copy">&copy;2022 Travja</div>
 </footer>
 
 <style>

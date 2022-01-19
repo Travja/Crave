@@ -129,7 +129,7 @@
     onMount(async () => {
         // gateway = variables.gateway ? variables.gateway : window.location.origin;
         gate = gateway();
-        currentPage = $page.query.get("page") ? $page.query.get("page") : 0;
+        currentPage = $page.url.searchParams.get("page") ? $page.url.searchParams.get("page") : 0;
 
         await loadShoppingList();
         await getItems();

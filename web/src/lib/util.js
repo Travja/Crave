@@ -14,7 +14,7 @@ export const overrideFetch = () => {
         if (!jwt) return ff.apply(this, arguments);
 
         let args = [...arguments];
-        if (args[0].includes("crave") || args[0].includes("localhost")) {
+        if (args[0].includes("crave") || args[0].includes("localhost") || args[0].includes("127.0.0.1")) {
             // console.log(args);
             if (args.length >= 2) {
                 if (!args[1])

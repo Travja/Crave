@@ -47,7 +47,7 @@
     let mounted = false;
     $: if (mounted) {
         for (let pg of pages) {
-            if ($page.path == pg.path) {
+            if ($page.url.pathname == pg.path) {
                 if (pg.auth && !$loggedIn) {
                     requireLogin = true;
                     prompt = true;
@@ -102,7 +102,7 @@
                 {#if !pg.hidden}
                     {#if pg.auth && $loggedIn || !pg.auth}
                         <a sveltekit:prefetch href={pg.path}
-                           class:active={$page.path === pg.path}>
+                           class:active={$page.url.pathname === pg.path}>
                             <li>{pg.title}</li>
                         </a>
                     {/if}

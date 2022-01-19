@@ -33,8 +33,8 @@
 
     title.set("Post a Sale");
 
-    let upc = $page.query.get("item");
-    let store = $page.query.get("store");
+    let upc = $page.url.searchParams.get("item");
+    let store = $page.url.searchParams.get("store");
 
     let selector, saleForm, newPrice;
 

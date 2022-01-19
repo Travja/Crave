@@ -11,6 +11,8 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const pipe = promisify(pipeline);
 
+const files = fileURLToPath(new URL('./files', import.meta.url));
+
 /**
  * @typedef {import('esbuild').BuildOptions} BuildOptions
  */
@@ -31,88 +33,45 @@ export default function ({
     return {
         name: 'travja-node',
 
-        async adapt({utils, config}) {
-            utils.rimraf(out);
+        async adapt(builder) {
+            builder.rimraf(out);
 
-            utils.log.minor('Copying assets');
-            const static_directory = join(out, 'assets');
-            utils.copy_client_files(static_directory);
-            utils.copy_static_files(static_directory);
+            builder.log.minor('Copying assets');
+            builder.writeClient(`${out}/client`);
+            builder.writeServer(`${out}/server`);
+            builder.writeStatic(`${out}/static`);
 
-            if (precompress) {
-                utils.log.minor('Compressing assets');
-                await compress(static_directory);
-            }
+            builder.log.minor('Prerendering static pages');
+            await builder.prerender({
+                dest: `${out}/prerendered`
+            });
 
-            utils.log.minor('Building SvelteKit middleware');
-            const files = fileURLToPath(new URL('./files', import.meta.url));
-            utils.copy(files, '.svelte-kit/node');
             writeFileSync(
-                '.svelte-kit/node/env.js',
-                `export const path = process.env[${JSON.stringify(
-                    path_env
-                )}] || false;\nexport const host = process.env[${JSON.stringify(
-                    host_env
-                )}] || '0.0.0.0';\nexport const port = process.env[${JSON.stringify(
-                    port_env
-                )}] || (!path && 3000);`
+                `${out}/manifest.js`,
+                `export const manifest = ${builder.generateManifest({
+                    relativePath: './server'
+                })};\n`
             );
 
-            /** @type {BuildOptions} */
-            const defaultOptions = {
-                entryPoints: ['.svelte-kit/node/middlewares.js'],
-                outfile: join(out, 'middlewares.js'),
-                bundle: true,
-                external: Object.keys(JSON.parse(readFileSync('package.json', 'utf8')).dependencies || {}),
-                format: 'esm',
-                platform: 'node',
-                target: 'node12',
-                inject: [join(files, 'shims.js')],
-                define: {
-                    APP_DIR: `"/${config.kit.appDir}/"`
+            builder.copy(files, out, {
+                replace: {
+                    APP     : './server/app.js',
+                    MANIFEST: './manifest.js',
+                    PATH_ENV: JSON.stringify(path_env),
+                    HOST_ENV: JSON.stringify(host_env),
+                    PORT_ENV: JSON.stringify(port_env)
                 }
-            };
-            const build_options = esbuild_config ? await esbuild_config(defaultOptions) : defaultOptions;
-            await esbuild.build(build_options);
+            });
 
-            utils.log.minor('Building SvelteKit server');
+            if (precompress) {
+                builder.log.minor('Compressing assets');
+                await compress(`${out}/client`);
+                await compress(`${out}/static`);
+                await compress(`${out}/prerendered`);
+            }
 
             copyFileSync(serverFile, join(`${out}`, `index.js`));
             copyFileSync(`${__dirname}/files/package.json`, join(`${out}`, `package.json`));
-
-            /** @type {BuildOptions} */
-            // const default_options_ref_server = {
-            //     entryPoints: [entryPoint],
-            //     outfile: join(out, 'index.js'),
-            //     bundle: true,
-            //     external: ['./middlewares.js'], // does not work, eslint does not exclude middlewares from target
-            //     format: 'esm',
-            //     platform: 'node',
-            //     target: 'node12',
-            //     // external exclude workaround, see https://github.com/evanw/esbuild/issues/514
-            //     plugins: [
-            //         {
-            //             name: 'fix-middlewares-exclude',
-            //             setup(build) {
-            //                 // Match an import called "./middlewares.js" and mark it as external
-            //                 build.onResolve({filter: /^\.\/middlewares\.js$/}, () => ({external: true}));
-            //             }
-            //         }
-            //     ]
-            // };
-            // const build_options_ref_server = esbuild_config
-            //     ? await esbuild_config(default_options_ref_server)
-            //     : default_options_ref_server;
-            // await esbuild.build(build_options_ref_server);
-
-            utils.log.minor('Prerendering static pages');
-            await utils.prerender({
-                dest: `${out}/prerendered`
-            });
-            if (precompress && existsSync(`${out}/prerendered`)) {
-                utils.log.minor('Compressing prerendered pages');
-                await compress(`${out}/prerendered`);
-            }
         }
     };
 }
@@ -121,10 +80,14 @@ export default function ({
  * @param {string} directory
  */
 async function compress(directory) {
+    if (!existsSync(directory)) {
+        return;
+    }
+
     const files = await glob('**/*.{html,js,json,css,svg,xml}', {
-        cwd: directory,
-        dot: true,
-        absolute: true,
+        cwd      : directory,
+        dot      : true,
+        absolute : true,
         filesOnly: true
     });
 
@@ -139,17 +102,17 @@ async function compress(directory) {
  */
 async function compress_file(file, format = 'gz') {
     const compress =
-        format == 'br'
-            ? zlib.createBrotliCompress({
-                params: {
-                    [zlib.constants.BROTLI_PARAM_MODE]: zlib.constants.BROTLI_MODE_TEXT,
-                    [zlib.constants.BROTLI_PARAM_QUALITY]: zlib.constants.BROTLI_MAX_QUALITY,
-                    [zlib.constants.BROTLI_PARAM_SIZE_HINT]: statSync(file).size
-                }
-            })
-            : zlib.createGzip({level: zlib.constants.Z_BEST_COMPRESSION});
+              format == 'br'
+              ? zlib.createBrotliCompress({
+                  params: {
+                      [zlib.constants.BROTLI_PARAM_MODE]     : zlib.constants.BROTLI_MODE_TEXT,
+                      [zlib.constants.BROTLI_PARAM_QUALITY]  : zlib.constants.BROTLI_MAX_QUALITY,
+                      [zlib.constants.BROTLI_PARAM_SIZE_HINT]: statSync(file).size
+                  }
+              })
+              : zlib.createGzip({ level: zlib.constants.Z_BEST_COMPRESSION });
 
-    const source = createReadStream(file);
+    const source      = createReadStream(file);
     const destination = createWriteStream(`${file}.${format}`);
 
     await pipe(source, compress, destination);

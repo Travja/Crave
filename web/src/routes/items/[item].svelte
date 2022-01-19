@@ -5,7 +5,8 @@
 
     let itemId;
 
-    export async function load({page, fetch}) {
+    export async function load(page) {
+        console.log(page);
         return itemId = page.params.item;
     }
 </script>
